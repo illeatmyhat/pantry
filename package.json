@@ -5,10 +5,23 @@
   "description": "The USDA SR Legacy dataset as pay-per-import modules, localized, with a toolkit for building ingredient layers on top.",
   "license": "MIT",
   "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/toolkit/index.d.ts",
+      "default": "./dist/toolkit/index.js"
+    },
+    "./sr/*/full": "./generated/sr/*.full.js",
+    "./sr/*": "./generated/sr/*.js",
+    "./manifest.json": "./generated/manifest.json"
+  },
+  "bin": {
+    "pantry": "./dist/toolkit/cli.js"
+  },
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "build": "tsx src/generator/build.ts"
+    "build": "tsx src/generator/build.ts",
+    "build:toolkit": "tsc -p tsconfig.build.json"
   },
   "repository": {
     "type": "git",
@@ -23,5 +36,8 @@
     "tsx": "^4.22.4",
     "typescript": "^6.0.3",
     "vitest": "^4.1.8"
+  },
+  "dependencies": {
+    "yaml": "^2.9.0"
   }
 }

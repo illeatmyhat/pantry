@@ -64,8 +64,11 @@ The short version:
 
 ## Status
 
-Scaffold. The generator, toolkit, and translations are being built — see the
-issue tracker.
+Generator and toolkit are built and tested: the full module tree generates
+reproducibly from the vendored zip (invariant suite included), and
+`derive` / `defineFood` / `localize`, the YAML overlay loader, and
+`pantry search` all work against it. Launch translations (ja-JP, zh-CN) are
+next; not yet published.
 
 ## License
 

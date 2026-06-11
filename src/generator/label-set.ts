@@ -11,25 +11,9 @@
  * Coverage is complete (7,793) only for calories/protein/fat/carbohydrate;
  * everything else is null where SR has no row. Amounts are per 100 g.
  */
-export const LABEL_KEYS = [
-  'calories',
-  'fat',
-  'saturated_fat',
-  'trans_fat',
-  'cholesterol',
-  'sodium',
-  'carbohydrate',
-  'fiber',
-  'sugars',
-  'protein',
-  'vitamin_d',
-  'calcium',
-  'iron',
-  'potassium',
-] as const;
+import { LABEL_KEYS, type LabelKey, type LabelNutrients } from '../toolkit/food.js';
 
-export type LabelKey = (typeof LABEL_KEYS)[number];
-export type LabelNutrients = Record<LabelKey, number | null>;
+export { LABEL_KEYS, type LabelKey, type LabelNutrients };
 
 export interface LabelSetEntry {
   readonly key: LabelKey;
