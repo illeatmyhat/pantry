@@ -1,0 +1,15 @@
+{
+  "name": "@illeatmyhat/pantry",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The USDA SR Legacy dataset as pay-per-import modules, localized, with a toolkit for building ingredient layers on top.",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/illeatmyhat/pantry.git"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
