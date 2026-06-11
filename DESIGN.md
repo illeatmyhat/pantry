@@ -69,13 +69,27 @@ l10n/<loc>/sr/<slug>/strings    = strings leaf (compose-it-yourself)
 
 SR Legacy has no density column but has the raw material:
 `food_portion.csv` volume measures. Core density =
-`gram_weight ÷ volume-in-ml`, derived by a fixed, documented generator rule:
+`gram_weight ÷ volume-in-ml`, derived by a fixed, documented generator rule
+(settled during the build, 2026-06-11):
 
-- Only unambiguous volume portions qualify (ml, fl oz, plain cup/tbsp/tsp).
-- Qualified portions ("1 cup, chopped") are bulk density, not liquid
-  density — excluded by rule.
+- In the distribution **every portion row has `measure_unit_id` 9999** — the
+  measure is the free-text `modifier`. A row qualifies only when that
+  modifier **exactly equals** a plain volume term (case-insensitive): ml,
+  milliliter, liter, cubic centimeter, cubic inch, tsp, teaspoon, tbsp,
+  tablespoon(s), fl oz, cup, pint, quart, gallon — at exact US-customary ml.
+- Qualified portions ("cup, chopped", "cup (8 fl oz)") are excluded by rule:
+  qualified text means bulk/derived measures, and exact match keeps the rule
+  auditable.
+- Multiple qualifying portions reconcile by **lower median** of per-row
+  densities (ties broken by portion id), so the cited row always exists.
+- Known-bad USDA rows are excluded **by id, never by plausibility band** —
+  real foods reach 0.0135 g/ml (freeze-dried chives), so any band tight
+  enough to catch errors eats real data. The frozen dataset has exactly one:
+  portion 92790 (Pregestimil, fdc 173527) claims "100 ml = 1 g".
 - No qualifying portion ⇒ `density: null`.
 - Every derived value cites the portion row that produced it.
+- Frozen outcome, pinned by the invariant suite: **2,344 foods derive a
+  density**, all inside (0.013, 1.97) g/ml.
 
 The *rule* is a one-time judgment frozen in the generator; per food it is
 arithmetic. Hand-estimated densities are consumer overrides (`basis`
@@ -150,13 +164,32 @@ locale files. Its existing cores are the overlay seed — every cited `fdc_id`
 becomes a `source`, every proxy comment a `basis`, every hand density an
 override.
 
+## Settled during the build (2026-06-11)
+
+- **Label-set ↔ SR nutrient-id mapping** (in `src/generator/label-set.ts`,
+  verified against the distribution): calories 1008 (kcal), fat 1004,
+  saturated_fat 1258, trans_fat 1257, cholesterol 1253 (mg), sodium 1093
+  (mg), carbohydrate 1005, fiber 1079, sugars **2000** ("Sugars, Total" —
+  the NLEA row 1063 never appears in SR), protein 1003, vitamin_d **1114 in
+  mcg** (the IU row 1110 covers 4 fewer foods; IU is the legacy unit),
+  calcium 1087, iron 1089, potassium 1092. Only calories/protein/fat/
+  carbohydrate cover all 7,793 foods; every other key is `null` where SR has
+  no row. Cores are always structurally complete (all 14 keys).
+- **Density reconciliation**: lower median, bad rows excluded by id — see
+  "Density" above.
+- **Full-view shape**: `full = { ...core, ...extra }`; the extra leaf names
+  its rows `remaining_nutrients` so the spread never clobbers
+  `core.nutrients`. Only `fdc_id` overlaps (same value).
+- **Slugifier**: lowercase → `&`→` and ` → `%`→` percent ` → NFKD →
+  strip `\p{M}` → non-alphanumeric runs→`-` → trim hyphens. Collision set
+  re-verified against this exact algorithm: still exactly the pancake pair.
+
 ## Open implementation details (measure/decide during build)
 
-- Label-set ↔ SR nutrient-id mapping table, incl. unit quirks (IU vs mcg).
-- Density rule: how multiple qualifying portions reconcile (median? flag
-  divergence?).
 - Physical-file vs `exports`-map strategy for alias routes (~31k logical
-  paths) — npm install-time cost needs measuring.
+  paths) — npm install-time cost needs measuring. Current emission:
+  `generated/sr/<slug>.js|.extra.js|.full.js` (23,379 files) + a manifest
+  for fdc_id aliases and search.
 - Search CLI UX (offline analogue of recipes' `fetch-usda.mjs --search`).
 - The en-US surface of a raw SR food (presumably the description itself).
 - Whether reference vocabularies (INFOODS / LanguaL) can strengthen

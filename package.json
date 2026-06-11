@@ -5,11 +5,23 @@
   "description": "The USDA SR Legacy dataset as pay-per-import modules, localized, with a toolkit for building ingredient layers on top.",
   "license": "MIT",
   "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "build": "tsx src/generator/build.ts"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/illeatmyhat/pantry.git"
   },
   "engines": {
     "node": ">=22"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.3",
+    "fflate": "^0.8.3",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.8"
   }
 }
