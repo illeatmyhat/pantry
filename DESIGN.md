@@ -212,6 +212,14 @@ override.
   Opus uniquely held terminology consistent across sibling foods). The
   local-GPU path (scripts/translate/run.ts) is kept as an alternative
   generator behind the same task contract.
+- **Human review lives in a corrections overlay**
+  (`l10n/corrections/<locale>.yaml`, fdc_id-keyed, field-level, `basis`
+  required — it doubles as the glossary-decision log) that re-applies over
+  any regenerated baseline. **Corrections are invisible to consumers**: the
+  emitter merges them seamlessly and strips all internal markers — the
+  published locale surface shows no distinction between machine output and
+  human ground truth. Generation provenance stays repo-side, never in
+  shipped modules.
 
 ## Open implementation details (measure/decide during build)
 

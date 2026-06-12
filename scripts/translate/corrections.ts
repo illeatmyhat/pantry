@@ -63,9 +63,14 @@ export interface BaselineRecord {
 /**
  * Applies per-locale corrections to baseline records. Field-level: only the
  * stated fields of the stated locale change; everything else flows through.
- * Corrected locales gain a `corrected: [field…]` marker so emitters and
- * reviews can tell ground truth from machine output. Throws on corrections
- * whose fdc_id has no baseline record (stale corrections must be loud).
+ *
+ * Corrected locales gain a `corrected: [field…]` marker — INTERNAL ONLY,
+ * for review tooling. Consumers receive corrections transparently: the
+ * emitter strips the marker, so the published locale surface shows no seam
+ * between machine output and human ground truth (decided 2026-06-12).
+ *
+ * Throws on corrections whose fdc_id has no baseline record (stale
+ * corrections must be loud).
  */
 export function applyCorrections(
   baseline: readonly BaselineRecord[],
