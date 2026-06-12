@@ -20,6 +20,7 @@ const OUTPUT = flag('output', INPUT.replace(/\.jsonl$/, '.review.md'));
 interface LocaleResult {
   names: string;
   aliases: string[];
+  aisle?: { store: string; section: string };
   availability: { level: string; brands: string[]; notes: string[] };
 }
 interface Row {
@@ -42,6 +43,7 @@ function localeBlock(tag: string, l: LocaleResult, includeNames: boolean): strin
   if (includeNames) lines.push(`- **${tag}**: ${l.names}`);
   else lines.push(`- **${tag}**`);
   if (l.aliases.length > 0) lines.push(`  - aliases: ${l.aliases.join(' · ')}`);
+  if (l.aisle !== undefined) lines.push(`  - aisle: ${l.aisle.store} → ${l.aisle.section}`);
   const a = l.availability;
   const brands = a.brands.length > 0 ? `  brands: ${a.brands.join(', ')}` : '';
   lines.push(`  - availability: **${a.level}**${brands}`);
