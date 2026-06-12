@@ -217,13 +217,16 @@ writeFileSync(outPath, kept.length > 0 ? `${kept.join('\n')}\n` : '');
 // otherwise eat both timeout attempts of the first item. A tiny "hi" does
 // not exercise it. Identical system prefix also primes the prefix KV cache
 // every later item reuses.
-console.log('Warming model (first full-size prompt is slow by design)…');
-await fetch(`${ENDPOINT}/api/chat`, {
+// stream:true so headers arrive before the (minutes-long) first prompt
+// eval — undici's 300s headers timeout would otherwise kill the warmup.
+console.log('Warming model (first full-size prompt takes minutes — one-time cost)…');
+const warmupStarted = performance.now();
+const warmup = await fetch(`${ENDPOINT}/api/chat`, {
   method: 'POST',
   headers: { 'content-type': 'application/json' },
   body: JSON.stringify({
     model: MODEL,
-    stream: false,
+    stream: true,
     think: false,
     options: { temperature: 0.7, top_p: 0.8 },
     messages: [
@@ -232,7 +235,8 @@ await fetch(`${ENDPOINT}/api/chat`, {
     ],
   }),
 });
-console.log('Model warm; starting batch.');
+for await (const chunk of warmup.body ?? []) void chunk; // drain until generation completes
+console.log(`Model warm in ${((performance.now() - warmupStarted) / 1000).toFixed(0)}s; starting batch.`);
 
 let done = 0;
 let failed = 0;
