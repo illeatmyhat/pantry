@@ -1,0 +1,7 @@
+# en-US correction PROPOSALS — machine-written candidates, NOT ground truth.
+#
+# Same schema as l10n/corrections (fdc_id-keyed, basis REQUIRED; `name` is
+# not correctable — the canonical name IS the USDA description). The emit
+# pipeline never reads this file. Review tooling and models deposit
+# candidates here; a human promotes an entry by MOVING it into
+# l10n/corrections/en-US.yaml — the move is the act of human judgment.

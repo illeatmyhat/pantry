@@ -1,5 +1,13 @@
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { applyCorrections, parseCorrections } from '../scripts/translate/corrections.js';
+import {
+  applyCorrections,
+  loadCorrections,
+  loadProposals,
+  parseCorrections,
+} from '../scripts/translate/corrections.js';
+
+const repoRoot = fileURLToPath(new URL('../', import.meta.url));
 
 const baseline = [
   {
@@ -103,5 +111,19 @@ describe('applyCorrections', () => {
   it('throws when the corrected locale surface is missing from the record', () => {
     const noJa = [{ ...baseline[0], result: { brand: null } } as (typeof baseline)[0]];
     expect(() => applyCorrections(noJa, new Map([['ja-JP', corrections]]))).toThrow(/no ja-JP/);
+  });
+});
+
+describe('proposals layer', () => {
+  it('parses l10n/proposals with the same validation, separately from corrections', () => {
+    const proposals = loadProposals(repoRoot);
+    const confirmed = loadCorrections(repoRoot);
+    // Proposals are never corrections: the two layers must load from
+    // different files, and emit only ever consumes loadCorrections.
+    for (const [locale, set] of proposals) {
+      for (const fdcId of set.keys()) {
+        expect(confirmed.get(locale)?.has(fdcId) ?? false).toBe(false);
+      }
+    }
   });
 });

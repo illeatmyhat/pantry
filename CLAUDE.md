@@ -24,6 +24,10 @@ copy (recipes#14 is the historical grill).
 - **The pancake tripwire**: slugification of the frozen dataset must produce
   exactly one collision (fdc_ids 171853 / 172776). The generator hard-fails
   on any drift — drift means a generator bug, the data cannot change.
+- **`l10n/corrections/` is human-written, period.** Models and review
+  tooling deposit candidate corrections in `l10n/proposals/` (same schema);
+  the emit pipeline never reads proposals; a human promotes an entry by
+  moving it into corrections.
 - **TypeScript strict, no `any`** (house standard).
 - All files LF (`.gitattributes` enforces).
 - `private: true` stays until the first real publish.

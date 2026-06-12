@@ -1,0 +1,13 @@
+# zh-CN correction PROPOSALS — machine-written candidates, NOT ground truth.
+#
+# Same schema as l10n/corrections (fdc_id-keyed, basis REQUIRED), but the
+# emit pipeline never reads this file. Review tooling and models deposit
+# candidates here; a human promotes an entry by MOVING it into
+# l10n/corrections/zh-CN.yaml — the move is the act of human judgment.
+
+170665:
+  name: 冷冻甜食，KLONDIKE（克朗代克）品牌，SLIM-A-BEAR 巧克力脆皮甜筒
+  basis: 'PROPOSED (model, e2e review 2026-06-12): baseline rendered the
+    KLONDIKE ice-cream brand as 科迪华, which is Corteva Agriscience''s
+    Chinese trade name; 克朗代克 is the standard Klondike transliteration.
+    Verify and move to l10n/corrections to apply.'

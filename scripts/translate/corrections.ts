@@ -170,13 +170,29 @@ export function applyCorrections(
   });
 }
 
-/** Loads every `l10n/corrections/<locale>.yaml` that exists. */
-export function loadCorrections(root: string): Map<string, CorrectionSet> {
+function loadCorrectionSets(root: string, dir: string): Map<string, CorrectionSet> {
   const byLocale = new Map<string, CorrectionSet>();
   for (const spec of LOCALES) {
-    const path = `${root}l10n/corrections/${spec.tag}.yaml`;
+    const path = `${root}${dir}/${spec.tag}.yaml`;
     if (!existsSync(path)) continue;
     byLocale.set(spec.tag, parseCorrections(spec.tag, readFileSync(path, 'utf8')));
   }
   return byLocale;
+}
+
+/** Loads every `l10n/corrections/<locale>.yaml` that exists — HUMAN ground truth only. */
+export function loadCorrections(root: string): Map<string, CorrectionSet> {
+  return loadCorrectionSets(root, 'l10n/corrections');
+}
+
+/**
+ * Loads machine-proposed correction candidates (`l10n/proposals/<locale>.yaml`).
+ * Same schema and validation as corrections, but the emit pipeline NEVER
+ * applies them: review tooling and models write here, and a human promotes
+ * an entry by moving it into l10n/corrections — the move IS the act of
+ * human judgment (decided 2026-06-12 after a model wrote into the human
+ * layer directly).
+ */
+export function loadProposals(root: string): Map<string, CorrectionSet> {
+  return loadCorrectionSets(root, 'l10n/proposals');
 }

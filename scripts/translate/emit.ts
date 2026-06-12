@@ -1,5 +1,5 @@
 import { pathToFileURL } from 'node:url';
-import { applyCorrections, loadCorrections } from './corrections.js';
+import { applyCorrections, loadCorrections, loadProposals } from './corrections.js';
 import { flag, readJsonl, root } from './lib.js';
 import { LOCALES } from './locales.js';
 import { emitL10n } from '../../src/generator/emit-l10n.js';
@@ -46,3 +46,12 @@ console.log(
   `Emitted l10n surfaces for ${records.length - failed}/${records.length} records ` +
     `(${perLocale}) with ${corrected} corrections → ${pathToFileURL(outDir).pathname}/l10n/`,
 );
+
+// Proposals are machine candidates — deliberately NOT applied; remind the
+// human reviewer they exist so they never silently rot.
+const pending = [...loadProposals(root).values()].reduce((sum, set) => sum + set.size, 0);
+if (pending > 0) {
+  console.log(
+    `⚠ ${pending} machine-proposed correction(s) pending human review in l10n/proposals/ — not applied.`,
+  );
+}
