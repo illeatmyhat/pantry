@@ -5,8 +5,8 @@
 # baseline. `basis` is REQUIRED — say why the machine was wrong. This file
 # survives every regeneration; the baseline never overwrites it.
 #
-170665:
-  name: 冷冻甜食，KLONDIKE（克朗代克）品牌，SLIM-A-BEAR 巧克力脆皮甜筒
-  basis: 科迪华 is Corteva Agriscience's Chinese trade name, not the KLONDIKE
-    ice-cream brand — use the standard Klondike transliteration 克朗代克
-    (e2e pipeline review 2026-06-12)
+# Example (delete when real entries exist):
+#
+# 168229:
+#   name: 猪肉、鲜（未腌制）、后腿（火腿）、小腿半段、纯瘦肉、熟制、烤制
+#   basis: '"fresh" renders as 鲜（未腌制） (glossary decision 2026-06-12)'
