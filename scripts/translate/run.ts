@@ -26,65 +26,98 @@ const INPUT = flag('input', `${root}scripts/translate/out/sample.json`);
 const CONCURRENCY = Number(flag('concurrency', '2'));
 const ENDPOINT = flag('endpoint', 'http://localhost:11434');
 
+// NOTE: Ollama 0.30's /api/chat silently ignores `format`; structured
+// outputs only enforce through the OpenAI-compatible /v1 endpoint via
+// response_format.json_schema (verified 2026-06-11).
+//
+// Output shape mirrors the first consumer's locale files
+// (recipes data/ingredients/<locale>/<id>.yaml): names/aliases/aisle +
+// availability{brands, notes}, notes in the market's language.
+const SECTIONS = [
+  'produce',
+  'meat_seafood',
+  'dairy_eggs',
+  'dry_goods',
+  'canned',
+  'condiments',
+  'spices',
+  'oils',
+  'international',
+  'tofu_soy',
+] as const;
+
 const SCHEMA = {
   type: 'object',
   properties: {
+    brand: { type: ['string', 'null'] },
     ja: localeSchema(),
     zh: localeSchema(),
-    brand: { type: ['string', 'null'] },
-    availability_jp: availabilitySchema(),
-    availability_cn: availabilitySchema(),
   },
-  required: ['ja', 'zh', 'brand', 'availability_jp', 'availability_cn'],
+  required: ['brand', 'ja', 'zh'],
+  additionalProperties: false,
 } as const;
 
 function localeSchema(): object {
   return {
     type: 'object',
     properties: {
-      name: { type: 'string' },
+      names: { type: 'string' },
       aliases: { type: 'array', items: { type: 'string' } },
+      aisle: {
+        type: 'object',
+        properties: {
+          store: { enum: ['supermarket', 'specialty', 'online'] },
+          section: { enum: SECTIONS },
+        },
+        required: ['store', 'section'],
+        additionalProperties: false,
+      },
+      availability: {
+        type: 'object',
+        properties: {
+          level: { enum: ['common', 'specialty', 'rare', 'unknown'] },
+          brands: { type: 'array', items: { type: 'string' } },
+          notes: { type: 'array', items: { type: 'string' } },
+        },
+        required: ['level', 'brands', 'notes'],
+        additionalProperties: false,
+      },
     },
-    required: ['name', 'aliases'],
-  };
-}
-function availabilitySchema(): object {
-  return {
-    type: 'object',
-    properties: {
-      level: { enum: ['common', 'specialty', 'rare', 'unknown'] },
-      note: { type: 'string' },
-    },
-    required: ['level', 'note'],
+    required: ['names', 'aliases', 'aisle', 'availability'],
+    additionalProperties: false,
   };
 }
 
 const SYSTEM_PROMPT = `You translate USDA food database descriptions. Each description is a comma-structured taxonomy string (most general term first, qualifiers after), e.g. "Pork, cured, salt pork, raw".
 
 For the given food, produce:
-- ja.name: a faithful Japanese translation of the FULL structured description. Keep the taxonomic comma structure (use 、or ・ naturally). Translate technical food-science terms precisely (e.g. "raw"=生, "drained solids"=固形分のみ). Do NOT invent a friendly product name; this is a translation of the description.
-- ja.aliases: 0-3 common everyday Japanese names a shopper would actually use for this exact food (empty array if none exists).
-- zh.name / zh.aliases: the same for Simplified Chinese (mainland China usage).
 - brand: if the description names a commercial brand or restaurant (e.g. PILLSBURY, KEEBLER, McDONALD'S), the brand name as commonly written; otherwise null.
-- availability_jp / availability_cn: your judgment of how available this exact food is to an ordinary shopper in Japan / mainland China. level: "common" (any supermarket), "specialty" (import stores, online, dept-store food halls), "rare" (hard to find at all), "unknown". note: ONE short English sentence justifying the level (mention substitutes or where it is sold if relevant).
+- ja.names: a faithful Japanese translation of the FULL structured description. Keep the taxonomic comma structure (use 、or ・ naturally). Translate technical food-science terms precisely (e.g. "raw"=生, "drained solids"=固形分のみ). Do NOT invent a friendly product name; this is a translation of the description.
+- ja.aliases: 0-3 common everyday Japanese names a shopper would actually use for this exact food (empty array if none exists).
+- ja.aisle: where an ordinary shopper in Japan finds it. store: "supermarket" (a normal grocery store carries it), "specialty" (import stores, depachika), "online" (realistically online-only). section: the closest section.
+- ja.availability: your judgment of this exact food in the Japanese market. level: "common" / "specialty" / "rare" / "unknown". brands: actual brand names sold in that market for this food — ONLY brands you are confident exist; an empty array is much better than a guess. notes: 0-2 short sentences IN JAPANESE with market guidance (where to find it, common substitutes). Empty array if you have nothing useful to say.
+- zh.*: the same for mainland China, Simplified Chinese, notes in Chinese.
 
-Translate faithfully; never guess nutrition facts; output only the JSON.`;
+Translate faithfully; never invent brands; output only the JSON.`;
 
-interface OllamaChatResponse {
-  message?: { content?: string };
-  error?: string;
+interface ChatCompletionResponse {
+  choices?: { message?: { content?: string } }[];
+  usage?: { completion_tokens?: number };
+  error?: { message?: string };
 }
 
-async function translateOne(entry: ManifestEntry): Promise<unknown> {
-  const response = await fetch(`${ENDPOINT}/api/chat`, {
+async function translateOne(entry: ManifestEntry): Promise<{ result: unknown; tokens: number }> {
+  const response = await fetch(`${ENDPOINT}/v1/chat/completions`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({
       model: MODEL,
-      stream: false,
-      think: false,
-      format: SCHEMA,
-      options: { temperature: 0.7, top_p: 0.8, num_ctx: 4096 },
+      temperature: 0.7,
+      top_p: 0.8,
+      response_format: {
+        type: 'json_schema',
+        json_schema: { name: 'food_translation', strict: true, schema: SCHEMA },
+      },
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         {
@@ -95,11 +128,11 @@ async function translateOne(entry: ManifestEntry): Promise<unknown> {
     }),
   });
   if (!response.ok) throw new Error(`HTTP ${response.status}: ${await response.text()}`);
-  const data = (await response.json()) as OllamaChatResponse;
-  if (data.error !== undefined) throw new Error(data.error);
-  const content = data.message?.content;
+  const data = (await response.json()) as ChatCompletionResponse;
+  if (data.error?.message !== undefined) throw new Error(data.error.message);
+  const content = data.choices?.[0]?.message?.content;
   if (content === undefined) throw new Error('empty response');
-  return JSON.parse(content) as unknown;
+  return { result: JSON.parse(content) as unknown, tokens: data.usage?.completion_tokens ?? 0 };
 }
 
 const foods = JSON.parse(readFileSync(INPUT, 'utf8')) as ManifestEntry[];
@@ -117,13 +150,18 @@ async function worker(): Promise<void> {
     const t0 = performance.now();
     let record: Record<string, unknown>;
     try {
-      let result: unknown;
+      let outcome: { result: unknown; tokens: number };
       try {
-        result = await translateOne(entry);
+        outcome = await translateOne(entry);
       } catch {
-        result = await translateOne(entry); // one retry — local models hiccup
+        outcome = await translateOne(entry); // one retry — local models hiccup
       }
-      record = { ...entry, ms: Math.round(performance.now() - t0), result };
+      record = {
+        ...entry,
+        ms: Math.round(performance.now() - t0),
+        tokens: outcome.tokens,
+        result: outcome.result,
+      };
     } catch (error) {
       failed += 1;
       record = { ...entry, ms: Math.round(performance.now() - t0), error: String(error) };

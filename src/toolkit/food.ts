@@ -71,6 +71,7 @@ export interface Food {
   readonly locale?: string;
   readonly store?: string;
   readonly section?: string;
-  readonly notes?: string;
+  readonly brands?: readonly string[];
+  readonly notes?: readonly string[];
   readonly provenance?: Provenance;
 }
