@@ -37,6 +37,20 @@ describe('toRecipesLocaleYaml', () => {
     expect(yaml).not.toContain('store:');
   });
 
+  it('omits aisle entirely for errand: null — recipes has no non-retail concept yet', () => {
+    const nonRetail = {
+      slug: 'mcdonalds-hamburger',
+      fdc_id: 170725,
+      description: "McDONALD'S, Hamburger",
+      result: {
+        brand: "McDonald's",
+        'en-US': { aliases: [], errand: null, notes: [] },
+      },
+    };
+    const yaml = toRecipesLocaleYaml(nonRetail, 'en-US', 'hamburger');
+    expect(yaml).not.toContain('aisle');
+  });
+
   it('uses the description as names for the canonical locale and omits empty availability', () => {
     const yaml = toRecipesLocaleYaml(record, 'en-US', 'salt_pork');
     expect(yaml).toContain('names: Pork, cured, salt pork, raw');

@@ -205,6 +205,13 @@ override.
   from the USDA description (identity, a fact).
 - **No availability level** — redundant with `errand.store`; market
   guidance lives in free-text `notes` per locale.
+- **Non-retail foods get `errand: null`** (no parking slugs). SR contains
+  restaurant/fast-food menu items, industrial/food-service ingredients, and
+  Alaska Native subsistence foods that no store section honestly fits. The
+  schema makes `errand` nullable per locale; the proposed `restaurant` slug
+  was dropped so `errand` keeps exactly one meaning — the section you walk
+  to — and `null` is the honest, filterable value ("no store sells this",
+  not "unknown"). The model judges retail availability per market.
 - **The en-US name is the description, copied mechanically** — never
   round-tripped through a model (silent copy-editing risk).
 - Generation runs through the Anthropic Message Batches API (test batches

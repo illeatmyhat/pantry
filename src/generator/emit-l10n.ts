@@ -27,7 +27,8 @@ export interface TranslationRecord {
 interface LocaleStringsShape {
   readonly name?: string;
   readonly aliases?: readonly string[];
-  readonly errand?: { store: string; section: string };
+  /** null = non-retail food; shipped verbatim so consumers can filter on it. */
+  readonly errand?: { store: string; section: string } | null;
   readonly notes?: readonly string[];
 }
 

@@ -61,22 +61,25 @@ sections:
     merges: [ベビー用品, ベビーフード]
   - slug: international
     label: 輸入食品
-    merges: [輸入食品, 中華食材, 民族食材・先住民食品, 先住民伝統食材]
+    merges: [輸入食品, 中華食材]
   - slug: instant
     label: 即席麺・カップ麺
     merges: [即席麺]
-  - slug: restaurant
-    label: 外食
-    note: REVIEW — SR fast-food/restaurant items are not groceries; see proposal doc
-    merges: [ファストフード店, ファストフード, 宅配ピザ, ピザ宅配・テイクアウト, レストラン, マクドナルド]
+# Non-retail (decided 2026-06-12): these foods ship `errand: null` — see
+# en-US.yaml for the rationale. Audit-only; checked BEFORE section patterns.
+non_retail:
+  merges: [ファストフード店, ファストフード, 宅配ピザ, ピザ宅配・テイクアウト, レストラン, マクドナルド,
+           民族食材・先住民食品, 先住民伝統食材]
+  patterns:
+    - '先住民|民族|伝統食材'
+    - 'サプリ|業務用'
 
 # Audit-only fallback rules for the free-text discovery tail (first match
-# wins, checked top to bottom AFTER exact merges). These never ship — the
-# production schema uses the frozen slugs above.
+# wins, checked top to bottom AFTER exact merges and non_retail). These never
+# ship — the production schema uses the frozen slugs above.
 patterns:
-  - { match: '先住民|民族|伝統食材|珍味|輸入', slug: international }
+  - { match: '珍味|輸入', slug: international }
   - { match: '^精肉|ジビエ', slug: meat }
-  - { match: 'サプリ|業務用', slug: international } # non-retail — see review doc
   - { match: 'だし|スープ', slug: condiments }
   - { match: 'ナッツ|シード', slug: baking }
   - { match: 'おつまみ|洋菓子', slug: sweets }

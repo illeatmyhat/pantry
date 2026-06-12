@@ -55,18 +55,23 @@ sections:
   - slug: international
     label: International Foods
     merges: [International Foods]
-  - slug: restaurant
-    label: Restaurant / Fast Food
-    note: REVIEW — SR fast-food/restaurant items are not groceries; see proposal doc
-    merges: [Fast Food / Restaurant, Fast Food Restaurant, Restaurant, "McDonald's", Pizza Delivery,
-             Pizza Restaurant Menu, Restaurant / Prepared Foods]
+# Non-retail (decided 2026-06-12): these foods ship `errand: null` — no store
+# section honestly fits restaurant menu items, industrial ingredients, or
+# subsistence foods, and there is no parking slug. Merges/patterns below are
+# audit-only routing for the discovery tail; non_retail patterns are checked
+# BEFORE the section patterns.
+non_retail:
+  merges: [Fast Food / Restaurant, Fast Food Restaurant, Restaurant, "McDonald's", Pizza Delivery,
+           Pizza Restaurant Menu, Restaurant / Prepared Foods]
+  patterns:
+    - 'restaurant|fast food'
+    - 'native|foraged|subsistence|traditional'
+    - 'industrial|bulk ingredient|supplement'
 
 # Audit-only fallback rules for the free-text discovery tail (first match
-# wins, checked top to bottom AFTER exact merges). These never ship — the
-# production schema uses the frozen slugs above.
+# wins, checked top to bottom AFTER exact merges and non_retail). These never
+# ship — the production schema uses the frozen slugs above.
 patterns:
-  - { match: 'native|foraged|subsistence|traditional', slug: international }
-  - { match: 'industrial|bulk ingredient|supplement', slug: international } # non-retail — see review doc
   - { match: 'frozen', slug: frozen }
   - { match: 'refrigerated dough', slug: dairy }
   - { match: 'refrigerated (pasta|asian)', slug: deli }

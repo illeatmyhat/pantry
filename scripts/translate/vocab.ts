@@ -26,8 +26,13 @@ interface VocabPattern {
 interface Vocab {
   status: string;
   sections: VocabSection[];
+  /** Foods that ship `errand: null` — audit-only routing, checked before patterns. */
+  non_retail?: { merges?: string[]; patterns?: string[] };
   patterns?: VocabPattern[];
 }
+
+/** Audit display bucket for foods that ship `errand: null`. */
+const NON_RETAIL = '(errand: null)';
 interface DiscoveryRow {
   description?: string;
   result?: Record<string, { store: string; section: string }>;
@@ -42,15 +47,11 @@ const rows = readFileSync(`${root}scripts/translate/out/errand-discovery.jsonl`,
 const out: string[] = [
   '# Errand-section vocabulary proposal — review document',
   '',
-  '> **Decision needed — non-retail foods.** The discovery pass surfaced three',
-  '> classes that no store section honestly describes: **restaurant menu items**',
-  '> (McDONALD\'S Hamburger, APPLEBEE\'S sirloin — SR\'s Fast Foods/Restaurant',
-  '> categories), **industrial ingredients** (Oil industrial palm kernel,',
-  '> cottonseed meal — food-service inputs, not retail), and **subsistence/',
-  '> foraged foods** (Alaska Native items: sea lion, mouse nuts — not',
-  '> purchasable anywhere). The proposal currently parks them in `restaurant`/',
-  '> `international` slugs, but the honest design may be `errand: null` with a',
-  '> reason, or a `store: none`. Your call shapes the production schema.',
+  '> **Non-retail: settled (2026-06-12).** Restaurant menu items, industrial',
+  '> ingredients, and subsistence/foraged foods get `errand: null` — the schema',
+  '> is nullable and there are no parking slugs (the `restaurant` slug was',
+  '> dropped). The `(errand: null)` row below shows what the discovery tail',
+  '> routes there for audit purposes.',
   '',
 ];
 let totalUnmapped = 0;
@@ -66,6 +67,8 @@ for (const spec of LOCALES) {
     toSlug.set(section.label, section.slug);
     for (const variant of section.merges) toSlug.set(variant, section.slug);
   }
+  for (const variant of vocab.non_retail?.merges ?? []) toSlug.set(variant, NON_RETAIL);
+  const nonRetailPatterns = (vocab.non_retail?.patterns ?? []).map((p) => new RegExp(p, 'i'));
 
   // Tolerate the pre-BCP-47 discovery batch (bare language keys).
   const key =
@@ -83,7 +86,10 @@ for (const spec of LOCALES) {
     const r = row.result?.[key];
     if (r === undefined) continue;
     const observed = r.section.trim();
-    const slug = toSlug.get(observed) ?? patterns.find((p) => p.re.test(observed))?.slug;
+    const slug =
+      toSlug.get(observed) ??
+      (nonRetailPatterns.some((re) => re.test(observed)) ? NON_RETAIL : undefined) ??
+      patterns.find((p) => p.re.test(observed))?.slug;
     const bucket = slug !== undefined ? counts : unmapped;
     const bucketKey = slug ?? observed;
     const entry = bucket.get(bucketKey) ?? { n: 0, examples: [] };
@@ -104,6 +110,10 @@ for (const spec of LOCALES) {
     out.push(
       `| ${section.slug} | ${section.label} | ${n} | ${section.merges.filter((m) => m !== section.label).join('、') || '—'} |`,
     );
+  }
+  const nonRetail = counts.get(NON_RETAIL);
+  if (nonRetail !== undefined) {
+    out.push(`| ${NON_RETAIL} | non-retail | ${nonRetail.n} | ${nonRetail.examples.join(' · ')} |`);
   }
   out.push('');
   if (unmapped.size > 0) {

@@ -15,7 +15,10 @@ import type { ManifestEntry } from '../../src/toolkit/search.js';
  *   aliases   — everyday shopper names
  *   errand    — Q15 errand router: store (which trip: primary supermarket /
  *               specialty shop / order online) + section (the shelf walk
- *               within THAT store; an online listing still has a section)
+ *               within THAT store; an online listing still has a section),
+ *               or null when no store honestly sells the food in that market
+ *               (restaurant menu items, industrial ingredients, subsistence
+ *               foods — decided 2026-06-12, no parking slugs)
  *   notes     — 0-2 short market-guidance sentences in that market's language
  *
  * Deliberately NOT generated: per-market brand recommendations (brand fit
@@ -31,14 +34,21 @@ function localeSchema(spec: LocaleSpec): object {
     properties: {
       ...(withName ? { name: { type: 'string' } } : {}),
       aliases: { type: 'array', items: { type: 'string' } },
+      // Nullable: non-retail foods (restaurant menu items, industrial
+      // ingredients, subsistence foods) honestly fit no store section.
       errand: {
-        type: 'object',
-        properties: {
-          store: { enum: STORES },
-          section: { enum: spec.sections },
-        },
-        required: ['store', 'section'],
-        additionalProperties: false,
+        anyOf: [
+          { type: 'null' },
+          {
+            type: 'object',
+            properties: {
+              store: { enum: STORES },
+              section: { enum: spec.sections },
+            },
+            required: ['store', 'section'],
+            additionalProperties: false,
+          },
+        ],
       },
       notes: { type: 'array', items: { type: 'string' } },
     },
@@ -82,7 +92,7 @@ function shapeExample(): string {
   const locale = (spec: LocaleSpec): string => {
     const name = spec.canonical === true ? '' : '"name": string, ';
     const sections = spec.sections.map((s) => `"${s}"`).join('|');
-    return ` "${spec.tag}": {${name}"aliases": string[], "errand": {"store": "primary"|"specialty"|"online", "section": ${sections}}, "notes": string[]}`;
+    return ` "${spec.tag}": {${name}"aliases": string[], "errand": {"store": "primary"|"specialty"|"online", "section": ${sections}}|null, "notes": string[]}`;
   };
   return `{"brand": string|null,\n${LOCALES.map(locale).join(',\n')}}`;
 }
@@ -92,6 +102,8 @@ export const SYSTEM_PROMPT = `You translate USDA food database descriptions and 
 For the given food, produce:
 - brand: if the description names a commercial brand or restaurant (e.g. PILLSBURY, KEEBLER, McDONALD'S), the brand name as commonly written; otherwise null.
 ${LOCALES.map(localePromptSection).join('\n')}
+
+If a food is not honestly purchasable at retail in a market — restaurant and fast-food menu items, industrial/food-service ingredients, subsistence or foraged foods — set that locale's errand to null rather than forcing a store section. Judge per market; null means "no store sells this", not "I don't know".
 
 Translate faithfully; output ONLY a JSON object with exactly this shape:
 ${shapeExample()}`;
@@ -117,10 +129,14 @@ export function validateShape(raw: unknown): void {
       fail(`${spec.tag}.name`);
     }
     if (!Array.isArray(o['aliases'])) fail(`${spec.tag}.aliases`);
+    // errand: null is a value (non-retail food); absence is a contract breach.
     const errand = o['errand'] as Record<string, unknown> | null | undefined;
-    if (errand === null || typeof errand !== 'object') fail(`${spec.tag}.errand`);
-    if (!STORE_SET.has(String(errand['store']))) fail(`${spec.tag}.errand.store`);
-    if (!spec.sections.includes(String(errand['section']))) fail(`${spec.tag}.errand.section`);
+    if (errand === undefined || (errand !== null && typeof errand !== 'object')) {
+      fail(`${spec.tag}.errand`);
+    } else if (errand !== null) {
+      if (!STORE_SET.has(String(errand['store']))) fail(`${spec.tag}.errand.store`);
+      if (!spec.sections.includes(String(errand['section']))) fail(`${spec.tag}.errand.section`);
+    }
     if (!Array.isArray(o['notes'])) fail(`${spec.tag}.notes`);
   }
 }

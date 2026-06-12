@@ -16,7 +16,8 @@
 interface LocaleBlock {
   readonly name?: string;
   readonly aliases?: readonly string[];
-  readonly errand?: { store: string; section: string };
+  /** null = non-retail food (no store section); recipes has no equivalent yet, so the aisle line is omitted. */
+  readonly errand?: { store: string; section: string } | null;
   readonly notes?: readonly string[];
 }
 export interface MergedRecord {
@@ -44,7 +45,7 @@ export function toRecipesLocaleYaml(
     lines.push('aliases:');
     for (const alias of aliases) lines.push(`  - ${alias}`);
   }
-  if (block.errand !== undefined) {
+  if (block.errand !== undefined && block.errand !== null) {
     lines.push(
       block.errand.store === 'primary'
         ? `aisle: ${block.errand.section}`

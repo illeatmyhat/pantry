@@ -78,6 +78,23 @@ describe('emitL10n', () => {
     expect(full).toContain('extra');
   });
 
+  it('ships errand: null verbatim — non-retail is data, not absence', async () => {
+    const nonRetail = {
+      slug: 'mcdonalds-hamburger',
+      fdc_id: 170725,
+      description: "McDONALD'S, Hamburger",
+      result: {
+        brand: "McDonald's",
+        'en-US': { aliases: [], errand: null, notes: [] },
+      },
+    };
+    emitL10n([nonRetail], outDir);
+    const en = (await import(
+      pathToFileURL(join(outDir, 'l10n', 'en-US', 'sr', 'mcdonalds-hamburger.strings.js')).href
+    )) as { default: { errand: unknown } };
+    expect(en.default.errand).toBeNull();
+  });
+
   it('missing means missing: locales absent from the record are not emitted', () => {
     emitL10n([record], outDir);
     expect(() =>

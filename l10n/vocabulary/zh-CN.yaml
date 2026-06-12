@@ -59,22 +59,25 @@ sections:
     merges: [豆制品]
   - slug: international
     label: 进口食品
-    merges: [进口食品, 日本食品, 进口水果, 野菜山货]
-  - slug: restaurant
-    label: 餐饮
-    note: REVIEW — SR fast-food/restaurant items are not groceries; see proposal doc
-    merges: [快餐店, 快餐, 餐厅, 麦当劳, 披萨外卖]
+    merges: [进口食品, 日本食品, 进口水果]
+
+# Non-retail (decided 2026-06-12): these foods ship `errand: null` — see
+# en-US.yaml for the rationale. Audit-only; checked BEFORE section patterns.
+non_retail:
+  merges: [快餐店, 快餐, 餐厅, 麦当劳, 披萨外卖, 野菜山货]
+  patterns:
+    - '民族|原住民|野生|保健品'
+    - '披萨'
+    - '工业'
 
 # Audit-only fallback rules for the free-text discovery tail (first match
-# wins, checked top to bottom AFTER exact merges). These never ship — the
-# production schema uses the frozen slugs above.
+# wins, checked top to bottom AFTER exact merges and non_retail). These never
+# ship — the production schema uses the frozen slugs above.
 patterns:
-  - { match: '民族|原住民|清真|特色干货|特色食品|野生|保健品', slug: international }
+  - { match: '清真|特色干货|特色食品', slug: international }
   - { match: '咖啡|冲饮|冷藏饮品', slug: beverages }
   - { match: '禽肉', slug: meat }
-  - { match: '披萨', slug: restaurant }
   - { match: '五谷|杂粮', slug: grain_oil }
-  - { match: '工业', slug: international } # non-retail — see review doc
   - { match: '熟食|冷藏火腿|冷藏肉|冷藏面食', slug: chilled_deli }
   - { match: '鲜肉|肉类|牛肉|羊肉|野味', slug: meat }
   - { match: '海鲜|水产', slug: seafood }
