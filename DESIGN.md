@@ -186,8 +186,12 @@ override.
 
 ## Settled during the translation workshop (2026-06-12)
 
-- **Locale keys are BCP-47 everywhere** (`en-US`/`ja-JP`/`zh-CN`) — a locale
-  is a language AND a market; `zh` alone names neither.
+- **Locale keys are BCP-47 everywhere** — a locale is a language AND a
+  market; `zh` alone names neither. The locale set is open: generation is
+  driven by a locale table (`scripts/translate/locales.ts` — tag, language,
+  market, translation hints, section vocabulary), so adding a locale is
+  adding a row. `en-US` (canonical) + `ja-JP` + `zh-CN` is the launch
+  instance, not an architectural limit.
 - **`errand` (né aisle)** is the per-locale shopping router:
   `{store: primary|specialty|online, section}` — which trip, then the shelf
   walk within that store. Section vocabularies are **per-locale**,

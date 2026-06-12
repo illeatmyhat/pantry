@@ -1,6 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import Anthropic from '@anthropic-ai/sdk';
+import { LOCALES } from './locales.js';
 import type { ManifestEntry } from '../../src/toolkit/search.js';
 
 /**
@@ -28,25 +29,27 @@ function flag(name: string, fallback: string): string {
 }
 const COMMAND = process.argv[2];
 
-const SYSTEM_PROMPT = `You know how grocery retail is physically organized in the United States, Japan, and mainland China.
+function listMarkets(): string {
+  const markets = LOCALES.map((l) => l.market);
+  return markets.length > 1
+    ? `${markets.slice(0, -1).join(', ')} and ${markets[markets.length - 1]}`
+    : (markets[0] ?? '');
+}
+
+const SYSTEM_PROMPT = `You know how grocery retail is physically organized in ${listMarkets()}.
 
 For the given USDA food, name the store section where a shopper finds it — the literal sign text a typical supermarket in that market would hang over that aisle/area. Rules:
-- Use THAT market's own retail vocabulary in its own language (e.g. a Japanese supermarket's 日配品, 菓子, ベビー用品 — not translations of American aisle names).
+- Use THAT market's own retail vocabulary in its own language — never a translation of another market's aisle names.
 - If the food is realistically NOT sold in an ordinary supermarket there (specialty shop or online order instead), still name the section of whatever store DOES carry it, and set store accordingly.
 - Be consistent: the same kind of food should get the same section name.
 - Answer for a typical large supermarket, not a niche format.
 
-Output ONLY JSON: {"en": {"store": "primary"|"specialty"|"online", "section": string},
- "ja": { same }, "zh": { same }} — section in English for en, Japanese for ja, Simplified Chinese for zh.`;
+Output ONLY JSON: {${LOCALES.map((l) => `"${l.tag}": {"store": "primary"|"specialty"|"online", "section": string}`).join(', ')}} — each section in that locale's language (${LOCALES.map((l) => `${l.tag}: ${l.language}`).join('; ')}).`;
 
 const SCHEMA = {
   type: 'object',
-  properties: {
-    en: localeSchema(),
-    ja: localeSchema(),
-    zh: localeSchema(),
-  },
-  required: ['en', 'ja', 'zh'],
+  properties: Object.fromEntries(LOCALES.map((l) => [l.tag, localeSchema()])),
+  required: LOCALES.map((l) => l.tag),
   additionalProperties: false,
 } as const;
 
@@ -164,7 +167,12 @@ if (COMMAND === 'sample') {
     .map((l) => JSON.parse(l) as Row)
     .filter((r) => r.result !== undefined);
   const out: string[] = [`# Errand-section vocabulary discovery — ${rows.length} foods`, ''];
-  for (const loc of ['en', 'ja', 'zh']) {
+  // Tolerate the pre-BCP-47 batch output (bare language keys).
+  const keys = LOCALES.map((l) => {
+    const sample = rows[0]?.result;
+    return sample !== undefined && l.tag in sample ? l.tag : l.tag.split('-')[0] ?? l.tag;
+  });
+  for (const loc of keys) {
     const counts = new Map<string, { n: number; stores: Map<string, number>; examples: string[] }>();
     for (const row of rows) {
       const r = row.result?.[loc];

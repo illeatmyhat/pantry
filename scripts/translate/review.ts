@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { LOCALES } from './locales.js';
 
 /**
  * Renders a results JSONL as a reviewable markdown document. Understands
@@ -57,7 +58,8 @@ function localeBlock(tag: string, l: LocaleResult): string {
   return lines.join('\n');
 }
 
-const LOCALE_KEYS = ['en-US', 'ja-JP', 'zh-CN', 'en', 'ja', 'zh'];
+// Locale-table tags first, then their bare-language legacy spellings.
+const LOCALE_KEYS = [...LOCALES.map((l) => l.tag), ...LOCALES.map((l) => l.tag.split('-')[0] ?? '')];
 
 const out: string[] = [
   `# Translation review — ${INPUT.split(/[\\/]/).pop()}`,
