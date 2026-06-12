@@ -1,5 +1,6 @@
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { extractJson, SYSTEM_PROMPT, userContent, validateShape } from './task.js';
 import type { ManifestEntry } from '../../src/toolkit/search.js';
 
 /**
@@ -26,92 +27,6 @@ const INPUT = flag('input', `${root}scripts/translate/out/sample.json`);
 const CONCURRENCY = Number(flag('concurrency', '2'));
 const ENDPOINT = flag('endpoint', 'http://localhost:11434');
 
-// NOTE: Ollama 0.30's /api/chat silently ignores `format`; structured
-// outputs only enforce through the OpenAI-compatible /v1 endpoint via
-// response_format.json_schema (verified 2026-06-11).
-//
-// Output shape mirrors the first consumer's locale files
-// (recipes data/ingredients/<locale>/<id>.yaml): names/aliases +
-// availability{brands, notes}, notes in the market's language.
-const SCHEMA = {
-  type: 'object',
-  properties: {
-    brand: { type: ['string', 'null'] },
-    en: localeSchema(), // names omitted — the en-US name IS the description (mechanical)
-    ja: localeSchema(),
-    zh: localeSchema(),
-  },
-  required: ['brand', 'en', 'ja', 'zh'],
-  additionalProperties: false,
-} as const;
-
-// `aisle` is deliberately absent: the model invents out-of-vocabulary
-// sections ("meat", "frozen") — the dominant shape-failure mode — and its
-// in-vocabulary picks were near-random anyway. Store geography is decided
-// in the curation/review pass, not generated here.
-function localeSchema(): object {
-  return {
-    type: 'object',
-    properties: {
-      names: { type: 'string' },
-      aliases: { type: 'array', items: { type: 'string' } },
-      availability: {
-        type: 'object',
-        properties: {
-          level: { enum: ['common', 'specialty', 'rare', 'unknown'] },
-          brands: { type: 'array', items: { type: 'string' } },
-          notes: { type: 'array', items: { type: 'string' } },
-        },
-        required: ['level', 'brands', 'notes'],
-        additionalProperties: false,
-      },
-    },
-    required: ['names', 'aliases', 'availability'],
-    additionalProperties: false,
-  };
-}
-
-const SYSTEM_PROMPT = `You translate USDA food database descriptions. Each description is a comma-structured taxonomy string (most general term first, qualifiers after), e.g. "Pork, cured, salt pork, raw".
-
-For the given food, produce:
-- brand: if the description names a commercial brand or restaurant (e.g. PILLSBURY, KEEBLER, McDONALD'S), the brand name as commonly written; otherwise null.
-- en.names: repeat the description VERBATIM (it is already the en-US name).
-- en.aliases: 0-3 everyday names an American shopper would actually use for this exact food (e.g. "french bread" for "Bread, french or vienna..."). Empty array if none.
-- en.availability: the same judgment as below, for a typical US supermarket; notes in English.
-- ja.names: a faithful Japanese translation of the FULL structured description. Keep the taxonomic comma structure (use 、or ・ naturally). Translate technical food-science terms precisely (e.g. "raw"=生, "drained solids"=固形分のみ; "fresh" on meat means UNCURED, not raw — never translate it as 生 when the item is cooked). Do NOT invent a friendly product name; this is a translation of the description.
-- ja.aliases: 0-3 common everyday Japanese names a shopper would actually use for this exact food (empty array if none exists).
-- ja.availability: your judgment of this exact food in the Japanese market. level: "common" / "specialty" / "rare" / "unknown". brands: actual brand names sold in that market for this food — ONLY brands you are confident exist; an empty array is much better than a guess. notes: 0-2 short sentences IN JAPANESE with market guidance (where to find it, common substitutes). Empty array if you have nothing useful to say.
-- zh.*: the same for mainland China, Simplified Chinese, notes in Chinese.
-
-Translate faithfully; never invent brands; output ONLY a JSON object with exactly this shape:
-{"brand": string|null,
- "en": {"names": string, "aliases": string[], "availability": {"level": "common"|"specialty"|"rare"|"unknown", "brands": string[], "notes": string[]}},
- "ja": { same shape as en },
- "zh": { same shape as en }}`;
-
-const LEVELS = new Set(['common', 'specialty', 'rare', 'unknown']);
-
-function validateShape(raw: unknown): void {
-  const fail = (msg: string): never => {
-    throw new Error(`shape: ${msg}`);
-  };
-  if (raw === null || typeof raw !== 'object') fail('not an object');
-  const root = raw as Record<string, unknown>;
-  if (typeof root['brand'] !== 'string' && root['brand'] !== null) fail('brand');
-  for (const loc of ['en', 'ja', 'zh']) {
-    const l = root[loc];
-    if (l === null || typeof l !== 'object') fail(loc);
-    const o = l as Record<string, unknown>;
-    if (typeof o['names'] !== 'string' || o['names'] === '') fail(`${loc}.names`);
-    if (!Array.isArray(o['aliases'])) fail(`${loc}.aliases`);
-    const avail = o['availability'] as Record<string, unknown> | null | undefined;
-    if (avail === null || typeof avail !== 'object') fail(`${loc}.availability`);
-    if (!LEVELS.has(String(avail['level']))) fail(`${loc}.availability.level`);
-    if (!Array.isArray(avail['brands'])) fail(`${loc}.availability.brands`);
-    if (!Array.isArray(avail['notes'])) fail(`${loc}.availability.notes`);
-  }
-}
-
 interface OllamaChatResponse {
   message?: { content?: string };
   eval_count?: number;
@@ -137,10 +52,7 @@ async function translateOne(entry: ManifestEntry): Promise<{ result: unknown; to
       options: { temperature: 0.7, top_p: 0.8 },
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
-        {
-          role: 'user',
-          content: `Description: ${entry.description}\nCategory: ${entry.category}`,
-        },
+        { role: 'user', content: userContent(entry) },
       ],
     }),
   });
@@ -152,16 +64,6 @@ async function translateOne(entry: ManifestEntry): Promise<{ result: unknown; to
   const result = JSON.parse(extractJson(content)) as unknown;
   validateShape(result);
   return { result, tokens: data.eval_count ?? 0 };
-}
-
-/** The model may wrap the JSON in ```json fences — unwrap before parsing. */
-function extractJson(content: string): string {
-  const trimmed = content.trim();
-  const fenced = /^```(?:json)?\s*([\s\S]*?)\s*```$/.exec(trimmed);
-  const body = fenced?.[1] ?? trimmed;
-  const start = body.indexOf('{');
-  const end = body.lastIndexOf('}');
-  return start >= 0 && end > start ? body.slice(start, end + 1) : body;
 }
 
 const allFoods = JSON.parse(readFileSync(INPUT, 'utf8')) as ManifestEntry[];
