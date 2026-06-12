@@ -1,4 +1,4 @@
-import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { ManifestEntry } from '../../src/toolkit/search.js';
 
@@ -109,6 +109,9 @@ interface ChatCompletionResponse {
 async function translateOne(entry: ManifestEntry): Promise<{ result: unknown; tokens: number }> {
   const response = await fetch(`${ENDPOINT}/v1/chat/completions`, {
     method: 'POST',
+    // A healthy item takes ~10-60s; minutes means the server is paging or
+    // dead — fail fast and let the retry/resume machinery handle it.
+    signal: AbortSignal.timeout(180_000),
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({
       model: MODEL,
@@ -135,10 +138,27 @@ async function translateOne(entry: ManifestEntry): Promise<{ result: unknown; to
   return { result: JSON.parse(content) as unknown, tokens: data.usage?.completion_tokens ?? 0 };
 }
 
-const foods = JSON.parse(readFileSync(INPUT, 'utf8')) as ManifestEntry[];
+const allFoods = JSON.parse(readFileSync(INPUT, 'utf8')) as ManifestEntry[];
 const outPath = `${root}scripts/translate/out/${MODEL.replaceAll(/[:/]/g, '_')}.jsonl`;
 mkdirSync(`${root}scripts/translate/out`, { recursive: true });
-writeFileSync(outPath, '');
+
+// Resume by default: keep prior successes, redo failures and the not-yet-run.
+const RESUME = !process.argv.includes('--fresh');
+let kept: string[] = [];
+if (RESUME && existsSync(outPath)) {
+  const prior = readFileSync(outPath, 'utf8')
+    .split('\n')
+    .filter((l) => l !== '')
+    .map((l) => JSON.parse(l) as { slug: string; error?: string });
+  const ok = new Set(prior.filter((r) => r.error === undefined).map((r) => r.slug));
+  kept = readFileSync(outPath, 'utf8')
+    .split('\n')
+    .filter((l) => l !== '' && !(JSON.parse(l) as { error?: string }).error);
+  console.log(`Resuming: ${ok.size} prior successes kept.`);
+}
+const keptSlugs = new Set(kept.map((l) => (JSON.parse(l) as { slug: string }).slug));
+const foods = allFoods.filter((f) => !keptSlugs.has(f.slug));
+writeFileSync(outPath, kept.length > 0 ? `${kept.join('\n')}\n` : '');
 
 let done = 0;
 let failed = 0;
