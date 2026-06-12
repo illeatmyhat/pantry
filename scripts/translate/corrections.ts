@@ -91,7 +91,7 @@ export function applyCorrections(
     for (const [locale, set] of correctionsByLocale) {
       const correction = set.get(record.fdc_id);
       if (correction === undefined) continue;
-      const localeData = result[locale];
+      const localeData: unknown = result[locale];
       if (localeData === null || typeof localeData !== 'object') continue;
       result = {
         ...result,
