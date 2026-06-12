@@ -9,7 +9,7 @@ import type { ManifestEntry } from '../../src/toolkit/search.js';
  * (recipes data/ingredients/<locale>/<id>.yaml): names/aliases +
  * availability{level, brands, notes}, notes in the market's language.
  *
- * `aisle` follows recipes Q15 semantics — the errand router. store: which
+ * `errand` follows recipes Q15 semantics — the errand router. store: which
  * trip the item belongs to (primary supermarket / specialty shop / order
  * online); section: the shelf walk within THAT store (an online item still
  * has a section). Generated best-effort; the enum is server-enforced on the
@@ -49,7 +49,7 @@ function localeSchema(): object {
     properties: {
       names: { type: 'string' },
       aliases: { type: 'array', items: { type: 'string' } },
-      aisle: {
+      errand: {
         type: 'object',
         properties: {
           store: { enum: STORES },
@@ -69,7 +69,7 @@ function localeSchema(): object {
         additionalProperties: false,
       },
     },
-    required: ['names', 'aliases', 'aisle', 'availability'],
+    required: ['names', 'aliases', 'errand', 'availability'],
     additionalProperties: false,
   };
 }
@@ -80,16 +80,16 @@ For the given food, produce:
 - brand: if the description names a commercial brand or restaurant (e.g. PILLSBURY, KEEBLER, McDONALD'S), the brand name as commonly written; otherwise null.
 - en.names: repeat the description VERBATIM (it is already the en-US name).
 - en.aliases: 0-3 everyday names an American shopper would actually use for this exact food (e.g. "french bread" for "Bread, french or vienna..."). Empty array if none.
-- en.aisle / en.availability: the same judgments as below, for the US market; notes in English.
+- en.errand / en.availability: the same judgments as below, for the US market; notes in English.
 - ja.names: a faithful Japanese translation of the FULL structured description. Keep the taxonomic comma structure (use 、or ・ naturally). Translate technical food-science terms precisely (e.g. "raw"=生, "drained solids"=固形分のみ; "fresh" on meat means UNCURED, not raw — never translate it as 生 when the item is cooked). Do NOT invent a friendly product name; this is a translation of the description.
 - ja.aliases: 0-3 common everyday Japanese names a shopper would actually use for this exact food (empty array if none exists).
-- ja.aisle: the shopping errand for this food in Japan. store: "primary" if an ordinary supermarket carries it, "specialty" if it realistically requires a specialty shop (import store, depachika, Asian/Western grocery), "online" if it realistically must be ordered. section: the shelf area within THAT store — even online listings have a section. Judge store honestly: a wrong "primary" sends a shopper on a futile trip.
+- ja.errand: the shopping errand for this food in Japan. store: "primary" if an ordinary supermarket carries it, "specialty" if it realistically requires a specialty shop (import store, depachika, Asian/Western grocery), "online" if it realistically must be ordered. section: the shelf area within THAT store — even online listings have a section. Judge store honestly: a wrong "primary" sends a shopper on a futile trip.
 - ja.availability: your judgment of this exact food in the Japanese market. level: "common" / "specialty" / "rare" / "unknown". brands: actual brand names sold in that market for this food — ONLY brands you are confident exist; an empty array is much better than a guess. notes: 0-2 short sentences IN JAPANESE with market guidance (where to find it, common substitutes). Empty array if you have nothing useful to say.
 - zh.*: the same for mainland China, Simplified Chinese, notes in Chinese.
 
 Translate faithfully; never invent brands; output ONLY a JSON object with exactly this shape:
 {"brand": string|null,
- "en": {"names": string, "aliases": string[], "aisle": {"store": "primary"|"specialty"|"online", "section": "produce"|"meat_seafood"|"dairy_eggs"|"dry_goods"|"canned"|"condiments"|"spices"|"oils"|"international"|"tofu_soy"}, "availability": {"level": "common"|"specialty"|"rare"|"unknown", "brands": string[], "notes": string[]}},
+ "en": {"names": string, "aliases": string[], "errand": {"store": "primary"|"specialty"|"online", "section": "produce"|"meat_seafood"|"dairy_eggs"|"dry_goods"|"canned"|"condiments"|"spices"|"oils"|"international"|"tofu_soy"}, "availability": {"level": "common"|"specialty"|"rare"|"unknown", "brands": string[], "notes": string[]}},
  "ja": { same shape as en },
  "zh": { same shape as en }}`;
 
@@ -114,10 +114,10 @@ export function validateShape(raw: unknown): void {
     const o = l as Record<string, unknown>;
     if (typeof o['names'] !== 'string' || o['names'] === '') fail(`${loc}.names`);
     if (!Array.isArray(o['aliases'])) fail(`${loc}.aliases`);
-    const aisle = o['aisle'] as Record<string, unknown> | null | undefined;
-    if (aisle === null || typeof aisle !== 'object') fail(`${loc}.aisle`);
-    if (!STORE_SET.has(String(aisle['store']))) fail(`${loc}.aisle.store`);
-    if (!SECTION_SET.has(String(aisle['section']))) fail(`${loc}.aisle.section`);
+    const errand = o['errand'] as Record<string, unknown> | null | undefined;
+    if (errand === null || typeof errand !== 'object') fail(`${loc}.errand`);
+    if (!STORE_SET.has(String(errand['store']))) fail(`${loc}.errand.store`);
+    if (!SECTION_SET.has(String(errand['section']))) fail(`${loc}.errand.section`);
     const avail = o['availability'] as Record<string, unknown> | null | undefined;
     if (avail === null || typeof avail !== 'object') fail(`${loc}.availability`);
     if (!LEVELS.has(String(avail['level']))) fail(`${loc}.availability.level`);
