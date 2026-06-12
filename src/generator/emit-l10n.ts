@@ -11,17 +11,26 @@ import { join } from 'node:path';
  *   l10n/<tag>/sr/<slug>.full.js      VIEW = core + extra + strings
  *
  * Decisions encoded here:
+ * - The emitter iterates the LOCALE TABLE, never the record's keys: a
+ *   stray root key (legacy bare 'ja', a typo'd tag) must never become a
+ *   published locale directory (code-review 2026-06-12).
  * - Corrections are invisible: internal markers (`corrected`) never ship.
- * - The canonical locale is detected by absence of a generated `name`; its
- *   name is the USDA description, copied mechanically.
- * - Missing means missing: a locale absent from a record emits nothing —
- *   the consumer's import fails at build time rather than leaking another
- *   language.
+ * - The canonical locale's name IS the USDA description, copied
+ *   mechanically; a generated name there is a contract breach, not data.
+ * - Missing means missing: a locale absent from a record emits nothing;
+ *   a PRESENT locale missing its name is an error — never fall back to
+ *   the English description for a non-canonical locale.
  */
 export interface TranslationRecord {
   readonly slug: string;
   readonly description: string;
   readonly result?: Record<string, unknown> & { brand?: string | null };
+}
+
+/** The slice of the locale table the emitter needs (pass LOCALES from scripts/translate/locales.ts). */
+export interface EmitLocale {
+  readonly tag: string;
+  readonly canonical?: boolean;
 }
 
 interface LocaleStringsShape {
@@ -32,19 +41,50 @@ interface LocaleStringsShape {
   readonly notes?: readonly string[];
 }
 
-export function emitL10n(records: readonly TranslationRecord[], outDir: string): void {
+export function emitL10n(
+  records: readonly TranslationRecord[],
+  outDir: string,
+  locales: readonly EmitLocale[],
+): void {
+  const madeDirs = new Set<string>();
   for (const record of records) {
     if (record.result === undefined) continue;
-    for (const [key, value] of Object.entries(record.result)) {
-      if (key === 'brand' || value === null || typeof value !== 'object') continue;
+    for (const spec of locales) {
+      const value = record.result[spec.tag];
+      if (value === undefined) continue; // missing means missing
+      if (value === null || typeof value !== 'object') {
+        throw new Error(`${record.slug}: ${spec.tag} surface is not an object.`);
+      }
       const strings = value as LocaleStringsShape;
-      const localeDir = join(outDir, 'l10n', key, 'sr');
-      mkdirSync(localeDir, { recursive: true });
+
+      let name: string;
+      if (spec.canonical === true) {
+        if (strings.name !== undefined) {
+          throw new Error(
+            `${record.slug}: generated name on canonical locale ${spec.tag} — ` +
+              'the canonical name IS the description, copied mechanically.',
+          );
+        }
+        name = record.description;
+      } else {
+        if (strings.name === undefined || strings.name === '') {
+          throw new Error(
+            `${record.slug}: ${spec.tag} surface has no name — missing means missing; ` +
+              'refusing to leak the English description.',
+          );
+        }
+        name = strings.name;
+      }
+
+      const localeDir = join(outDir, 'l10n', spec.tag, 'sr');
+      if (!madeDirs.has(localeDir)) {
+        mkdirSync(localeDir, { recursive: true });
+        madeDirs.add(localeDir);
+      }
 
       const leaf = {
-        locale: key,
-        // Canonical locale: name was never generated — the description IS the name.
-        name: strings.name ?? record.description,
+        locale: spec.tag,
+        name,
         aliases: strings.aliases ?? [],
         ...(strings.errand !== undefined ? { errand: strings.errand } : {}),
         notes: strings.notes ?? [],

@@ -31,6 +31,33 @@ describe('parseCorrections', () => {
       parseCorrections('ja-JP', `168229:\n  nmae: x\n  basis: y\n`),
     ).toThrow(/nmae/);
   });
+
+  it('rejects invalid errand values — corrections obey the same contract as model output', () => {
+    expect(() =>
+      parseCorrections('ja-JP', `168229:\n  errand: {store: walmart, section: meat}\n  basis: y\n`),
+    ).toThrow(/store/);
+    expect(() =>
+      parseCorrections('ja-JP', `168229:\n  errand: {store: primary}\n  basis: y\n`),
+    ).toThrow(/section/);
+  });
+
+  it('accepts errand: null — correcting a food to non-retail is legitimate', () => {
+    expect(() =>
+      parseCorrections('ja-JP', `168229:\n  errand: null\n  basis: y\n`),
+    ).not.toThrow();
+  });
+
+  it('rejects non-array aliases and notes', () => {
+    expect(() =>
+      parseCorrections('ja-JP', `168229:\n  aliases: ソルトポーク\n  basis: y\n`),
+    ).toThrow(/array/);
+  });
+
+  it('rejects a name correction on the canonical locale — the description is the name', () => {
+    expect(() =>
+      parseCorrections('en-US', `168229:\n  name: Salted Pork\n  basis: y\n`),
+    ).toThrow(/canonical/);
+  });
 });
 
 describe('applyCorrections', () => {
@@ -64,5 +91,17 @@ describe('applyCorrections', () => {
   it('flags corrections for fdc_ids absent from the baseline', () => {
     const orphaned = parseCorrections('ja-JP', `999999:\n  name: x\n  basis: y\n`);
     expect(() => applyCorrections(baseline, new Map([['ja-JP', orphaned]]))).toThrow(/999999/);
+  });
+
+  it('throws when the corrected record has no result — failed rows must not eat corrections', () => {
+    const failedRow = [{ slug: 'x', fdc_id: 168229, description: 'x', error: 'boom' }];
+    expect(() => applyCorrections(failedRow, new Map([['ja-JP', corrections]]))).toThrow(
+      /no result/,
+    );
+  });
+
+  it('throws when the corrected locale surface is missing from the record', () => {
+    const noJa = [{ ...baseline[0], result: { brand: null } } as (typeof baseline)[0]];
+    expect(() => applyCorrections(noJa, new Map([['ja-JP', corrections]]))).toThrow(/no ja-JP/);
   });
 });

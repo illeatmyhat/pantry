@@ -54,6 +54,11 @@ describe('localize', () => {
     expect(ja.nutrients).toEqual(guanciale.nutrients); // nutrition rides along
   });
 
+  it('carries errand: null through — non-retail is data the consumer filters on', () => {
+    const ja = localize(guanciale, { locale: 'ja-JP', name: 'グアンチャーレ', errand: null });
+    expect(ja.errand).toBeNull();
+  });
+
   it('refuses to localize an unnamed food — localization decorates NAMED foods', () => {
     const unnamed = defineFood({ name: 'x', nutrients: {}, basis: 'y' });
     const { name: _dropped, ...reallyUnnamed } = unnamed;

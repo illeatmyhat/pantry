@@ -156,9 +156,12 @@ function str(record: CsvRecord, field: string): string {
 }
 
 function num(record: CsvRecord, field: string): number {
-  const value = Number(str(record, field));
+  const raw = str(record, field);
+  // Number('') is 0 and finite — an empty cell must be an error, not a zero.
+  if (raw.trim() === '') throw new Error(`Field "${field}" is empty — expected a number`);
+  const value = Number(raw);
   if (!Number.isFinite(value)) {
-    throw new Error(`Field "${field}" is not numeric: "${str(record, field)}"`);
+    throw new Error(`Field "${field}" is not numeric: "${raw}"`);
   }
   return value;
 }

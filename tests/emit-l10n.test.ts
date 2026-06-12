@@ -30,9 +30,11 @@ const record = {
 const outDir = mkdtempSync(join(tmpdir(), 'pantry-l10n-'));
 afterAll(() => rmSync(outDir, { recursive: true, force: true }));
 
+const TEST_LOCALES = [{ tag: 'en-US', canonical: true }, { tag: 'ja-JP' }, { tag: 'zh-CN' }];
+
 describe('emitL10n', () => {
   it('emits a strings leaf per locale present on the record', async () => {
-    emitL10n([record], outDir);
+    emitL10n([record], outDir, TEST_LOCALES);
     const ja = (await import(
       pathToFileURL(join(outDir, 'l10n', 'ja-JP', 'sr', 'pork-cured-salt-pork-raw.strings.js')).href
     )) as { default: Record<string, unknown> };
@@ -46,7 +48,7 @@ describe('emitL10n', () => {
   });
 
   it('strips internal correction markers — corrections are invisible', () => {
-    emitL10n([record], outDir);
+    emitL10n([record], outDir, TEST_LOCALES);
     const source = readFileSync(
       join(outDir, 'l10n', 'ja-JP', 'sr', 'pork-cured-salt-pork-raw.strings.js'),
       'utf8',
@@ -55,7 +57,7 @@ describe('emitL10n', () => {
   });
 
   it('gives the canonical locale its name mechanically from the description', async () => {
-    emitL10n([record], outDir);
+    emitL10n([record], outDir, TEST_LOCALES);
     const en = (await import(
       pathToFileURL(join(outDir, 'l10n', 'en-US', 'sr', 'pork-cured-salt-pork-raw.strings.js')).href
     )) as { default: { name: string } };
@@ -63,7 +65,7 @@ describe('emitL10n', () => {
   });
 
   it('emits locale views that import leaves and inline nothing', () => {
-    emitL10n([record], outDir);
+    emitL10n([record], outDir, TEST_LOCALES);
     const view = readFileSync(
       join(outDir, 'l10n', 'ja-JP', 'sr', 'pork-cured-salt-pork-raw.js'),
       'utf8',
@@ -88,7 +90,7 @@ describe('emitL10n', () => {
         'en-US': { aliases: [], errand: null, notes: [] },
       },
     };
-    emitL10n([nonRetail], outDir);
+    emitL10n([nonRetail], outDir, TEST_LOCALES);
     const en = (await import(
       pathToFileURL(join(outDir, 'l10n', 'en-US', 'sr', 'mcdonalds-hamburger.strings.js')).href
     )) as { default: { errand: unknown } };
@@ -96,9 +98,40 @@ describe('emitL10n', () => {
   });
 
   it('missing means missing: locales absent from the record are not emitted', () => {
-    emitL10n([record], outDir);
+    emitL10n([record], outDir, TEST_LOCALES);
     expect(() =>
       readFileSync(join(outDir, 'l10n', 'zh-CN', 'sr', 'pork-cured-salt-pork-raw.strings.js')),
     ).toThrow();
+  });
+
+  it('never emits stray result keys as locales — the table is the only locale source', () => {
+    const strayKey = {
+      slug: 'stray-key-food',
+      fdc_id: 1,
+      description: 'Stray',
+      result: { brand: null, ja: { name: 'x', aliases: [], errand: null, notes: [] } },
+    };
+    emitL10n([strayKey], outDir, TEST_LOCALES);
+    expect(() => readFileSync(join(outDir, 'l10n', 'ja', 'sr', 'stray-key-food.strings.js'))).toThrow();
+  });
+
+  it('throws when a non-canonical surface has no name — never leak the English description', () => {
+    const nameless = {
+      slug: 'nameless',
+      fdc_id: 2,
+      description: 'Nameless food',
+      result: { brand: null, 'ja-JP': { aliases: [], errand: null, notes: [] } },
+    };
+    expect(() => emitL10n([nameless], outDir, TEST_LOCALES)).toThrow(/no name/);
+  });
+
+  it('throws when the canonical locale carries a generated name', () => {
+    const paraphrased = {
+      slug: 'paraphrased',
+      fdc_id: 3,
+      description: 'Real description',
+      result: { brand: null, 'en-US': { name: 'A Paraphrase', aliases: [], errand: null, notes: [] } },
+    };
+    expect(() => emitL10n([paraphrased], outDir, TEST_LOCALES)).toThrow(/canonical/);
   });
 });

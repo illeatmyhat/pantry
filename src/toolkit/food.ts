@@ -79,7 +79,8 @@ export interface Food {
   readonly aliases?: readonly string[];
   /** Locale surface — present on localized foods only. */
   readonly locale?: string;
-  readonly errand?: Errand;
+  /** `null` = non-retail (no store sells it — fast food, subsistence); absent = no errand stated. */
+  readonly errand?: Errand | null;
   /** Brand recommendations are consumer curation (cuisine context), never generated. */
   readonly brands?: readonly string[];
   readonly notes?: readonly string[];

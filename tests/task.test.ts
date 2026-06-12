@@ -97,4 +97,24 @@ describe('task contract — errand', () => {
   it('states the purchasable-form rule — cooked-state foods are not null', () => {
     expect(SYSTEM_PROMPT.toLowerCase()).toContain('purchasable form');
   });
+
+  it('rejects unknown root keys — the schema-less Ollama path must not leak extra locales', () => {
+    const result = validResult();
+    result['fr-FR'] = { aliases: [], errand: null, notes: [] };
+    expect(() => validateShape(result)).toThrow(/fr-FR/);
+  });
+
+  it('rejects a name on the canonical locale — the description is copied mechanically', () => {
+    const canonical = LOCALES.find((l) => l.canonical === true);
+    if (canonical === undefined) return;
+    const result = validResult();
+    (result[canonical.tag] as Record<string, unknown>)['name'] = 'A Paraphrase';
+    expect(() => validateShape(result)).toThrow(/name/);
+  });
+
+  it('rejects unknown locale-block keys', () => {
+    const result = validResult();
+    (result[someTag] as Record<string, unknown>)['confidence'] = 0.9;
+    expect(() => validateShape(result)).toThrow(/confidence/);
+  });
 });

@@ -19,15 +19,15 @@ function record(errand: unknown): {
 
 describe('findStrays', () => {
   it('passes errands whose section is in the locale vocabulary', () => {
-    expect(findStrays([record({ store: 'primary', section: knownSection })])).toEqual([]);
+    expect(findStrays([record({ store: 'primary', section: knownSection })]).strays).toEqual([]);
   });
 
   it('passes errand: null — non-retail is a known value, not a stray', () => {
-    expect(findStrays([record(null)])).toEqual([]);
+    expect(findStrays([record(null)]).strays).toEqual([]);
   });
 
   it('flags a coined section for later verification', () => {
-    const strays = findStrays([record({ store: 'specialty', section: 'salumeria_counter' })]);
+    const { strays } = findStrays([record({ store: 'specialty', section: 'salumeria_counter' })]);
     expect(strays).toEqual([
       {
         locale: tag,
@@ -40,12 +40,22 @@ describe('findStrays', () => {
   });
 
   it('flags an unknown store even when the section is known', () => {
-    const strays = findStrays([record({ store: 'farmers_market', section: knownSection })]);
+    const { strays } = findStrays([record({ store: 'farmers_market', section: knownSection })]);
     expect(strays).toHaveLength(1);
     expect(strays[0]?.store).toBe('farmers_market');
   });
 
   it('skips records without results (failed batch rows)', () => {
-    expect(findStrays([{ fdc_id: 1, description: 'x' }])).toEqual([]);
+    expect(findStrays([{ fdc_id: 1, description: 'x' }]).strays).toEqual([]);
+  });
+
+  it('counts inspected surfaces so a legacy-keyed file cannot fake a clean audit', () => {
+    expect(findStrays([record(null)]).surfaces).toBe(1);
+    const legacyKeyed = {
+      fdc_id: 1,
+      description: 'x',
+      result: { en: { aliases: [], errand: { store: 'primary', section: 'produce' }, notes: [] } },
+    };
+    expect(findStrays([legacyKeyed]).surfaces).toBe(0);
   });
 });

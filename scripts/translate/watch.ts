@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { flag, readJsonl, root } from './lib.js';
 
 /**
  * Progress readout for a translation batch: bar, rate, tok/s, ETA.
@@ -8,14 +8,7 @@ import { fileURLToPath } from 'node:url';
  *   npx tsx scripts/translate/watch.ts --follow   refresh every 5 s
  *   [--model qwen3.6:35b-a3b-q4_K_M] [--total 40]
  */
-const root = fileURLToPath(new URL('../../', import.meta.url));
-
-function flag(name: string, fallback: string): string {
-  const i = process.argv.indexOf(`--${name}`);
-  const value = i >= 0 ? process.argv[i + 1] : undefined;
-  return value ?? fallback;
-}
-const MODEL = flag('model', 'qwen3.6:35b-a3b-q4_K_M');
+const MODEL = flag('model') ?? 'qwen3.6:35b-a3b-q4_K_M';
 const FOLLOW = process.argv.includes('--follow');
 const jsonlPath = `${root}scripts/translate/out/${MODEL.replaceAll(/[:/]/g, '_')}.jsonl`;
 
@@ -31,7 +24,8 @@ function totalItems(): number {
 
 interface Row {
   readonly slug: string;
-  readonly ms: number;
+  /** Per-item wall time — present on local-runner output only; batch rows have none. */
+  readonly ms?: number;
   readonly tokens?: number;
   readonly error?: string;
 }
@@ -41,18 +35,16 @@ function snapshot(): void {
     console.log(`No output yet at ${jsonlPath}`);
     return;
   }
-  const rows = readFileSync(jsonlPath, 'utf8')
-    .split('\n')
-    .filter((l) => l !== '')
-    .map((l) => JSON.parse(l) as Row);
+  const rows = readJsonl<Row>(jsonlPath);
   const total = totalItems() || rows.length;
   const failed = rows.filter((r) => r.error !== undefined).length;
   // Per-row ms includes queue wait when the runner uses N workers (Ollama
   // decodes one request at a time), so wall-clock rates divide by N.
-  const concurrency = Number(flag('concurrency', '2'));
-  const avgMs = rows.reduce((s, r) => s + r.ms, 0) / Math.max(1, rows.length) / concurrency;
+  const concurrency = Number(flag('concurrency') ?? '2');
+  const totalMs = rows.reduce((s, r) => s + (r.ms ?? 0), 0);
+  const avgMs = totalMs / Math.max(1, rows.length) / concurrency;
   const tokens = rows.reduce((s, r) => s + (r.tokens ?? 0), 0);
-  const wallSeconds = rows.reduce((s, r) => s + r.ms, 0) / 1000 / concurrency;
+  const wallSeconds = totalMs / 1000 / concurrency;
   const tokPerS = tokens / Math.max(1, wallSeconds);
   const remaining = Math.max(0, total - rows.length);
   const etaMin = (remaining * avgMs) / 60000;

@@ -1,7 +1,8 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import Anthropic from '@anthropic-ai/sdk';
+import { flag, mulberry32, readJsonl, root } from './lib.js';
 import { LOCALES } from './locales.js';
+import { STORES } from './task.js';
 import type { ManifestEntry } from '../../src/toolkit/search.js';
 
 /**
@@ -17,16 +18,10 @@ import type { ManifestEntry } from '../../src/toolkit/search.js';
  *   npx tsx scripts/translate/discover-errands.ts collect --batch-id msgbatch_…
  *   npx tsx scripts/translate/discover-errands.ts aggregate
  */
-const root = fileURLToPath(new URL('../../', import.meta.url));
 const outDir = `${root}scripts/translate/out`;
 const samplePath = `${outDir}/errand-sample.json`;
 const resultsPath = `${outDir}/errand-discovery.jsonl`;
 
-function flag(name: string, fallback: string): string {
-  const i = process.argv.indexOf(`--${name}`);
-  const value = i >= 0 ? process.argv[i + 1] : undefined;
-  return value ?? fallback;
-}
 const COMMAND = process.argv[2];
 
 function listMarkets(): string {
@@ -57,7 +52,9 @@ function localeSchema(): object {
   return {
     type: 'object',
     properties: {
-      store: { enum: ['primary', 'specialty', 'online'] },
+      // Derived from the task contract — a store tier added to STORES must
+      // reach the next discovery pass too.
+      store: { enum: STORES },
       section: { type: 'string' },
     },
     required: ['store', 'section'],
@@ -65,21 +62,11 @@ function localeSchema(): object {
   };
 }
 
-function mulberry32(a: number): () => number {
-  return () => {
-    a |= 0;
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
 const client = new Anthropic();
 
 if (COMMAND === 'sample') {
-  const perCategory = Number(flag('per-category', '20'));
-  const rand = mulberry32(Number(flag('seed', '20260612')));
+  const perCategory = Number(flag('per-category') ?? '20');
+  const rand = mulberry32(Number(flag('seed') ?? '20260612'));
   const manifest = JSON.parse(
     readFileSync(`${root}generated/manifest.json`, 'utf8'),
   ) as ManifestEntry[];
@@ -107,7 +94,7 @@ if (COMMAND === 'sample') {
     requests: foods.map((entry) => ({
       custom_id: `fdc-${entry.fdc_id}`,
       params: {
-        model: flag('model', 'claude-opus-4-8'),
+        model: flag('model') ?? 'claude-opus-4-8',
         max_tokens: 400,
         system: SYSTEM_PROMPT,
         output_config: { format: { type: 'json_schema' as const, schema: SCHEMA } },
@@ -123,7 +110,7 @@ if (COMMAND === 'sample') {
   console.log(`Submitted ${foods.length} as ${batch.id}`);
   console.log(`Collect with: npx tsx scripts/translate/discover-errands.ts collect --batch-id ${batch.id}`);
 } else if (COMMAND === 'collect') {
-  const batchId = flag('batch-id', '');
+  const batchId = flag('batch-id') ?? '';
   if (batchId === '') throw new Error('collect needs --batch-id');
   let batch = await client.messages.batches.retrieve(batchId);
   while (batch.processing_status !== 'ended') {
@@ -161,11 +148,7 @@ if (COMMAND === 'sample') {
     category?: string;
     result?: Record<string, { store: string; section: string }>;
   }
-  const rows = readFileSync(resultsPath, 'utf8')
-    .split('\n')
-    .filter((l) => l !== '')
-    .map((l) => JSON.parse(l) as Row)
-    .filter((r) => r.result !== undefined);
+  const rows = readJsonl<Row>(resultsPath).filter((r) => r.result !== undefined);
   const out: string[] = [`# Errand-section vocabulary discovery — ${rows.length} foods`, ''];
   // Tolerate the pre-BCP-47 batch output (bare language keys).
   const keys = LOCALES.map((l) => {

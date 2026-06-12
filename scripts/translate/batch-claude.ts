@@ -1,6 +1,6 @@
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import Anthropic from '@anthropic-ai/sdk';
+import { flag, root } from './lib.js';
 import { extractJson, SCHEMA, SYSTEM_PROMPT, userContent, validateShape } from './task.js';
 import type { ManifestEntry } from '../../src/toolkit/search.js';
 
@@ -8,38 +8,46 @@ import type { ManifestEntry } from '../../src/toolkit/search.js';
  * Translates foods through the Anthropic Message Batches API (50% of
  * standard prices, usually done within the hour). Same task contract as the
  * local runner (task.ts); results land in the same JSONL format so the
- * watcher and review tooling work unchanged.
+ * review tooling works unchanged.
  *
  *   npx tsx scripts/translate/batch-claude.ts submit [--model claude-haiku-4-5]
  *     [--input scripts/translate/out/sample.json] [--limit N]
  *   npx tsx scripts/translate/batch-claude.ts collect --batch-id msgbatch_…
  *
- * `submit` prints the batch id and exits; `collect` polls until the batch
- * ends, then writes results. Requires ANTHROPIC_API_KEY.
+ * `submit` records {model, input} per batch id in out/batches.json so
+ * `collect` is self-describing — collecting with the wrong flags used to
+ * mislabel results, price them at the wrong rates, and drop identity
+ * fields (code-review 2026-06-12). Requires ANTHROPIC_API_KEY.
  */
-const root = fileURLToPath(new URL('../../', import.meta.url));
+const BATCHES_PATH = `${root}scripts/translate/out/batches.json`;
 
-function flag(name: string, fallback: string): string {
-  const i = process.argv.indexOf(`--${name}`);
-  const value = i >= 0 ? process.argv[i + 1] : undefined;
-  return value ?? fallback;
+interface BatchInfo {
+  readonly model: string;
+  readonly input: string;
+  readonly submitted_at: string;
 }
-const COMMAND = process.argv[2];
-const MODEL = flag('model', 'claude-haiku-4-5');
-const INPUT = flag('input', `${root}scripts/translate/out/sample.json`);
-const LIMIT = Number(flag('limit', '0'));
 
+function readBatches(): Record<string, BatchInfo> {
+  return existsSync(BATCHES_PATH)
+    ? (JSON.parse(readFileSync(BATCHES_PATH, 'utf8')) as Record<string, BatchInfo>)
+    : {};
+}
+
+const COMMAND = process.argv[2];
 const client = new Anthropic();
 
 if (COMMAND === 'submit') {
-  let foods = JSON.parse(readFileSync(INPUT, 'utf8')) as ManifestEntry[];
-  if (LIMIT > 0) foods = foods.slice(0, LIMIT);
+  const model = flag('model') ?? 'claude-haiku-4-5';
+  const input = flag('input') ?? `${root}scripts/translate/out/sample.json`;
+  const limit = Number(flag('limit') ?? '0');
+  let foods = JSON.parse(readFileSync(input, 'utf8')) as ManifestEntry[];
+  if (limit > 0) foods = foods.slice(0, limit);
 
   const batch = await client.messages.batches.create({
     requests: foods.map((entry) => ({
       custom_id: `fdc-${entry.fdc_id}`,
       params: {
-        model: MODEL,
+        model,
         max_tokens: 2000,
         system: SYSTEM_PROMPT,
         output_config: { format: { type: 'json_schema' as const, schema: SCHEMA } },
@@ -47,11 +55,23 @@ if (COMMAND === 'submit') {
       },
     })),
   });
+  mkdirSync(`${root}scripts/translate/out`, { recursive: true });
+  const batches = readBatches();
+  batches[batch.id] = { model, input, submitted_at: new Date().toISOString() };
+  writeFileSync(BATCHES_PATH, `${JSON.stringify(batches, null, 1)}\n`);
   console.log(`Submitted ${foods.length} requests as ${batch.id} (${batch.processing_status})`);
   console.log(`Collect with: npx tsx scripts/translate/batch-claude.ts collect --batch-id ${batch.id}`);
 } else if (COMMAND === 'collect') {
-  const batchId = flag('batch-id', '');
+  const batchId = flag('batch-id') ?? '';
   if (batchId === '') throw new Error('collect needs --batch-id');
+  const info = readBatches()[batchId];
+  const model = flag('model') ?? info?.model;
+  const input = flag('input') ?? info?.input;
+  if (model === undefined || input === undefined) {
+    throw new Error(
+      `batch ${batchId} not in ${BATCHES_PATH} — pass --model and --input explicitly.`,
+    );
+  }
 
   let batch = await client.messages.batches.retrieve(batchId);
   while (batch.processing_status !== 'ended') {
@@ -64,9 +84,9 @@ if (COMMAND === 'submit') {
   }
 
   const byFdcId = new Map(
-    (JSON.parse(readFileSync(INPUT, 'utf8')) as ManifestEntry[]).map((f) => [`fdc-${f.fdc_id}`, f]),
+    (JSON.parse(readFileSync(input, 'utf8')) as ManifestEntry[]).map((f) => [`fdc-${f.fdc_id}`, f]),
   );
-  const outPath = flag('output', `${root}scripts/translate/out/${MODEL}.jsonl`);
+  const outPath = flag('output') ?? `${root}scripts/translate/out/${model}.jsonl`;
   mkdirSync(`${root}scripts/translate/out`, { recursive: true });
 
   const lines: string[] = [];
@@ -75,7 +95,12 @@ if (COMMAND === 'submit') {
   let inputTokens = 0;
   let outputTokens = 0;
   for await (const result of await client.messages.batches.results(batchId)) {
-    const entry = byFdcId.get(result.custom_id) ?? { slug: result.custom_id };
+    const entry = byFdcId.get(result.custom_id);
+    if (entry === undefined) {
+      // Identity fields must never silently degrade — downstream merge,
+      // corrections, and strays all key on fdc_id.
+      throw new Error(`${result.custom_id} not in ${input} — wrong --input for this batch?`);
+    }
     let record: Record<string, unknown>;
     if (result.result.type === 'succeeded') {
       const message = result.result.message;
@@ -100,9 +125,9 @@ if (COMMAND === 'submit') {
   writeFileSync(outPath, `${lines.join('\n')}\n`);
 
   // Batch pricing = 50% of standard. Haiku 4.5: $1/$5 per MTok standard.
-  const price = MODEL.includes('haiku')
+  const price = model.includes('haiku')
     ? { in: 0.5, out: 2.5 }
-    : MODEL.includes('sonnet')
+    : model.includes('sonnet')
       ? { in: 1.5, out: 7.5 }
       : { in: 2.5, out: 12.5 };
   const cost = (inputTokens / 1e6) * price.in + (outputTokens / 1e6) * price.out;

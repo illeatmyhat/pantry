@@ -18,7 +18,8 @@ export interface LocaleStrings {
   readonly locale: string;
   readonly name: string;
   readonly aliases?: readonly string[];
-  readonly errand?: Errand;
+  /** `null` = non-retail in this market; flows through to Food.errand verbatim. */
+  readonly errand?: Errand | null;
   readonly brands?: readonly string[];
   readonly notes?: readonly string[];
 }

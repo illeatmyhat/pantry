@@ -27,23 +27,37 @@ export interface MergedRecord {
   readonly result?: Record<string, unknown>;
 }
 
+/**
+ * Free text (names, aliases, notes) is model-generated and may contain
+ * ': ', ' #', or leading YAML metacharacters — always quote it. JSON
+ * string syntax is valid YAML double-quoted scalar syntax.
+ */
+const yamlText = (value: string): string => JSON.stringify(value);
+
 export function toRecipesLocaleYaml(
   record: MergedRecord,
   locale: string,
   ingredientId: string,
+  canonical = false,
 ): string {
   const block = record.result?.[locale] as LocaleBlock | undefined;
   if (block === undefined) {
     throw new Error(`${record.slug} has no ${locale} surface — missing means missing.`);
   }
+  // Same rule as emit-l10n: only the canonical locale may fall back to the
+  // USDA description; a non-canonical surface without a name is an error,
+  // never a silent English leak.
+  if (!canonical && (block.name === undefined || block.name === '')) {
+    throw new Error(`${record.slug}: ${locale} surface has no name — refusing the English fallback.`);
+  }
   const lines: string[] = [
     `# ${locale} ingredient data for data/ingredients/${ingredientId}.yaml — locale-specific fields only.`,
-    `names: ${block.name ?? record.description}`,
+    `names: ${yamlText(block.name ?? record.description)}`,
   ];
   const aliases = block.aliases ?? [];
   if (aliases.length > 0) {
     lines.push('aliases:');
-    for (const alias of aliases) lines.push(`  - ${alias}`);
+    for (const alias of aliases) lines.push(`  - ${yamlText(alias)}`);
   }
   if (block.errand !== undefined && block.errand !== null) {
     lines.push(
@@ -56,7 +70,7 @@ export function toRecipesLocaleYaml(
   if (notes.length > 0) {
     lines.push('availability:');
     lines.push('  notes:');
-    for (const note of notes) lines.push(`    - text: ${note}`);
+    for (const note of notes) lines.push(`    - text: ${yamlText(note)}`);
   }
   return `${lines.join('\n')}\n`;
 }

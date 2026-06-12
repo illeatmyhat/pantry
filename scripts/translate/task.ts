@@ -123,10 +123,28 @@ export function validateShape(raw: unknown): void {
   if (raw === null || typeof raw !== 'object') fail('not an object');
   const root = raw as Record<string, unknown>;
   if (typeof root['brand'] !== 'string' && root['brand'] !== null) fail('brand');
+  // The server-side schema enforces additionalProperties: false, but the
+  // local Ollama path has no schema — validateShape is the only gate there,
+  // so unknown keys must be rejected here too (else a stray locale or a
+  // round-tripped canonical name flows downstream).
+  const knownRoot = new Set(['brand', ...LOCALES.map((l) => l.tag)]);
+  for (const key of Object.keys(root)) {
+    if (!knownRoot.has(key)) fail(`unknown root key "${key}"`);
+  }
   for (const spec of LOCALES) {
     const l = root[spec.tag];
     if (l === null || typeof l !== 'object') fail(spec.tag);
     const o = l as Record<string, unknown>;
+    for (const key of Object.keys(o)) {
+      const known =
+        key === 'aliases' ||
+        key === 'errand' ||
+        key === 'notes' ||
+        (key === 'name' && spec.canonical !== true);
+      // A `name` on the canonical locale is model output where the USDA
+      // description must be copied mechanically — never accept it.
+      if (!known) fail(`${spec.tag}: unknown key "${key}"`);
+    }
     if (spec.canonical !== true && (typeof o['name'] !== 'string' || o['name'] === '')) {
       fail(`${spec.tag}.name`);
     }

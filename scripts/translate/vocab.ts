@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import { parse } from 'yaml';
+import { readJsonl, root } from './lib.js';
 import { LOCALES } from './locales.js';
 
 /**
@@ -11,8 +11,6 @@ import { LOCALES } from './locales.js';
  *
  *   npx tsx scripts/translate/vocab.ts
  */
-const root = fileURLToPath(new URL('../../', import.meta.url));
-
 interface VocabSection {
   slug: string;
   label: string;
@@ -38,11 +36,9 @@ interface DiscoveryRow {
   result?: Record<string, { store: string; section: string }>;
 }
 
-const rows = readFileSync(`${root}scripts/translate/out/errand-discovery.jsonl`, 'utf8')
-  .split('\n')
-  .filter((l) => l !== '')
-  .map((l) => JSON.parse(l) as DiscoveryRow)
-  .filter((r) => r.result !== undefined);
+const rows = readJsonl<DiscoveryRow>(`${root}scripts/translate/out/errand-discovery.jsonl`).filter(
+  (r) => r.result !== undefined,
+);
 
 const out: string[] = [
   '# Errand-section vocabulary proposal — review document',

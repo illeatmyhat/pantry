@@ -1,5 +1,5 @@
-import { readFileSync, writeFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { writeFileSync } from 'node:fs';
+import { flag, readJsonl, root } from './lib.js';
 import { LOCALES } from './locales.js';
 
 /**
@@ -9,15 +9,13 @@ import { LOCALES } from './locales.js';
  *
  *   npx tsx scripts/translate/review.ts [--input out/<file>.jsonl] [--output out/<file>.review.md]
  */
-const root = fileURLToPath(new URL('../../', import.meta.url));
-
-function flag(name: string, fallback: string): string {
-  const i = process.argv.indexOf(`--${name}`);
-  const value = i >= 0 ? process.argv[i + 1] : undefined;
-  return value ?? fallback;
-}
-const INPUT = flag('input', `${root}scripts/translate/out/claude-opus-4-8.jsonl`);
-const OUTPUT = flag('output', INPUT.replace(/\.jsonl$/, '.review.md'));
+const INPUT = flag('input') ?? `${root}scripts/translate/out/claude-opus-4-8.jsonl`;
+// Append-based default: a bare .replace() was a silent no-op for non-.jsonl
+// inputs, making OUTPUT === INPUT and clobbering the paid results file.
+const OUTPUT =
+  flag('output') ??
+  (INPUT.endsWith('.jsonl') ? INPUT.replace(/\.jsonl$/, '.review.md') : `${INPUT}.review.md`);
+if (OUTPUT === INPUT) throw new Error('--output must differ from --input.');
 
 interface LocaleResult {
   name?: string;
@@ -36,11 +34,7 @@ interface Row {
   result?: Record<string, unknown> & { brand: string | null };
 }
 
-const rows = readFileSync(INPUT, 'utf8')
-  .split('\n')
-  .filter((l) => l !== '')
-  .map((l) => JSON.parse(l) as Row)
-  .sort((a, b) => a.slug.localeCompare(b.slug));
+const rows = readJsonl<Row>(INPUT).sort((a, b) => a.slug.localeCompare(b.slug));
 
 function localeBlock(tag: string, l: LocaleResult): string {
   const lines: string[] = [];

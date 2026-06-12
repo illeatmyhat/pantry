@@ -1,5 +1,5 @@
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { flag, root } from './lib.js';
 import { extractJson, SYSTEM_PROMPT, userContent, validateShape } from './task.js';
 import type { ManifestEntry } from '../../src/toolkit/search.js';
 
@@ -15,17 +15,10 @@ import type { ManifestEntry } from '../../src/toolkit/search.js';
  * Output: scripts/translate/out/<model>.jsonl — one line per food:
  *   { fdc_id, slug, description, category, ms, result | error }
  */
-const root = fileURLToPath(new URL('../../', import.meta.url));
-
-function flag(name: string, fallback: string): string {
-  const i = process.argv.indexOf(`--${name}`);
-  const value = i >= 0 ? process.argv[i + 1] : undefined;
-  return value ?? fallback;
-}
-const MODEL = flag('model', 'qwen3.6:35b-a3b-q4_K_M');
-const INPUT = flag('input', `${root}scripts/translate/out/sample.json`);
-const CONCURRENCY = Number(flag('concurrency', '2'));
-const ENDPOINT = flag('endpoint', 'http://localhost:11434');
+const MODEL = flag('model') ?? 'qwen3.6:35b-a3b-q4_K_M';
+const INPUT = flag('input') ?? `${root}scripts/translate/out/sample.json`;
+const CONCURRENCY = Number(flag('concurrency') ?? '2');
+const ENDPOINT = flag('endpoint') ?? 'http://localhost:11434';
 
 interface OllamaChatResponse {
   message?: { content?: string };
@@ -67,24 +60,26 @@ async function translateOne(entry: ManifestEntry): Promise<{ result: unknown; to
 }
 
 const allFoods = JSON.parse(readFileSync(INPUT, 'utf8')) as ManifestEntry[];
-const outPath = flag('output', `${root}scripts/translate/out/${MODEL.replaceAll(/[:/]/g, '_')}.jsonl`);
+const outPath =
+  flag('output') ?? `${root}scripts/translate/out/${MODEL.replaceAll(/[:/]/g, '_')}.jsonl`;
 mkdirSync(`${root}scripts/translate/out`, { recursive: true });
 
 // Resume by default: keep prior successes, redo failures and the not-yet-run.
 const RESUME = !process.argv.includes('--fresh');
 let kept: string[] = [];
+const keptSlugs = new Set<string>();
 if (RESUME && existsSync(outPath)) {
+  // Single read, single parse: success lines are kept verbatim, their
+  // slugs feed the skip set.
   const prior = readFileSync(outPath, 'utf8')
     .split('\n')
-    .filter((l) => l !== '')
-    .map((l) => JSON.parse(l) as { slug: string; error?: string });
-  const ok = new Set(prior.filter((r) => r.error === undefined).map((r) => r.slug));
-  kept = readFileSync(outPath, 'utf8')
-    .split('\n')
-    .filter((l) => l !== '' && !(JSON.parse(l) as { error?: string }).error);
-  console.log(`Resuming: ${ok.size} prior successes kept.`);
+    .filter((line) => line !== '')
+    .map((line) => ({ line, record: JSON.parse(line) as { slug: string; error?: string } }))
+    .filter(({ record }) => record.error === undefined);
+  kept = prior.map(({ line }) => line);
+  for (const { record } of prior) keptSlugs.add(record.slug);
+  console.log(`Resuming: ${keptSlugs.size} prior successes kept.`);
 }
-const keptSlugs = new Set(kept.map((l) => (JSON.parse(l) as { slug: string }).slug));
 const foods = allFoods.filter((f) => !keptSlugs.has(f.slug));
 writeFileSync(outPath, kept.length > 0 ? `${kept.join('\n')}\n` : '');
 
