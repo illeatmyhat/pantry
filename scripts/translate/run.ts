@@ -31,21 +31,8 @@ const ENDPOINT = flag('endpoint', 'http://localhost:11434');
 // response_format.json_schema (verified 2026-06-11).
 //
 // Output shape mirrors the first consumer's locale files
-// (recipes data/ingredients/<locale>/<id>.yaml): names/aliases/aisle +
+// (recipes data/ingredients/<locale>/<id>.yaml): names/aliases +
 // availability{brands, notes}, notes in the market's language.
-const SECTIONS = [
-  'produce',
-  'meat_seafood',
-  'dairy_eggs',
-  'dry_goods',
-  'canned',
-  'condiments',
-  'spices',
-  'oils',
-  'international',
-  'tofu_soy',
-] as const;
-
 const SCHEMA = {
   type: 'object',
   properties: {
@@ -58,21 +45,16 @@ const SCHEMA = {
   additionalProperties: false,
 } as const;
 
+// `aisle` is deliberately absent: the model invents out-of-vocabulary
+// sections ("meat", "frozen") — the dominant shape-failure mode — and its
+// in-vocabulary picks were near-random anyway. Store geography is decided
+// in the curation/review pass, not generated here.
 function localeSchema(): object {
   return {
     type: 'object',
     properties: {
       names: { type: 'string' },
       aliases: { type: 'array', items: { type: 'string' } },
-      aisle: {
-        type: 'object',
-        properties: {
-          store: { enum: ['supermarket', 'specialty', 'online'] },
-          section: { enum: SECTIONS },
-        },
-        required: ['store', 'section'],
-        additionalProperties: false,
-      },
       availability: {
         type: 'object',
         properties: {
@@ -84,7 +66,7 @@ function localeSchema(): object {
         additionalProperties: false,
       },
     },
-    required: ['names', 'aliases', 'aisle', 'availability'],
+    required: ['names', 'aliases', 'availability'],
     additionalProperties: false,
   };
 }
@@ -95,22 +77,19 @@ For the given food, produce:
 - brand: if the description names a commercial brand or restaurant (e.g. PILLSBURY, KEEBLER, McDONALD'S), the brand name as commonly written; otherwise null.
 - en.names: repeat the description VERBATIM (it is already the en-US name).
 - en.aliases: 0-3 everyday names an American shopper would actually use for this exact food (e.g. "french bread" for "Bread, french or vienna..."). Empty array if none.
-- en.aisle / en.availability: the same judgments as below, for a typical US supermarket; notes in English.
+- en.availability: the same judgment as below, for a typical US supermarket; notes in English.
 - ja.names: a faithful Japanese translation of the FULL structured description. Keep the taxonomic comma structure (use 、or ・ naturally). Translate technical food-science terms precisely (e.g. "raw"=生, "drained solids"=固形分のみ; "fresh" on meat means UNCURED, not raw — never translate it as 生 when the item is cooked). Do NOT invent a friendly product name; this is a translation of the description.
 - ja.aliases: 0-3 common everyday Japanese names a shopper would actually use for this exact food (empty array if none exists).
-- ja.aisle: where an ordinary shopper in Japan finds it. store: "supermarket" (a normal grocery store carries it), "specialty" (import stores, depachika), "online" (realistically online-only). section: the closest section.
 - ja.availability: your judgment of this exact food in the Japanese market. level: "common" / "specialty" / "rare" / "unknown". brands: actual brand names sold in that market for this food — ONLY brands you are confident exist; an empty array is much better than a guess. notes: 0-2 short sentences IN JAPANESE with market guidance (where to find it, common substitutes). Empty array if you have nothing useful to say.
 - zh.*: the same for mainland China, Simplified Chinese, notes in Chinese.
 
 Translate faithfully; never invent brands; output ONLY a JSON object with exactly this shape:
 {"brand": string|null,
- "en": {"names": string, "aliases": string[], "aisle": {"store": "supermarket"|"specialty"|"online", "section": "produce"|"meat_seafood"|"dairy_eggs"|"dry_goods"|"canned"|"condiments"|"spices"|"oils"|"international"|"tofu_soy"}, "availability": {"level": "common"|"specialty"|"rare"|"unknown", "brands": string[], "notes": string[]}},
+ "en": {"names": string, "aliases": string[], "availability": {"level": "common"|"specialty"|"rare"|"unknown", "brands": string[], "notes": string[]}},
  "ja": { same shape as en },
  "zh": { same shape as en }}`;
 
-const STORES = new Set(['supermarket', 'specialty', 'online']);
 const LEVELS = new Set(['common', 'specialty', 'rare', 'unknown']);
-const SECTION_SET = new Set<string>(SECTIONS);
 
 function validateShape(raw: unknown): void {
   const fail = (msg: string): never => {
@@ -125,10 +104,6 @@ function validateShape(raw: unknown): void {
     const o = l as Record<string, unknown>;
     if (typeof o['names'] !== 'string' || o['names'] === '') fail(`${loc}.names`);
     if (!Array.isArray(o['aliases'])) fail(`${loc}.aliases`);
-    const aisle = o['aisle'] as Record<string, unknown> | null | undefined;
-    if (aisle === null || typeof aisle !== 'object') fail(`${loc}.aisle`);
-    if (!STORES.has(String(aisle['store']))) fail(`${loc}.aisle.store`);
-    if (!SECTION_SET.has(String(aisle['section']))) fail(`${loc}.aisle.section`);
     const avail = o['availability'] as Record<string, unknown> | null | undefined;
     if (avail === null || typeof avail !== 'object') fail(`${loc}.availability`);
     if (!LEVELS.has(String(avail['level']))) fail(`${loc}.availability.level`);
