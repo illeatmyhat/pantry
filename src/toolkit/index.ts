@@ -7,6 +7,7 @@ export {
   LABEL_KEYS,
   type Density,
   type DensityCitation,
+  type Errand,
   type Food,
   type LabelKey,
   type LabelNutrients,

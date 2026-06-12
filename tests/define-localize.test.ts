@@ -45,13 +45,12 @@ describe('localize', () => {
       locale: 'ja-JP',
       name: 'グアンチャーレ',
       aliases: ['豚ほほ肉の塩漬け'],
-      store: '輸入食品店',
-      section: '精肉',
+      errand: { store: 'specialty', section: '精肉' },
     });
     expect(ja.locale).toBe('ja-JP');
     expect(ja.name).toBe('グアンチャーレ');
     expect(ja.aliases).toEqual(['豚ほほ肉の塩漬け']);
-    expect(ja.store).toBe('輸入食品店');
+    expect(ja.errand).toEqual({ store: 'specialty', section: '精肉' });
     expect(ja.nutrients).toEqual(guanciale.nutrients); // nutrition rides along
   });
 

@@ -184,6 +184,31 @@ override.
   strip `\p{M}` → non-alphanumeric runs→`-` → trim hyphens. Collision set
   re-verified against this exact algorithm: still exactly the pancake pair.
 
+## Settled during the translation workshop (2026-06-12)
+
+- **Locale keys are BCP-47 everywhere** (`en-US`/`ja-JP`/`zh-CN`) — a locale
+  is a language AND a market; `zh` alone names neither.
+- **`errand` (né aisle)** is the per-locale shopping router:
+  `{store: primary|specialty|online, section}` — which trip, then the shelf
+  walk within that store. Section vocabularies are **per-locale**,
+  discovered from the data (free-text open-coding pass over a stratified
+  sample → human-reviewed canonical set) rather than one prescriptive
+  global enum that forces wrong fits.
+- **Pantry never generates brand recommendations.** Brand fit is cuisine
+  context (Kikkoman for Japanese fried rice, Pearl River Bridge for
+  Chinese) — consumer curation via the `brands` field, same as friendly
+  names. The only generated brand datum is the top-level `brand` extracted
+  from the USDA description (identity, a fact).
+- **No availability level** — redundant with `errand.store`; market
+  guidance lives in free-text `notes` per locale.
+- **The en-US name is the description, copied mechanically** — never
+  round-tripped through a model (silent copy-editing risk).
+- Generation runs through the Anthropic Message Batches API (test batches
+  measured: Haiku ~$13 / Sonnet ~$40 / Opus ~$100 for all 7,793 foods;
+  Opus uniquely held terminology consistent across sibling foods). The
+  local-GPU path (scripts/translate/run.ts) is kept as an alternative
+  generator behind the same task contract.
+
 ## Open implementation details (measure/decide during build)
 
 - Physical-file vs `exports`-map strategy for alias routes (~31k logical

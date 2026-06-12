@@ -42,6 +42,16 @@ export interface Density {
   readonly citation?: DensityCitation;
 }
 
+/**
+ * The errand router (recipes Q15): which shopping trip the food belongs to
+ * (primary supermarket / specialty shop / order online) and the section —
+ * the shelf walk within THAT store. Section vocabulary is per-locale.
+ */
+export interface Errand {
+  readonly store: 'primary' | 'specialty' | 'online';
+  readonly section: string;
+}
+
 export interface ProvenanceSource {
   readonly fdc_id?: number;
   readonly slug?: string;
@@ -69,8 +79,8 @@ export interface Food {
   readonly aliases?: readonly string[];
   /** Locale surface — present on localized foods only. */
   readonly locale?: string;
-  readonly store?: string;
-  readonly section?: string;
+  readonly errand?: Errand;
+  /** Brand recommendations are consumer curation (cuisine context), never generated. */
   readonly brands?: readonly string[];
   readonly notes?: readonly string[];
   readonly provenance?: Provenance;
