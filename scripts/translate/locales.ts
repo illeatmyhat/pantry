@@ -30,18 +30,88 @@ export interface LocaleSpec {
   readonly sections: readonly string[];
 }
 
-/** Provisional global set — replaced per-locale at vocabulary freeze. */
-const PROVISIONAL_SECTIONS = [
+/**
+ * Per-locale preferred sections — mirror of l10n/vocabulary/<tag>.yaml
+ * slugs (the YAML is the review surface; tests/locales-vocab.test.ts
+ * enforces the mirror). Still proposals until the user flips each YAML
+ * to status: frozen.
+ */
+const EN_US_SECTIONS = [
   'produce',
   'meat_seafood',
-  'dairy_eggs',
-  'dry_goods',
+  'deli',
+  'dairy',
+  'frozen',
+  'bakery',
+  'bread',
+  'cereal',
+  'baking',
+  'snacks',
+  'candy',
   'canned',
   'condiments',
   'spices',
-  'oils',
+  'pasta_rice',
+  'coffee_tea',
+  'beverages',
+  'alcohol',
+  'baby',
   'international',
-  'tofu_soy',
+] as const;
+
+const JA_JP_SECTIONS = [
+  'produce',
+  'meat',
+  'seafood',
+  'ham_sausage',
+  'dairy_eggs',
+  'soy_products',
+  'pickles_surimi',
+  'chilled_noodles',
+  'deli',
+  'frozen',
+  'ice_cream',
+  'sweets',
+  'bread',
+  'rice',
+  'dry_goods',
+  'noodles',
+  'instant',
+  'baking',
+  'jam_cereal',
+  'canned',
+  'condiments',
+  'tea_coffee',
+  'beverages',
+  'alcohol',
+  'baby',
+  'international',
+] as const;
+
+const ZH_CN_SECTIONS = [
+  'vegetables',
+  'fruits',
+  'meat',
+  'seafood',
+  'deli',
+  'fresh_staples',
+  'soy_products',
+  'eggs',
+  'dairy',
+  'frozen',
+  'snacks',
+  'bakery',
+  'grain_oil',
+  'dried_goods',
+  'condiments',
+  'canned',
+  'instant',
+  'drink_mixes',
+  'tea',
+  'beverages',
+  'alcohol',
+  'baby',
+  'international',
 ] as const;
 
 export const LOCALES: readonly LocaleSpec[] = [
@@ -51,7 +121,7 @@ export const LOCALES: readonly LocaleSpec[] = [
     market: 'the United States',
     canonical: true,
     specialtyExamples: 'butcher shops, Italian/Mexican/Asian markets, gourmet grocers',
-    sections: PROVISIONAL_SECTIONS,
+    sections: EN_US_SECTIONS,
   },
   {
     tag: 'ja-JP',
@@ -60,14 +130,14 @@ export const LOCALES: readonly LocaleSpec[] = [
     nameHints:
       'Keep the taxonomic comma structure (use 、 or ・ naturally). Translate technical food-science terms precisely (e.g. "raw"=生, "drained solids"=固形分のみ; "fresh" on meat means UNCURED, not raw — never translate it as 生 when the item is cooked).',
     specialtyExamples: 'import stores, depachika, Asian/Western grocery',
-    sections: PROVISIONAL_SECTIONS,
+    sections: JA_JP_SECTIONS,
   },
   {
     tag: 'zh-CN',
     language: 'Simplified Chinese (mainland China usage)',
     market: 'mainland China',
     specialtyExamples: 'import supermarkets, membership stores, cross-border e-commerce',
-    sections: PROVISIONAL_SECTIONS,
+    sections: ZH_CN_SECTIONS,
   },
 ];
 

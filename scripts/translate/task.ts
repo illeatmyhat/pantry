@@ -105,7 +105,7 @@ For the given food, produce:
 - brand: if the description names a commercial brand or restaurant (e.g. PILLSBURY, KEEBLER, McDONALD'S), the brand name as commonly written; otherwise null.
 ${LOCALES.map(localePromptSection).join('\n')}
 
-If a food is not honestly purchasable at retail in a market — restaurant and fast-food menu items, industrial/food-service ingredients, subsistence or foraged foods — set that locale's errand to null rather than forcing a store section. Judge per market; null means "no store sells this", not "I don't know".
+USDA describes foods in as-consumed states ("cooked, broiled", "drained solids"). The errand is for the food's PURCHASABLE form in that market: a cooked steak gets the raw steak's errand (meat section), cooked rice gets dry rice's errand, prepared infant cereal gets the dry cereal's errand. Only if NO form of the food is honestly purchasable at retail in a market — restaurant and fast-food menu items, industrial/food-service ingredients, subsistence or foraged foods — set that locale's errand to null rather than forcing a store section. Judge per market; null means "no store sells this in any form", not "I don't know" and not "you must cook it yourself".
 
 Translate faithfully; output ONLY a JSON object with exactly this shape:
 ${shapeExample()}`;

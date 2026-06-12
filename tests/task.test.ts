@@ -93,4 +93,8 @@ describe('task contract — errand', () => {
     expect(SYSTEM_PROMPT).toContain('null');
     expect(SYSTEM_PROMPT.toLowerCase()).toMatch(/restaurant|menu item/);
   });
+
+  it('states the purchasable-form rule — cooked-state foods are not null', () => {
+    expect(SYSTEM_PROMPT.toLowerCase()).toContain('purchasable form');
+  });
 });
