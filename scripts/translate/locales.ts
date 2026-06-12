@@ -47,6 +47,7 @@ export const LOCALES: readonly LocaleSpec[] = [
     language: 'English',
     market: 'the United States',
     canonical: true,
+    specialtyExamples: 'butcher shops, Italian/Mexican/Asian markets, gourmet grocers',
     sections: PROVISIONAL_SECTIONS,
   },
   {

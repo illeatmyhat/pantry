@@ -17,6 +17,10 @@ sections:
   - slug: dairy
     label: 乳制品
     merges: [乳制品, 冷藏乳制品, 冷藏乳品, 酸奶冷藏区, 奶酪]
+  - slug: eggs
+    label: 蛋品
+    note: signage-added at review (2026-06-12) — standard CN supermarket section; the 40-food sample never elicited it
+    merges: []
   - slug: frozen
     label: 冷冻食品
     merges: [冷冻食品, 速冻食品]
@@ -33,6 +37,10 @@ sections:
     label: 米面粮油
     note: includes cooking oils — 粮油 signage covers them
     merges: [粮油, 米面粮油, 米面杂粮, 粮油杂粮, 粮油干货, 杂粮谷物, 食用油]
+  - slug: dried_goods
+    label: 南北干货
+    note: signage-added at review (2026-06-12) — roasted nuts/seeds, dried mushrooms, dried seafood
+    merges: []
   - slug: condiments
     label: 调味品
     merges: [调味品, 调味酱料]
@@ -82,11 +90,13 @@ patterns:
   - { match: '鲜肉|肉类|牛肉|羊肉|野味', slug: meat }
   - { match: '海鲜|水产', slug: seafood }
   - { match: '果蔬|水果|蔬菜', slug: produce }
-  - { match: '炒货|坚果|干货|意面|意大利面|挂面|粮油', slug: grain_oil }
+  - { match: '炒货|坚果|干货', slug: dried_goods }
+  - { match: '意面|意大利面|挂面|粮油', slug: grain_oil }
   - { match: '汤料|罐头', slug: canned }
   - { match: '方便面', slug: instant }
   - { match: '麦片|早餐', slug: cereal_drink_mix }
-  - { match: '乳品|酸奶|奶酪|蛋类|冷藏区', slug: dairy }
+  - { match: '蛋类|蛋品', slug: eggs }
+  - { match: '乳品|酸奶|奶酪|冷藏区', slug: dairy }
   - { match: '果酱|花生酱|调味|酱', slug: condiments }
   - { match: '饼干|糖果|零食', slug: snacks }
   - { match: '烘焙', slug: baking }

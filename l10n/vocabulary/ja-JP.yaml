@@ -19,8 +19,12 @@ sections:
     merges: [ハム・ソーセージ, 食肉加工品, 加工肉・ハム・ソーセージ]
   - slug: daily_chilled
     label: 日配品
-    note: chilled daily goods — dairy, tofu, natto, pickles, surimi, fresh pasta
-    merges: [日配品, 乳製品, チーズ, 豆腐, 豆腐・納豆, 漬物, 練り物]
+    note: chilled daily goods — dairy, eggs, pickles, surimi, fresh pasta (soy split out 2026-06-12)
+    merges: [日配品, 乳製品, チーズ, 漬物, 練り物]
+  - slug: soy_products
+    label: 豆腐・納豆
+    note: signage-added at review (2026-06-12) — every JP supermarket has it; the 40-food sample never elicited it
+    merges: [豆腐, 豆腐・納豆]
   - slug: deli
     label: 惣菜
     merges: [惣菜]
@@ -35,7 +39,11 @@ sections:
     merges: [パン, ベーカリー]
   - slug: rice_dry_goods
     label: 米・乾物
-    merges: [米・雑穀, 米・乾物, 乾物・豆類, 穀物・雑穀, 乾物・パスタ, パスタ・乾物]
+    merges: [米・雑穀, 米・乾物, 乾物・豆類, 穀物・雑穀]
+  - slug: noodles
+    label: 麺類
+    note: signage-added at review (2026-06-12) — dried udon/soba/pasta; instant noodles stay in their own section
+    merges: [乾物・パスタ, パスタ・乾物]
   - slug: baking
     label: 製菓材料
     merges: [製菓・製パン材料, 製菓材料, 製菓材料・ナッツ, 製菓・ホットケーキ材料]
@@ -83,7 +91,8 @@ patterns:
   - { match: 'だし|スープ', slug: condiments }
   - { match: 'ナッツ|シード', slug: baking }
   - { match: 'おつまみ|洋菓子', slug: sweets }
-  - { match: '米|乾物|乾麺|豆', slug: rice_dry_goods }
+  - { match: 'パスタ|乾麺', slug: noodles }
+  - { match: '米|乾物|豆', slug: rice_dry_goods }
   - { match: 'ドレッシング|ジャム|はちみつ|ソース|調味', slug: condiments }
   - { match: '卵', slug: daily_chilled }
   - { match: '酒', slug: alcohol }
