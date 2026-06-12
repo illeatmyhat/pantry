@@ -8,9 +8,9 @@ import type { ManifestEntry } from '../../src/toolkit/search.js';
  * judgment). Seeded so the subset is reproducible across runs and models.
  *
  *   npx tsx scripts/translate/sample.ts [random-n] [brand-n] [seed]
- *     [--exclude <prior-sample.json>] [--output <path>]
+ *     [--exclude <prior.json[,prior2.json,…]>] [--output <path>]
  *
- * --exclude keeps the draw disjoint from an earlier sample (by fdc_id), so
+ * --exclude keeps the draw disjoint from earlier samples (by fdc_id), so
  * follow-up validation batches never re-test foods already reviewed.
  */
 const args = process.argv.slice(2);
@@ -20,9 +20,9 @@ const positional = args.filter(
 const excludePath = flag('exclude');
 const outPath = flag('output') ?? `${root}scripts/translate/out/sample.json`;
 const excluded = new Set(
-  excludePath === undefined
-    ? []
-    : (JSON.parse(readFileSync(excludePath, 'utf8')) as ManifestEntry[]).map((e) => e.fdc_id),
+  (excludePath?.split(',') ?? []).flatMap((path) =>
+    (JSON.parse(readFileSync(path, 'utf8')) as ManifestEntry[]).map((e) => e.fdc_id),
+  ),
 );
 
 const manifest = (
