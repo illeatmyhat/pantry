@@ -86,7 +86,7 @@ export function applyCorrections(
   }
 
   return baseline.map((record) => {
-    let result = record.result;
+    let result: Record<string, unknown> | undefined = record.result;
     if (result === undefined) return record;
     for (const [locale, set] of correctionsByLocale) {
       const correction = set.get(record.fdc_id);
