@@ -36,6 +36,9 @@ function localeSchema(spec: LocaleSpec): object {
       aliases: { type: 'array', items: { type: 'string' } },
       // Nullable: non-retail foods (restaurant menu items, industrial
       // ingredients, subsistence foods) honestly fit no store section.
+      // section is an open string: the vocabulary is PREFERRED via the
+      // prompt, never enforced — the model may coin a slug when nothing
+      // fits (decided 2026-06-12). Strays surface via strays.ts.
       errand: {
         anyOf: [
           { type: 'null' },
@@ -43,7 +46,7 @@ function localeSchema(spec: LocaleSpec): object {
             type: 'object',
             properties: {
               store: { enum: STORES },
-              section: { enum: spec.sections },
+              section: { type: 'string' },
             },
             required: ['store', 'section'],
             additionalProperties: false,
@@ -80,7 +83,7 @@ function localePromptSection(spec: LocaleSpec): string {
     `- ${t}.aliases: 0-3 everyday names a shopper in ${spec.market} would actually use for this exact food, in ${spec.language}. Empty array if none.`,
   );
   lines.push(
-    `- ${t}.errand: the shopping errand for this food in ${spec.market}. store: "primary" if an ordinary supermarket carries it, "specialty" if it realistically requires a specialty shop${spec.specialtyExamples !== undefined ? ` (${spec.specialtyExamples})` : ''}, "online" if it realistically must be ordered. section: the shelf area within THAT store — even online listings have a section. Judge store honestly: a wrong "primary" sends a shopper on a futile trip.`,
+    `- ${t}.errand: the shopping errand for this food in ${spec.market}. store: "primary" if an ordinary supermarket carries it, "specialty" if it realistically requires a specialty shop${spec.specialtyExamples !== undefined ? ` (${spec.specialtyExamples})` : ''}, "online" if it realistically must be ordered. section: the shelf area within THAT store — even online listings have a section. Prefer one of these ${spec.market} section slugs: ${spec.sections.join(', ')}. Only if none honestly fits, coin a new short snake_case slug for the aisle a shopper would actually find it in — never force a bad fit. Judge store honestly: a wrong "primary" sends a shopper on a futile trip.`,
   );
   lines.push(
     `- ${t}.notes: 0-2 short market-guidance sentences in ${spec.language} (where to find it, common substitutes). Empty array if you have nothing useful to say. Do not recommend brands — brand fit depends on the dish, not the market.`,
@@ -91,8 +94,7 @@ function localePromptSection(spec: LocaleSpec): string {
 function shapeExample(): string {
   const locale = (spec: LocaleSpec): string => {
     const name = spec.canonical === true ? '' : '"name": string, ';
-    const sections = spec.sections.map((s) => `"${s}"`).join('|');
-    return ` "${spec.tag}": {${name}"aliases": string[], "errand": {"store": "primary"|"specialty"|"online", "section": ${sections}}|null, "notes": string[]}`;
+    return ` "${spec.tag}": {${name}"aliases": string[], "errand": {"store": "primary"|"specialty"|"online", "section": string}|null, "notes": string[]}`;
   };
   return `{"brand": string|null,\n${LOCALES.map(locale).join(',\n')}}`;
 }
@@ -135,7 +137,12 @@ export function validateShape(raw: unknown): void {
       fail(`${spec.tag}.errand`);
     } else if (errand !== null) {
       if (!STORE_SET.has(String(errand['store']))) fail(`${spec.tag}.errand.store`);
-      if (!spec.sections.includes(String(errand['section']))) fail(`${spec.tag}.errand.section`);
+      // Vocabulary is preferred, never enforced — any non-empty section
+      // passes; off-vocabulary answers are surfaced later by strays.ts.
+      const section = errand['section'];
+      if (typeof section !== 'string' || section.trim() === '') {
+        fail(`${spec.tag}.errand.section`);
+      }
     }
     if (!Array.isArray(o['notes'])) fail(`${spec.tag}.notes`);
   }

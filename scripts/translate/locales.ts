@@ -21,8 +21,11 @@ export interface LocaleSpec {
   /** Market-specific store examples for the errand instruction. */
   readonly specialtyExamples?: string;
   /**
-   * Frozen per-locale section vocabulary. Provisional until the discovery
-   * pass (discover-errands.ts) is reviewed and frozen per locale.
+   * Preferred per-locale section vocabulary. Fed to the prompt as the
+   * PREFERRED slug list — never enforced by the schema: the model may coin
+   * a slug when nothing honestly fits (decided 2026-06-12), and strays.ts
+   * surfaces off-vocabulary answers for review. Provisional until the
+   * discovery pass (discover-errands.ts) is reviewed and frozen per locale.
    */
   readonly sections: readonly string[];
 }

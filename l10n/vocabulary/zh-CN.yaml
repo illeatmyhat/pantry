@@ -1,58 +1,87 @@
 # zh-CN errand-section vocabulary — PROPOSAL (set status: frozen after review).
+#
+# 2026-06-12 signage pass (subagent-verified against 永辉/大润发/华润万家
+# layouts): 果蔬 split into 蔬菜/水果 (stores sign them separately); 冷藏熟食
+# renamed 熟食 (real signage; the counter is hot 卤味 + chilled grab-and-go);
+# 烘焙原料 removed (not mainland signage — yeast/starch live with 调味品);
+# 冲调麦片 renamed 冲调 (covers 麦片+奶粉+蜂蜜+速溶咖啡); added 面点 (fresh
+# staple counter, China-specific) and 茶叶. Vocabulary is PREFERRED, not
+# enforced: the model may coin a slug when no section honestly fits
+# (strays.ts surfaces those for review).
 status: proposal
 sections:
-  - slug: produce
-    label: 果蔬
+  - slug: vegetables
+    label: 蔬菜
+    note: stores sign 蔬菜/水果 separately — 果蔬 was a zone label, not aisle signage
     merges: [蔬菜, 果蔬区]
+  - slug: fruits
+    label: 水果
+    merges: []
   - slug: meat
     label: 生鲜肉类
+    note: stores sub-sign 猪肉/牛羊肉/禽肉 — one canonical section
     merges: [生鲜肉类, 肉类, 猪肉, 禽肉, 鲜肉, 冷鲜肉, 生鲜猪肉, 生鲜禽肉, 肉类专柜, 肉类冷藏,
              生鲜肉类（特种肉）, 进口肉类(精品超市)]
   - slug: seafood
     label: 水产
     merges: [水产, 海鲜]
-  - slug: chilled_deli
-    label: 冷藏熟食
-    merges: [熟食, 冷藏熟食, 冷藏肉制品, 冷藏火腿肠, 火腿肠制品, 冷藏面食]
+  - slug: deli
+    label: 熟食
+    note: renamed from 冷藏熟食 (not real signage) — hot 卤味 counter + chilled grab-and-go
+    merges: [熟食, 冷藏熟食, 冷藏肉制品, 冷藏火腿肠, 火腿肠制品]
+  - slug: fresh_staples
+    label: 面点
+    note: signage-added 2026-06-12 — fresh buns, fresh noodles, dumpling wrappers; China-specific counter
+    merges: [冷藏面食]
+  - slug: soy_products
+    label: 豆制品
+    merges: [豆制品]
+  - slug: eggs
+    label: 禽蛋
+    note: label per real signage (was 蛋品)
+    merges: []
   - slug: dairy
     label: 乳制品
+    note: stores split 低温乳品 vs 常温奶 — one canonical section; adult 奶粉 lives in 冲调
     merges: [乳制品, 冷藏乳制品, 冷藏乳品, 酸奶冷藏区, 奶酪]
-  - slug: eggs
-    label: 蛋品
-    note: signage-added at review (2026-06-12) — standard CN supermarket section; the 40-food sample never elicited it
-    merges: []
   - slug: frozen
     label: 冷冻食品
     merges: [冷冻食品, 速冻食品]
   - slug: snacks
     label: 休闲食品
+    note: boundary rule — roasted/flavored nuts here; raw/cooking dried goods → 南北干货
     merges: [休闲食品, 休闲零食, 饼干糕点, 糖果巧克力, 糖果]
   - slug: bakery
     label: 烘焙面包
+    note: in-store bakery (现烤) — packaged bread/cake reads as 饼干糕点 → snacks
     merges: [烘焙面包区, 烘焙面包, 烘焙食品, 面包烘焙]
-  - slug: baking
-    label: 烘焙原料
-    merges: [烘焙原料, 烘焙调料]
   - slug: grain_oil
     label: 米面粮油
     note: includes cooking oils — 粮油 signage covers them
     merges: [粮油, 米面粮油, 米面杂粮, 粮油杂粮, 粮油干货, 杂粮谷物, 食用油]
   - slug: dried_goods
     label: 南北干货
-    note: signage-added at review (2026-06-12) — roasted nuts/seeds, dried mushrooms, dried seafood
+    note: raw/cooking dried goods — dried mushrooms, red dates, dried seafood, vermicelli
     merges: []
   - slug: condiments
     label: 调味品
-    merges: [调味品, 调味酱料]
+    note: 烘焙原料 isn't mainland signage — baking supplies folded here (signage fix 2026-06-12)
+    merges: [调味品, 调味酱料, 烘焙原料, 烘焙调料]
   - slug: canned
     label: 罐头食品
+    note: weakest standalone (often merged with 方便食品) — kept
     merges: [罐头食品]
   - slug: instant
     label: 方便食品
     merges: [方便食品]
-  - slug: cereal_drink_mix
-    label: 冲调麦片
+  - slug: drink_mixes
+    label: 冲调
+    note: renamed from 冲调麦片 — 麦片, adult 奶粉, 蜂蜜, 芝麻糊, 速溶咖啡
     merges: [麦片, 麦片冲饮, 冲调饮品, 冲饮]
+  - slug: tea
+    label: 茶叶
+    note: signage-added 2026-06-12 — own bay/counter in mid-large stores
+    merges: []
   - slug: beverages
     label: 饮料
     merges: [饮料]
@@ -61,12 +90,11 @@ sections:
     merges: [酒水饮料]
   - slug: baby
     label: 母婴
+    note: food scope — 婴幼儿奶粉/辅食
     merges: [婴儿食品, 母婴用品, 婴儿用品]
-  - slug: soy_products
-    label: 豆制品
-    merges: [豆制品]
   - slug: international
     label: 进口食品
+    note: tier-1/2 standard but trending toward dissolution into per-category shelves
     merges: [进口食品, 日本食品, 进口水果]
 
 # Non-retail (decided 2026-06-12): these foods ship `errand: null` — see
@@ -80,26 +108,29 @@ non_retail:
 
 # Audit-only fallback rules for the free-text discovery tail (first match
 # wins, checked top to bottom AFTER exact merges and non_retail). These never
-# ship — the production schema uses the frozen slugs above.
+# ship — the production schema uses the preferred slugs above.
 patterns:
   - { match: '清真|特色干货|特色食品', slug: international }
+  - { match: '茶叶', slug: tea }
   - { match: '咖啡|冲饮|冷藏饮品', slug: beverages }
   - { match: '禽肉', slug: meat }
   - { match: '五谷|杂粮', slug: grain_oil }
-  - { match: '熟食|冷藏火腿|冷藏肉|冷藏面食', slug: chilled_deli }
+  - { match: '面点|主食|冷藏面食', slug: fresh_staples }
+  - { match: '熟食|冷藏火腿|冷藏肉', slug: deli }
   - { match: '鲜肉|肉类|牛肉|羊肉|野味', slug: meat }
   - { match: '海鲜|水产', slug: seafood }
-  - { match: '果蔬|水果|蔬菜', slug: produce }
+  - { match: '水果', slug: fruits }
+  - { match: '果蔬|蔬菜', slug: vegetables }
   - { match: '炒货|坚果|干货', slug: dried_goods }
   - { match: '意面|意大利面|挂面|粮油', slug: grain_oil }
   - { match: '汤料|罐头', slug: canned }
   - { match: '方便面', slug: instant }
-  - { match: '麦片|早餐', slug: cereal_drink_mix }
-  - { match: '蛋类|蛋品', slug: eggs }
+  - { match: '麦片|早餐', slug: drink_mixes }
+  - { match: '蛋类|蛋品|禽蛋', slug: eggs }
   - { match: '乳品|酸奶|奶酪|冷藏区', slug: dairy }
   - { match: '果酱|花生酱|调味|酱', slug: condiments }
   - { match: '饼干|糖果|零食', slug: snacks }
-  - { match: '烘焙', slug: baking }
+  - { match: '烘焙', slug: bakery }
   - { match: '洋酒|酒', slug: alcohol }
   - { match: '饮料|乳品饮料', slug: beverages }
   - { match: '进口|无麸质|日本', slug: international }

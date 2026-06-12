@@ -37,12 +37,18 @@ describe('task contract — errand', () => {
     expect(() => validateShape(result)).toThrow(/errand/);
   });
 
-  it('rejects a section outside the locale vocabulary', () => {
+  it('accepts an off-vocabulary section — vocabulary is preferred, not enforced (2026-06-12)', () => {
     const result = validResult();
     (result[someTag] as Record<string, unknown>)['errand'] = {
       store: 'primary',
-      section: 'restaurant', // parking slugs were rejected with the nullable decision
+      section: 'a_coined_aisle_slug',
     };
+    expect(() => validateShape(result)).not.toThrow();
+  });
+
+  it('rejects an empty section', () => {
+    const result = validResult();
+    (result[someTag] as Record<string, unknown>)['errand'] = { store: 'primary', section: '' };
     expect(() => validateShape(result)).toThrow(/section/);
   });
 
@@ -61,6 +67,25 @@ describe('task contract — errand', () => {
       const locale = properties[spec.tag] as { properties: { errand: unknown } };
       const errand = locale.properties.errand as { anyOf?: Array<{ type?: string }> };
       expect(errand.anyOf?.some((variant) => variant.type === 'null')).toBe(true);
+    }
+  });
+
+  it('leaves section open in the schema — the preference lives in the prompt', () => {
+    const properties = (SCHEMA as { properties: Record<string, unknown> }).properties;
+    for (const spec of LOCALES) {
+      const locale = properties[spec.tag] as { properties: { errand: unknown } };
+      const errand = locale.properties.errand as {
+        anyOf: Array<{ properties?: { section?: unknown } }>;
+      };
+      const objectVariant = errand.anyOf.find((v) => v.properties !== undefined);
+      expect(objectVariant?.properties?.section).toEqual({ type: 'string' });
+    }
+  });
+
+  it('states the preferred vocabulary and the escape hatch in the prompt', () => {
+    expect(SYSTEM_PROMPT.toLowerCase()).toContain('prefer');
+    for (const spec of LOCALES) {
+      expect(SYSTEM_PROMPT).toContain(spec.sections.join(', '));
     }
   });
 

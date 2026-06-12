@@ -12,19 +12,26 @@ sections:
     merges: [Deli, Deli & Lunch Meats, Deli / Prepared Foods]
   - slug: dairy
     label: Dairy
+    note: eggs live here — US stores shelve and sign them with dairy
     merges: [Dairy]
   - slug: frozen
     label: Frozen Foods
     merges: [Frozen Foods]
   - slug: bakery
     label: Bakery
-    merges: [Bakery, Bread]
+    note: the in-store baked department; packaged bread is its own aisle (signage fix 2026-06-12)
+    merges: [Bakery]
+  - slug: bread
+    label: Bread
+    note: packaged bread/buns/tortillas — PB&J shelves on this aisle, not with condiments
+    merges: [Bread, Peanut Butter & Jelly]
   - slug: cereal
     label: Cereal & Breakfast
     merges: [Cereal, Cereal & Breakfast]
   - slug: baking
     label: Baking
-    merges: [Baking, Baking Aisle]
+    note: cooking oils sign as "Oil & Shortening" on this aisle (signage fix 2026-06-12); spices share its sign
+    merges: [Baking, Baking Aisle, Cooking Oils]
   - slug: snacks
     label: Snacks
     merges: [Snacks, Cookies & Crackers]
@@ -33,19 +40,25 @@ sections:
     merges: [Candy]
   - slug: canned
     label: Canned Goods
+    note: canonical bucket (real signage is itemized) — incl. soup, broth, canned tuna/meat
     merges: [Canned Fruit, Canned Soups, Canned Goods, Canned Vegetables]
   - slug: condiments
     label: Condiments & Sauces
-    merges: [Condiments & Sauces, Peanut Butter & Jelly, Cooking Oils]
+    merges: [Condiments & Sauces]
   - slug: spices
     label: Spices & Seasonings
     merges: [Spices & Seasonings]
   - slug: pasta_rice
     label: Pasta & Rice
     merges: [Pasta & Sauces, Rice & Grains]
+  - slug: coffee_tea
+    label: Coffee & Tea
+    note: split from Beverages (signage fix 2026-06-12) — essentially never co-signed with soda
+    merges: [Coffee & Tea]
   - slug: beverages
     label: Beverages
-    merges: [Beverages, Juice, Coffee & Tea]
+    note: soda/water/juice; refrigerated juice lives in Dairy/Produce
+    merges: [Beverages, Juice]
   - slug: alcohol
     label: Beer & Wine
     merges: [Beer & Wine, Alcohol]
@@ -83,14 +96,17 @@ patterns:
   - { match: 'butcher|game|meat|smoked fish|seafood|fish', slug: meat_seafood }
   - { match: 'lunch meat|hot dog|bacon|sausage|gourmet', slug: deli }
   - { match: 'dairy|yogurt|egg|cheese', slug: dairy }
-  - { match: 'juice|drink|coffee|tea|beverage|lemonade|milk', slug: beverages }
+  - { match: 'coffee|tea', slug: coffee_tea }
+  - { match: 'juice|drink|beverage|lemonade|milk', slug: beverages }
   - { match: 'wine|spirit|beer|alcohol', slug: alcohol }
   - { match: 'baby', slug: baby }
   - { match: 'asian|mexican|latin|indian|international|specialty food', slug: international }
-  - { match: 'condiment|dressing|sauce|gravy|pickle|olive|jam|jell|vinegar|horseradish|peanut butter', slug: condiments }
+  - { match: 'peanut butter|jam|jell', slug: bread }
+  - { match: 'condiment|dressing|sauce|gravy|pickle|olive|vinegar|horseradish', slug: condiments }
   - { match: 'pasta|grain|rice|bean|legume', slug: pasta_rice }
   - { match: 'spice|seasoning', slug: spices }
-  - { match: 'bread|bakery', slug: bakery }
+  - { match: 'bread', slug: bread }
+  - { match: 'bakery', slug: bakery }
   - { match: 'cereal', slug: cereal }
   - { match: 'deli|prepared', slug: deli }
   - { match: 'produce|fruit|vegetable', slug: produce }

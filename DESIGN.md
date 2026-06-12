@@ -212,6 +212,16 @@ override.
   was dropped so `errand` keeps exactly one meaning — the section you walk
   to — and `null` is the honest, filterable value ("no store sells this",
   not "unknown"). The model judges retail availability per market.
+- **The section vocabulary is preferential, not a closed enum** (decided
+  2026-06-12). The schema constrains `store` only; the prompt tells the
+  model to prefer the per-locale slugs and to coin a short snake_case slug
+  when nothing honestly fits — never to force a bad fit. Off-vocabulary
+  answers surface post-generation via `scripts/translate/strays.ts`; each
+  stray is either corrected (corrections overlay) or adopted into the
+  vocabulary. The discovery-derived vocabularies were additionally verified
+  against real store signage (subagent pass, 2026-06-12) — notably ja-JP's
+  日配品 was back-office trade jargon no shopper ever sees on a sign and was
+  replaced with the real signage sections.
 - **The en-US name is the description, copied mechanically** — never
   round-tripped through a model (silent copy-editing risk).
 - Generation runs through the Anthropic Message Batches API (test batches
