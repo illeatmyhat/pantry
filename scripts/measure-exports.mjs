@@ -67,18 +67,33 @@ function buildVariant(name, { aliasFiles, aliasExports }) {
     JSON.stringify({ name: 'pantry-bench', version: '1.0.0', type: 'module', files: ['sr'], exports }),
   );
 
+  // --loglevel=silent: the per-file contents notice for 23k files
+  // overflows the exec buffer. Sizes are measured from the artifacts.
   const pack = timed(() =>
-    execSync('npm pack --json', { cwd: pkgDir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }),
+    execSync('npm pack --loglevel=silent', {
+      cwd: pkgDir,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      maxBuffer: 64 * 1024 * 1024,
+    }),
   );
-  const packed = JSON.parse(pack.value)[0];
+  const filename = pack.value.trim().split('\n').at(-1);
+  const pkgStats = dirStats(pkgDir);
+  const packed = {
+    filename,
+    size: statSync(join(pkgDir, filename)).size,
+    unpackedSize: pkgStats.bytes - statSync(join(pkgDir, filename)).size,
+    entryCount: pkgStats.files - 1,
+  };
 
   const consumerDir = join(bench, name, 'consumer');
   mkdirSync(consumerDir, { recursive: true });
   writeFileSync(join(consumerDir, 'package.json'), JSON.stringify({ name: 'c', version: '1.0.0', type: 'module' }));
   const install = timed(() =>
-    execSync(`npm install --no-audit --no-fund "${join(pkgDir, packed.filename)}"`, {
+    execSync(`npm install --no-audit --no-fund --loglevel=silent "${join(pkgDir, packed.filename)}"`, {
       cwd: consumerDir,
       stdio: ['ignore', 'pipe', 'pipe'],
+      maxBuffer: 64 * 1024 * 1024,
     }),
   );
   const installed = dirStats(join(consumerDir, 'node_modules'));

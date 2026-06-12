@@ -23,7 +23,7 @@ interface LocaleResult {
   name?: string;
   names?: string; // legacy key
   aliases: string[];
-  errand?: { store: string; section: string };
+  errand?: { store: string; section: string } | null;
   notes?: string[];
   availability?: { level: string; brands: string[]; notes: string[] }; // legacy
 }
@@ -47,7 +47,8 @@ function localeBlock(tag: string, l: LocaleResult): string {
   const name = l.name ?? l.names;
   lines.push(name !== undefined ? `- **${tag}**: ${name}` : `- **${tag}**`);
   if (l.aliases.length > 0) lines.push(`  - aliases: ${l.aliases.join(' · ')}`);
-  if (l.errand !== undefined) lines.push(`  - errand: ${l.errand.store} → ${l.errand.section}`);
+  if (l.errand === null) lines.push('  - errand: **null** (non-retail)');
+  else if (l.errand !== undefined) lines.push(`  - errand: ${l.errand.store} → ${l.errand.section}`);
   for (const note of l.notes ?? []) lines.push(`  - ${note}`);
   if (l.availability !== undefined) {
     const a = l.availability;

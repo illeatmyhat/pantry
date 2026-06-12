@@ -238,12 +238,24 @@ override.
   human ground truth. Generation provenance stays repo-side, never in
   shipped modules.
 
+## Settled during the validation pass (2026-06-12)
+
+- **fdc_id alias routes ship as `exports`-map entries, not physical files**
+  (measured via `scripts/measure-exports.mjs` on the full 23,379-file
+  package): +7,793 physical re-export files cost ~15 s extra `npm install`
+  (45 → 60 s) for the same logical surface; +7,793 explicit `exports`
+  entries (~550 KB package.json) cost ~1 s install and ~9 ms cold-import
+  overhead. Tarball size identical (3.6 vs 3.7 MB). The exports map wins
+  on every axis.
+- **The preferential-vocabulary contract validated on 120 fresh foods**
+  (Opus 4.8, ~$1.50/run at batch rates): after the purchasable-form prompt
+  rule ("a cooked steak gets the raw steak's errand; null only when no
+  form is sold at retail"), errand: null landed on exactly the non-retail
+  classes (fast food, subsistence), and only 3 off-vocabulary strays
+  remained, all sensible coinages surfaced by strays.ts.
+
 ## Open implementation details (measure/decide during build)
 
-- Physical-file vs `exports`-map strategy for alias routes (~31k logical
-  paths) — npm install-time cost needs measuring. Current emission:
-  `generated/sr/<slug>.js|.extra.js|.full.js` (23,379 files) + a manifest
-  for fdc_id aliases and search.
 - Search CLI UX (offline analogue of recipes' `fetch-usda.mjs --search`).
 - The en-US surface of a raw SR food (presumably the description itself).
 - Whether reference vocabularies (INFOODS / LanguaL) can strengthen
