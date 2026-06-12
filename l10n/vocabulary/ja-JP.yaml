@@ -1,0 +1,88 @@
+# ja-JP errand-section vocabulary — PROPOSAL (set status: frozen after review).
+#
+# slug: the stable enum value models generate and modules ship.
+# label: the signage text a Japanese supermarket actually hangs.
+# merges: free-text sections from the discovery pass that fold into this slug.
+status: proposal
+sections:
+  - slug: produce
+    label: 青果
+    merges: [青果, 野菜, 野菜・果物, 山菜・野草]
+  - slug: meat
+    label: 精肉
+    merges: [精肉, 精肉店, 精肉（ジビエ・特殊肉）, 精肉(輸入食材店), 精肉・ジビエ, 精肉・ハム]
+  - slug: seafood
+    label: 鮮魚
+    merges: [鮮魚]
+  - slug: ham_sausage
+    label: ハム・ソーセージ
+    merges: [ハム・ソーセージ, 食肉加工品, 加工肉・ハム・ソーセージ]
+  - slug: daily_chilled
+    label: 日配品
+    note: chilled daily goods — dairy, tofu, natto, pickles, surimi, fresh pasta
+    merges: [日配品, 乳製品, チーズ, 豆腐, 豆腐・納豆, 漬物, 練り物]
+  - slug: deli
+    label: 惣菜
+    merges: [惣菜]
+  - slug: frozen
+    label: 冷凍食品
+    merges: [冷凍食品, 冷凍フルーツ, アイスクリーム]
+  - slug: sweets
+    label: 菓子
+    merges: [菓子, スナック菓子]
+  - slug: bread
+    label: パン
+    merges: [パン, ベーカリー]
+  - slug: rice_dry_goods
+    label: 米・乾物
+    merges: [米・雑穀, 米・乾物, 乾物・豆類, 穀物・雑穀, 乾物・パスタ, パスタ・乾物]
+  - slug: baking
+    label: 製菓材料
+    merges: [製菓・製パン材料, 製菓材料, 製菓材料・ナッツ, 製菓・ホットケーキ材料]
+  - slug: cereal
+    label: シリアル
+    merges: [シリアル]
+  - slug: canned
+    label: 缶詰・レトルト
+    merges: [缶詰, 缶詰・レトルト食品, レトルト・缶詰, 缶詰・スープ, 水煮・缶詰, スープ・だしの素, スープ・即席スープ]
+  - slug: condiments
+    label: 調味料
+    note: includes oils, spices, jams/spreads — JP signage folds these nearby
+    merges: [調味料, 調味料・スパイス, 調味料・香辛料, スパイス・香辛料, 調味料・だし, 中華調味料,
+             食用油, 業務用油脂, ジャム・スプレッド, ジャム・ピーナッツバター]
+  - slug: beverages
+    label: 飲料
+    merges: [飲料, 嗜好飲料]
+  - slug: alcohol
+    label: 酒類
+    merges: [酒類, 洋酒]
+  - slug: baby
+    label: ベビー用品
+    merges: [ベビー用品, ベビーフード]
+  - slug: international
+    label: 輸入食品
+    merges: [輸入食品, 中華食材, 民族食材・先住民食品, 先住民伝統食材]
+  - slug: instant
+    label: 即席麺・カップ麺
+    merges: [即席麺]
+  - slug: restaurant
+    label: 外食
+    note: REVIEW — SR fast-food/restaurant items are not groceries; see proposal doc
+    merges: [ファストフード店, ファストフード, 宅配ピザ, ピザ宅配・テイクアウト, レストラン, マクドナルド]
+
+# Audit-only fallback rules for the free-text discovery tail (first match
+# wins, checked top to bottom AFTER exact merges). These never ship — the
+# production schema uses the frozen slugs above.
+patterns:
+  - { match: '先住民|民族|伝統食材|珍味|輸入', slug: international }
+  - { match: '^精肉|ジビエ', slug: meat }
+  - { match: 'サプリ|業務用', slug: international } # non-retail — see review doc
+  - { match: 'だし|スープ', slug: condiments }
+  - { match: 'ナッツ|シード', slug: baking }
+  - { match: 'おつまみ|洋菓子', slug: sweets }
+  - { match: '米|乾物|乾麺|豆', slug: rice_dry_goods }
+  - { match: 'ドレッシング|ジャム|はちみつ|ソース|調味', slug: condiments }
+  - { match: '卵', slug: daily_chilled }
+  - { match: '酒', slug: alcohol }
+  - { match: 'コーヒー|紅茶', slug: beverages }
+  - { match: '野菜|青果|果物', slug: produce }

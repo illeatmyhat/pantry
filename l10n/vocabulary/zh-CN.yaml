@@ -1,0 +1,92 @@
+# zh-CN errand-section vocabulary — PROPOSAL (set status: frozen after review).
+status: proposal
+sections:
+  - slug: produce
+    label: 果蔬
+    merges: [蔬菜, 果蔬区]
+  - slug: meat
+    label: 生鲜肉类
+    merges: [生鲜肉类, 肉类, 猪肉, 禽肉, 鲜肉, 冷鲜肉, 生鲜猪肉, 生鲜禽肉, 肉类专柜, 肉类冷藏,
+             生鲜肉类（特种肉）, 进口肉类(精品超市)]
+  - slug: seafood
+    label: 水产
+    merges: [水产, 海鲜]
+  - slug: chilled_deli
+    label: 冷藏熟食
+    merges: [熟食, 冷藏熟食, 冷藏肉制品, 冷藏火腿肠, 火腿肠制品, 冷藏面食]
+  - slug: dairy
+    label: 乳制品
+    merges: [乳制品, 冷藏乳制品, 冷藏乳品, 酸奶冷藏区, 奶酪]
+  - slug: frozen
+    label: 冷冻食品
+    merges: [冷冻食品, 速冻食品]
+  - slug: snacks
+    label: 休闲食品
+    merges: [休闲食品, 休闲零食, 饼干糕点, 糖果巧克力, 糖果]
+  - slug: bakery
+    label: 烘焙面包
+    merges: [烘焙面包区, 烘焙面包, 烘焙食品, 面包烘焙]
+  - slug: baking
+    label: 烘焙原料
+    merges: [烘焙原料, 烘焙调料]
+  - slug: grain_oil
+    label: 米面粮油
+    note: includes cooking oils — 粮油 signage covers them
+    merges: [粮油, 米面粮油, 米面杂粮, 粮油杂粮, 粮油干货, 杂粮谷物, 食用油]
+  - slug: condiments
+    label: 调味品
+    merges: [调味品, 调味酱料]
+  - slug: canned
+    label: 罐头食品
+    merges: [罐头食品]
+  - slug: instant
+    label: 方便食品
+    merges: [方便食品]
+  - slug: cereal_drink_mix
+    label: 冲调麦片
+    merges: [麦片, 麦片冲饮, 冲调饮品, 冲饮]
+  - slug: beverages
+    label: 饮料
+    merges: [饮料]
+  - slug: alcohol
+    label: 酒水
+    merges: [酒水饮料]
+  - slug: baby
+    label: 母婴
+    merges: [婴儿食品, 母婴用品, 婴儿用品]
+  - slug: soy_products
+    label: 豆制品
+    merges: [豆制品]
+  - slug: international
+    label: 进口食品
+    merges: [进口食品, 日本食品, 进口水果, 野菜山货]
+  - slug: restaurant
+    label: 餐饮
+    note: REVIEW — SR fast-food/restaurant items are not groceries; see proposal doc
+    merges: [快餐店, 快餐, 餐厅, 麦当劳, 披萨外卖]
+
+# Audit-only fallback rules for the free-text discovery tail (first match
+# wins, checked top to bottom AFTER exact merges). These never ship — the
+# production schema uses the frozen slugs above.
+patterns:
+  - { match: '民族|原住民|清真|特色干货|特色食品|野生|保健品', slug: international }
+  - { match: '咖啡|冲饮|冷藏饮品', slug: beverages }
+  - { match: '禽肉', slug: meat }
+  - { match: '披萨', slug: restaurant }
+  - { match: '五谷|杂粮', slug: grain_oil }
+  - { match: '工业', slug: international } # non-retail — see review doc
+  - { match: '熟食|冷藏火腿|冷藏肉|冷藏面食', slug: chilled_deli }
+  - { match: '鲜肉|肉类|牛肉|羊肉|野味', slug: meat }
+  - { match: '海鲜|水产', slug: seafood }
+  - { match: '果蔬|水果|蔬菜', slug: produce }
+  - { match: '炒货|坚果|干货|意面|意大利面|挂面|粮油', slug: grain_oil }
+  - { match: '汤料|罐头', slug: canned }
+  - { match: '方便面', slug: instant }
+  - { match: '麦片|早餐', slug: cereal_drink_mix }
+  - { match: '乳品|酸奶|奶酪|蛋类|冷藏区', slug: dairy }
+  - { match: '果酱|花生酱|调味|酱', slug: condiments }
+  - { match: '饼干|糖果|零食', slug: snacks }
+  - { match: '烘焙', slug: baking }
+  - { match: '洋酒|酒', slug: alcohol }
+  - { match: '饮料|乳品饮料', slug: beverages }
+  - { match: '进口|无麸质|日本', slug: international }

@@ -1,0 +1,91 @@
+# en-US errand-section vocabulary — PROPOSAL (set status: frozen after review).
+status: proposal
+sections:
+  - slug: produce
+    label: Produce
+    merges: [Produce]
+  - slug: meat_seafood
+    label: Meat & Seafood
+    merges: [Meat, Seafood, Meat & Poultry, Meat & Seafood, Butcher Counter]
+  - slug: deli
+    label: Deli
+    merges: [Deli, Deli & Lunch Meats, Deli / Prepared Foods]
+  - slug: dairy
+    label: Dairy
+    merges: [Dairy]
+  - slug: frozen
+    label: Frozen Foods
+    merges: [Frozen Foods]
+  - slug: bakery
+    label: Bakery
+    merges: [Bakery, Bread]
+  - slug: cereal
+    label: Cereal & Breakfast
+    merges: [Cereal, Cereal & Breakfast]
+  - slug: baking
+    label: Baking
+    merges: [Baking, Baking Aisle]
+  - slug: snacks
+    label: Snacks
+    merges: [Snacks, Cookies & Crackers]
+  - slug: candy
+    label: Candy
+    merges: [Candy]
+  - slug: canned
+    label: Canned Goods
+    merges: [Canned Fruit, Canned Soups, Canned Goods, Canned Vegetables]
+  - slug: condiments
+    label: Condiments & Sauces
+    merges: [Condiments & Sauces, Peanut Butter & Jelly, Cooking Oils]
+  - slug: spices
+    label: Spices & Seasonings
+    merges: [Spices & Seasonings]
+  - slug: pasta_rice
+    label: Pasta & Rice
+    merges: [Pasta & Sauces, Rice & Grains]
+  - slug: beverages
+    label: Beverages
+    merges: [Beverages, Juice, Coffee & Tea]
+  - slug: alcohol
+    label: Beer & Wine
+    merges: [Beer & Wine, Alcohol]
+  - slug: baby
+    label: Baby
+    merges: [Baby, Baby Food]
+  - slug: international
+    label: International Foods
+    merges: [International Foods]
+  - slug: restaurant
+    label: Restaurant / Fast Food
+    note: REVIEW — SR fast-food/restaurant items are not groceries; see proposal doc
+    merges: [Fast Food / Restaurant, Fast Food Restaurant, Restaurant, "McDonald's", Pizza Delivery,
+             Pizza Restaurant Menu, Restaurant / Prepared Foods]
+
+# Audit-only fallback rules for the free-text discovery tail (first match
+# wins, checked top to bottom AFTER exact merges). These never ship — the
+# production schema uses the frozen slugs above.
+patterns:
+  - { match: 'native|foraged|subsistence|traditional', slug: international }
+  - { match: 'industrial|bulk ingredient|supplement', slug: international } # non-retail — see review doc
+  - { match: 'frozen', slug: frozen }
+  - { match: 'refrigerated dough', slug: dairy }
+  - { match: 'refrigerated (pasta|asian)', slug: deli }
+  - { match: 'vegan|vegetarian|tofu|plant-based food', slug: produce }
+  - { match: 'soup|broth|canned', slug: canned }
+  - { match: 'snack|chip|cracker|granola|pretzel|nutrition.*bar|breakfast bar|nuts', slug: snacks }
+  - { match: 'candy|chocolate', slug: candy }
+  - { match: 'baking|flour|syrup|sugar|cocoa|dessert|gelatin|pastry', slug: baking }
+  - { match: 'butcher|game|meat|smoked fish|seafood|fish', slug: meat_seafood }
+  - { match: 'lunch meat|hot dog|bacon|sausage|gourmet', slug: deli }
+  - { match: 'dairy|yogurt|egg|cheese', slug: dairy }
+  - { match: 'juice|drink|coffee|tea|beverage|lemonade|milk', slug: beverages }
+  - { match: 'wine|spirit|beer|alcohol', slug: alcohol }
+  - { match: 'baby', slug: baby }
+  - { match: 'asian|mexican|latin|indian|international|specialty food', slug: international }
+  - { match: 'condiment|dressing|sauce|gravy|pickle|olive|jam|jell|vinegar|horseradish|peanut butter', slug: condiments }
+  - { match: 'pasta|grain|rice|bean|legume', slug: pasta_rice }
+  - { match: 'spice|seasoning', slug: spices }
+  - { match: 'bread|bakery', slug: bakery }
+  - { match: 'cereal', slug: cereal }
+  - { match: 'deli|prepared', slug: deli }
+  - { match: 'produce|fruit|vegetable', slug: produce }
