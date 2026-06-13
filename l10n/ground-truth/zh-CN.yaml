@@ -6,7 +6,7 @@
 # survives every regeneration and wins over ANY machine output.
 #
 # Agents never write here: a model fixing machine output edits the
-# generated baseline (results JSONL) directly and re-validates.
+# stored baseline (l10n/baseline/<slug>.yaml) directly and re-validates.
 #
 # Example (delete when real entries exist):
 #

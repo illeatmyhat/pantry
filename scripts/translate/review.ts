@@ -1,5 +1,6 @@
 import { writeFileSync } from 'node:fs';
-import { flag, readJsonl, root } from './lib.js';
+import { BASELINE_DIR, loadRecords } from './baseline.js';
+import { flag, root } from './lib.js';
 import { LOCALES } from './locales.js';
 
 /**
@@ -9,12 +10,14 @@ import { LOCALES } from './locales.js';
  *
  *   npx tsx scripts/translate/review.ts [--input out/<file>.jsonl] [--output out/<file>.review.md]
  */
-const INPUT = flag('input') ?? `${root}scripts/translate/out/claude-opus-4-8.jsonl`;
+const INPUT = flag('input') ?? BASELINE_DIR;
 // Append-based default: a bare .replace() was a silent no-op for non-.jsonl
 // inputs, making OUTPUT === INPUT and clobbering the paid results file.
 const OUTPUT =
   flag('output') ??
-  (INPUT.endsWith('.jsonl') ? INPUT.replace(/\.jsonl$/, '.review.md') : `${INPUT}.review.md`);
+  (INPUT.endsWith('.jsonl')
+    ? INPUT.replace(/\.jsonl$/, '.review.md')
+    : `${root}scripts/translate/out/baseline.review.md`);
 if (OUTPUT === INPUT) throw new Error('--output must differ from --input.');
 
 interface LocaleResult {
@@ -34,7 +37,7 @@ interface Row {
   result?: Record<string, unknown> & { brand: string | null };
 }
 
-const rows = readJsonl<Row>(INPUT).sort((a, b) => a.slug.localeCompare(b.slug));
+const rows = (loadRecords(INPUT) as Row[]).sort((a, b) => a.slug.localeCompare(b.slug));
 
 function localeBlock(tag: string, l: LocaleResult): string {
   const lines: string[] = [];

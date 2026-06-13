@@ -1,0 +1,35 @@
+fdc_id: 169126
+slug: pineapple-canned-juice-pack-solids-and-liquids
+description: Pineapple, canned, juice pack, solids and liquids
+category: Fruits and Fruit Juices
+brand: null
+en-US:
+  aliases:
+    - canned pineapple
+    - pineapple in juice
+  errand:
+    store: primary
+    section: canned
+  notes:
+    - Look in the canned fruit aisle; choose cans labeled in juice rather than
+      in syrup.
+ja-JP:
+  name: パイナップル、缶詰、果汁漬け、固形分および液汁
+  aliases:
+    - パイナップル缶
+    - パイン缶
+  errand:
+    store: primary
+    section: canned
+  notes:
+    - 缶詰の果物コーナーにあります。シロップ漬けではなく果汁漬けの表示を選んでください。
+zh-CN:
+  name: 菠萝，罐头，果汁浸渍，固形物及汁液
+  aliases:
+    - 菠萝罐头
+    - 凤梨罐头
+  errand:
+    store: primary
+    section: canned
+  notes:
+    - 在罐头水果货架可以找到，选择果汁浸渍而非糖水浸渍的产品。

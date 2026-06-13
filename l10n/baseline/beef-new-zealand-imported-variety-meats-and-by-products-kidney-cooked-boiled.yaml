@@ -1,0 +1,37 @@
+fdc_id: 173084
+slug: beef-new-zealand-imported-variety-meats-and-by-products-kidney-cooked-boiled
+description: Beef, New Zealand, imported, variety meats and by-products, kidney,
+  cooked, boiled
+category: Beef Products
+brand: null
+en-US:
+  aliases:
+    - beef kidney
+    - veal kidney
+  errand:
+    store: specialty
+    section: meat_seafood
+  notes:
+    - Beef kidney is sold by butcher shops and ethnic markets; rarely stocked at
+      ordinary supermarkets.
+    - Imported New Zealand kidney specifically may need to be special-ordered.
+ja-JP:
+  name: 牛肉、ニュージーランド産、輸入、雑物肉および副生物、腎臓、調理済み、ゆで
+  aliases:
+    - 牛の腎臓
+    - マメ
+  errand:
+    store: specialty
+    section: meat
+  notes:
+    - 牛の腎臓（マメ）はホルモン専門店や精肉店で扱われ、一般のスーパーではほとんど置いていません。
+zh-CN:
+  name: 牛肉，新西兰，进口，杂碎及副产品，肾，烹制，水煮
+  aliases:
+    - 牛腰子
+    - 牛肾
+  errand:
+    store: specialty
+    section: meat
+  notes:
+    - 牛腰子多在菜市场肉摊或专门售卖内脏的摊位购买，普通超市较少见。

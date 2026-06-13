@@ -1,0 +1,25 @@
+fdc_id: 170749
+slug: popeyes-fried-chicken-mild-drumstick-meat-only-skin-and-breading-removed
+description: POPEYES, Fried Chicken, Mild, Drumstick, meat only, skin and breading removed
+category: Fast Foods
+brand: POPEYES
+en-US:
+  aliases:
+    - Popeyes fried chicken drumstick
+  errand: null
+  notes:
+    - This is a fast-food menu item available only at Popeyes restaurants.
+ja-JP:
+  name: ポパイズ、フライドチキン、マイルド、ドラムスティック（骨付きもも下）、肉のみ、皮と衣を除く
+  aliases:
+    - ポパイズのフライドチキン
+  errand: null
+  notes:
+    - ポパイズの店舗で提供されるファストフードメニューです。
+zh-CN:
+  name: 博派斯（Popeyes）、炸鸡、微辣、鸡腿、仅鸡肉、去皮去裹粉
+  aliases:
+    - 博派斯炸鸡腿
+  errand: null
+  notes:
+    - 这是博派斯快餐店的菜单食品，仅在门店供应。

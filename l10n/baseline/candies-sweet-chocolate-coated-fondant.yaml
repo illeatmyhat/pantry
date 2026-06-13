@@ -1,0 +1,31 @@
+fdc_id: 167978
+slug: candies-sweet-chocolate-coated-fondant
+description: Candies, sweet chocolate coated fondant
+category: Sweets
+brand: null
+en-US:
+  aliases:
+    - chocolate covered fondant
+    - chocolate cream
+  errand:
+    store: primary
+    section: candy
+  notes: []
+ja-JP:
+  name: キャンディ類、スイートチョコレートでコーティングしたフォンダン
+  aliases:
+    - チョコレートフォンダン
+  errand:
+    store: primary
+    section: sweets
+  notes:
+    - 輸入菓子コーナーで見つかることもある。
+zh-CN:
+  name: 糖果，甜巧克力包裹的翻糖
+  aliases:
+    - 巧克力翻糖糖果
+  errand:
+    store: primary
+    section: snacks
+  notes:
+    - 在超市糖果货架可找到类似产品。

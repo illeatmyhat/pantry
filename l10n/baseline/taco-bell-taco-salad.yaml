@@ -1,0 +1,25 @@
+fdc_id: 170736
+slug: taco-bell-taco-salad
+description: TACO BELL, Taco Salad
+category: Fast Foods
+brand: TACO BELL
+en-US:
+  aliases:
+    - taco salad
+  errand: null
+  notes:
+    - This is a Taco Bell menu item, not a grocery product.
+ja-JP:
+  name: タコベル、タコサラダ
+  aliases:
+    - タコサラダ
+  errand: null
+  notes:
+    - タコベルのメニュー商品で、店舗でのみ入手できます。
+zh-CN:
+  name: 塔可贝尔、塔可沙拉
+  aliases:
+    - 塔可沙拉
+  errand: null
+  notes:
+    - 这是塔可贝尔的餐厅菜品，无法在超市购买。

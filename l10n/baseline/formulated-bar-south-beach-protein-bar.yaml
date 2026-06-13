@@ -1,0 +1,36 @@
+fdc_id: 173158
+slug: formulated-bar-south-beach-protein-bar
+description: Formulated Bar, SOUTH BEACH protein bar
+category: Snacks
+brand: South Beach
+en-US:
+  aliases:
+    - protein bar
+    - South Beach Diet bar
+  errand:
+    store: primary
+    section: snacks
+  notes:
+    - Found in the diet/nutrition or snack aisle of most supermarkets.
+    - Any similar protein or meal-replacement bar can substitute.
+ja-JP:
+  name: 調整バー、SOUTH BEACH プロテインバー
+  aliases:
+    - プロテインバー
+  errand:
+    store: online
+    section: international
+  notes:
+    - この特定ブランドは輸入品で、通販や輸入食品店で入手しやすい。
+    - 国産のプロテインバーや栄養補助バーで代用可能。
+zh-CN:
+  name: 配方棒，SOUTH BEACH 蛋白棒
+  aliases:
+    - 蛋白棒
+    - 蛋白质能量棒
+  errand:
+    store: online
+    section: international
+  notes:
+    - 该品牌为进口商品，多通过跨境电商或进口超市购买。
+    - 可用其他蛋白棒或代餐棒替代。

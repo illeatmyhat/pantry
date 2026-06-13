@@ -1,0 +1,35 @@
+fdc_id: 174832
+slug: beverages-almond-milk-unsweetened-shelf-stable
+description: Beverages, almond milk, unsweetened, shelf stable
+category: Beverages
+brand: null
+en-US:
+  aliases:
+    - unsweetened almond milk
+    - shelf-stable almond milk
+  errand:
+    store: primary
+    section: beverages
+  notes:
+    - Found with shelf-stable plant milks; refrigerated versions are in the
+      dairy section.
+ja-JP:
+  name: 飲料、アーモンドミルク、無糖、常温保存可能
+  aliases:
+    - アーモンドミルク
+    - 無糖アーモンドミルク
+  errand:
+    store: primary
+    section: beverages
+  notes:
+    - 豆乳やオーツミルクなどの植物性飲料の棚にあります。
+zh-CN:
+  name: 饮料、扁桃仁奶（杏仁奶）、无糖、常温保存
+  aliases:
+    - 无糖杏仁奶
+    - 巴旦木奶
+  errand:
+    store: primary
+    section: beverages
+  notes:
+    - 在常温植物奶货架，与豆奶、燕麦奶放在一起。

@@ -1,0 +1,36 @@
+fdc_id: 173497
+slug: babyfood-dinner-chicken-stew-toddler
+description: Babyfood, dinner, chicken stew, toddler
+category: Baby Foods
+brand: null
+en-US:
+  aliases:
+    - toddler chicken stew
+    - baby food chicken dinner
+  errand:
+    store: primary
+    section: baby
+  notes:
+    - Found in the baby and toddler food aisle alongside jarred and pouched
+      meals.
+ja-JP:
+  name: ベビーフード、ディナー、チキンシチュー、幼児向け
+  aliases:
+    - 幼児用チキンシチュー
+    - ベビーフード チキン
+  errand:
+    store: primary
+    section: baby
+  notes:
+    - ベビー・幼児用食品のコーナーにあります。
+    - 幼児向けの離乳食完了期メニューとして瓶詰やパウチで売られています。
+zh-CN:
+  name: 婴儿食品、正餐、鸡肉炖菜、幼儿
+  aliases:
+    - 幼儿鸡肉炖菜泥
+    - 婴儿鸡肉餐
+  errand:
+    store: primary
+    section: baby
+  notes:
+    - 在母婴食品区可以找到瓶装或袋装的幼儿辅食。

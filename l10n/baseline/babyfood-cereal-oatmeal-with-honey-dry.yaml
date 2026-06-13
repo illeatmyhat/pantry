@@ -1,0 +1,37 @@
+fdc_id: 170968
+slug: babyfood-cereal-oatmeal-with-honey-dry
+description: Babyfood, cereal, oatmeal, with honey, dry
+category: Baby Foods
+brand: null
+en-US:
+  aliases:
+    - baby oatmeal cereal
+    - infant oatmeal with honey
+  errand:
+    store: primary
+    section: baby
+  notes:
+    - Found in the baby food aisle with other infant cereals.
+    - Mix with breast milk, formula, or water before serving.
+ja-JP:
+  name: ベビーフード、シリアル、オートミール、はちみつ入り、乾燥
+  aliases:
+    - 乳児用オートミールシリアル
+    - 赤ちゃん用オートミール
+  errand:
+    store: primary
+    section: baby
+  notes:
+    - ベビー用品売り場の離乳食コーナーにあります。
+    - ミルクやお湯で溶いて与えます。
+zh-CN:
+  name: 婴儿食品、谷物、燕麦片、加蜂蜜、干粉
+  aliases:
+    - 婴儿燕麦米粉
+    - 宝宝燕麦糊
+  errand:
+    store: primary
+    section: baby
+  notes:
+    - 在母婴用品区的婴儿辅食货架可找到。
+    - 用温水或奶冲调后喂食。

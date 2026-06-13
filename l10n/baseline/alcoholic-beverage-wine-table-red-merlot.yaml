@@ -1,0 +1,35 @@
+fdc_id: 171925
+slug: alcoholic-beverage-wine-table-red-merlot
+description: Alcoholic Beverage, wine, table, red, Merlot
+category: Beverages
+brand: null
+en-US:
+  aliases:
+    - Merlot
+    - red wine
+  errand:
+    store: primary
+    section: alcohol
+  notes:
+    - Sold in the wine aisle of supermarkets where state law allows, otherwise
+      at liquor stores.
+ja-JP:
+  name: アルコール飲料、ワイン、テーブルワイン、赤、メルロー
+  aliases:
+    - メルロー
+    - 赤ワイン
+  errand:
+    store: primary
+    section: alcohol
+  notes:
+    - スーパーの酒類売り場や酒販店で購入できます。
+zh-CN:
+  name: 酒精饮料、葡萄酒、佐餐酒、红葡萄酒、梅洛
+  aliases:
+    - 梅洛红酒
+    - 红葡萄酒
+  errand:
+    store: primary
+    section: alcohol
+  notes:
+    - 在超市酒类区或专门的酒水店均可买到。

@@ -10,9 +10,10 @@ import { STORES } from './task.js';
  * for that locale. Two rules define the layer (settled 2026-06-12):
  *
  * 1. It is human-written, period. When a frontier agent or batch job wants
- *    to fix machine output, it edits the generated baseline (the results
- *    JSONL) directly and re-validates — machine output correcting machine
- *    output is the same provenance class and needs no overlay.
+ *    to fix machine output, it edits the stored baseline
+ *    (l10n/baseline/<slug>.yaml) directly and re-validates — machine
+ *    output correcting machine output is the same provenance class and
+ *    needs no overlay.
  * 2. It is durable: regenerating the baseline (new model, new prompt,
  *    re-run) never touches it — it re-applies on top, later-layer-wins,
  *    field-level, and wins over ANY machine output. Every entry states its

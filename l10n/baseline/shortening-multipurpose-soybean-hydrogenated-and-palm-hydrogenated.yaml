@@ -1,0 +1,37 @@
+fdc_id: 173579
+slug: shortening-multipurpose-soybean-hydrogenated-and-palm-hydrogenated
+description: Shortening, multipurpose, soybean (hydrogenated) and palm (hydrogenated)
+category: Fats and Oils
+brand: null
+en-US:
+  aliases:
+    - vegetable shortening
+    - shortening
+  errand:
+    store: primary
+    section: baking
+  notes:
+    - Found in the baking aisle near the oils and butter alternatives.
+    - Solid at room temperature; butter or margarine can substitute in many
+      recipes.
+ja-JP:
+  name: ショートニング、多目的用、大豆油（水素添加）およびパーム油（水素添加）
+  aliases:
+    - ショートニング
+  errand:
+    store: primary
+    section: baking
+  notes:
+    - 製菓材料の棚で油脂類と一緒に並んでいることが多いです。
+    - 常温で固形。レシピによってはバターやマーガリンで代用できます。
+zh-CN:
+  name: 起酥油，多用途，大豆油（氢化）和棕榈油（氢化）
+  aliases:
+    - 起酥油
+    - 白油
+  errand:
+    store: primary
+    section: grain_oil
+  notes:
+    - 通常在粮油货架与食用油、黄油等放在一起。
+    - 常温下为固态，可用黄油或人造黄油在部分配方中替代。

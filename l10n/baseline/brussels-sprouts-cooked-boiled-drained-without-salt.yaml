@@ -1,0 +1,35 @@
+fdc_id: 169971
+slug: brussels-sprouts-cooked-boiled-drained-without-salt
+description: Brussels sprouts, cooked, boiled, drained, without salt
+category: Vegetables and Vegetable Products
+brand: null
+en-US:
+  aliases:
+    - Brussels sprouts
+  errand:
+    store: primary
+    section: produce
+  notes:
+    - Sold fresh on the stalk or loose, and also bagged in the frozen vegetable
+      section.
+ja-JP:
+  name: 芽キャベツ、調理済み、茹で、湯切り、無塩
+  aliases:
+    - 芽キャベツ
+    - メキャベツ
+  errand:
+    store: primary
+    section: produce
+  notes:
+    - 生鮮はやや季節限定。冷凍野菜コーナーでも見つかることがあります。
+zh-CN:
+  name: 球芽甘蓝，熟，水煮，沥干，未加盐
+  aliases:
+    - 抱子甘蓝
+    - 小卷心菜
+    - 孢子甘蓝
+  errand:
+    store: primary
+    section: vegetables
+  notes:
+    - 普通超市的进口或精品蔬菜区可见，也常见于冷冻蔬菜区。

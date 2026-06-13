@@ -1,0 +1,35 @@
+fdc_id: 171697
+slug: apricots-raw
+description: Apricots, raw
+category: Fruits and Fruit Juices
+brand: null
+en-US:
+  aliases:
+    - apricots
+    - fresh apricots
+  errand:
+    store: primary
+    section: produce
+  notes:
+    - Found in the fresh fruit section, usually in season in summer.
+ja-JP:
+  name: アプリコット、生
+  aliases:
+    - あんず
+    - アプリコット
+    - 杏
+  errand:
+    store: primary
+    section: produce
+  notes:
+    - 旬は初夏で、生の状態で出回る期間は短い。乾燥アンズは乾物売り場にあることが多い。
+zh-CN:
+  name: 杏，生
+  aliases:
+    - 杏子
+    - 鲜杏
+  errand:
+    store: primary
+    section: fruits
+  notes:
+    - 夏季应季时在水果区可买到鲜杏，平时多见杏干。

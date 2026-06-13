@@ -1,0 +1,29 @@
+fdc_id: 168083
+slug: restaurant-chinese-chicken-chow-mein
+description: Restaurant, Chinese, chicken chow mein
+category: Restaurant Foods
+brand: null
+en-US:
+  aliases:
+    - chicken chow mein
+    - chow mein
+  errand: null
+  notes:
+    - This is a restaurant menu item; order it from a Chinese restaurant or
+      takeout.
+ja-JP:
+  name: レストラン、中華料理、チキン焼きそば（チャウメン）
+  aliases:
+    - チキン焼きそば
+    - チャウメン
+  errand: null
+  notes:
+    - 中華料理店のメニュー品です。
+zh-CN:
+  name: 餐厅，中式，鸡肉炒面
+  aliases:
+    - 鸡肉炒面
+    - 炒面
+  errand: null
+  notes:
+    - 这是餐厅菜品，请到中餐馆点餐。

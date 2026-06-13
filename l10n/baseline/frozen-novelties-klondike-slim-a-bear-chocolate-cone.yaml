@@ -1,0 +1,37 @@
+fdc_id: 170665
+slug: frozen-novelties-klondike-slim-a-bear-chocolate-cone
+description: Frozen novelties, KLONDIKE, SLIM-A-BEAR Chocolate Cone
+category: Sweets
+brand: KLONDIKE
+en-US:
+  aliases:
+    - Klondike Slim-A-Bear chocolate cone
+    - ice cream cone
+  errand:
+    store: primary
+    section: frozen
+  notes:
+    - Find it in the frozen dessert aisle with other novelty ice cream bars and
+      cones.
+ja-JP:
+  name: 冷凍菓子、KLONDIKE（クロンダイク）、SLIM-A-BEAR チョコレートコーン
+  aliases:
+    - アイスクリームコーン
+    - チョコアイスコーン
+  errand:
+    store: online
+    section: ice_cream
+  notes:
+    - この米国ブランドは日本の一般スーパーでは入手困難で、輸入食品店か通販が現実的です。
+    - 一般的なコーンアイスで代用できます。
+zh-CN:
+  name: 冷冻甜食，KLONDIKE（克朗代克）品牌，SLIM-A-BEAR 巧克力脆皮甜筒
+  aliases:
+    - 巧克力甜筒
+    - 脆皮冰淇淋甜筒
+  errand:
+    store: online
+    section: frozen
+  notes:
+    - 该美国品牌国内商超基本买不到，需通过进口超市或跨境电商购买。
+    - 可用普通脆皮甜筒冰淇淋替代。

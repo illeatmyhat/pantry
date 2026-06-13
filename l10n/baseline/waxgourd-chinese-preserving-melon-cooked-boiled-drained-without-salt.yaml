@@ -1,0 +1,36 @@
+fdc_id: 170475
+slug: waxgourd-chinese-preserving-melon-cooked-boiled-drained-without-salt
+description: Waxgourd, (chinese preserving melon), cooked, boiled, drained, without salt
+category: Vegetables and Vegetable Products
+brand: null
+en-US:
+  aliases:
+    - winter melon
+    - wax gourd
+  errand:
+    store: specialty
+    section: produce
+  notes:
+    - Look for it whole or cut in the produce section of Asian or Chinese
+      grocery stores.
+    - Some well-stocked supermarkets carry it seasonally.
+ja-JP:
+  name: トウガン（冬瓜、中国保存用メロン）、調理済み、ゆで、水切り、無塩
+  aliases:
+    - 冬瓜
+    - とうがん
+  errand:
+    store: primary
+    section: produce
+  notes:
+    - 夏から秋にかけて青果売り場で見つかります。
+    - 丸ごとまたはカット販売されています。
+zh-CN:
+  name: 冬瓜（中国储藏瓜），熟，煮，沥干，未加盐
+  aliases:
+    - 冬瓜
+  errand:
+    store: primary
+    section: vegetables
+  notes:
+    - 在蔬菜区按整个或切块出售，很常见。

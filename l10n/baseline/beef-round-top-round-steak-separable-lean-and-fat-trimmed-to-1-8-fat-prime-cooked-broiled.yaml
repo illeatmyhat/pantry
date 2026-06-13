@@ -1,0 +1,40 @@
+fdc_id: 169535
+slug: beef-round-top-round-steak-separable-lean-and-fat-trimmed-to-1-8-fat-prime-cooked-broiled
+description: Beef, round, top round, steak, separable lean and fat, trimmed to
+  1/8" fat, prime, cooked, broiled
+category: Beef Products
+brand: null
+en-US:
+  aliases:
+    - top round steak
+    - prime top round steak
+  errand:
+    store: specialty
+    section: meat_seafood
+  notes:
+    - Top round is sold in most supermarket meat cases, but Prime grade usually
+      requires a butcher or premium grocer.
+    - A leaner cut best for braising or marinating; Choice grade is the common
+      substitute.
+ja-JP:
+  name: 牛肉、もも、内もも、ステーキ、赤身と脂身、脂身を1/8インチに整形、プライム等級、調理済み、ブロイル
+  aliases:
+    - 牛もも肉ステーキ
+    - 内もも肉
+  errand:
+    store: specialty
+    section: meat
+  notes:
+    - もも肉は一般のスーパーでも扱うが、プライム等級の塊肉は精肉専門店や輸入食材店が確実。
+    - 赤身で脂が少なく、煮込みやステーキ向き。
+zh-CN:
+  name: 牛肉、后腿、上后腿、牛排、瘦肉与肥肉、脂肪修剪至1/8英寸、特级（Prime）、烹制、炙烤
+  aliases:
+    - 上后腿牛排
+    - 牛后腿肉排
+  errand:
+    store: specialty
+    section: meat
+  notes:
+    - 普通超市可买到后腿肉，但Prime等级牛排多见于进口超市或高端肉铺。
+    - 瘦肉较多，适合腌制或炖煮。

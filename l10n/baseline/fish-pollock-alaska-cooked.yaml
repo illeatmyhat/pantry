@@ -1,0 +1,36 @@
+fdc_id: 173726
+slug: fish-pollock-alaska-cooked
+description: Fish, pollock, Alaska, cooked
+category: Finfish and Shellfish Products
+brand: null
+en-US:
+  aliases:
+    - Alaska pollock
+    - pollock fillet
+  errand:
+    store: primary
+    section: meat_seafood
+  notes:
+    - Sold as fresh or frozen fillets in the seafood section; frozen is most
+      common.
+ja-JP:
+  name: 魚、スケトウダラ、アラスカ産、調理済み
+  aliases:
+    - スケトウダラ
+    - すけとうだら
+  errand:
+    store: primary
+    section: seafood
+  notes:
+    - 切り身や冷凍フィレで売られていることが多い。
+zh-CN:
+  name: 鱼、狭鳕（阿拉斯加狭鳕）、已烹调
+  aliases:
+    - 阿拉斯加鳕鱼
+    - 明太鱼
+    - 狭鳕
+  errand:
+    store: primary
+    section: seafood
+  notes:
+    - 多以冷冻鱼柳形式出售，可在冷冻或水产区找到。

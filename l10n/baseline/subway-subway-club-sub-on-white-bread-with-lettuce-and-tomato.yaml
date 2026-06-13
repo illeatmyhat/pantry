@@ -1,0 +1,28 @@
+fdc_id: 170307
+slug: subway-subway-club-sub-on-white-bread-with-lettuce-and-tomato
+description: SUBWAY, SUBWAY CLUB sub on white bread with lettuce and tomato
+category: Fast Foods
+brand: SUBWAY
+en-US:
+  aliases:
+    - Subway Club sandwich
+    - Subway Club sub
+  errand: null
+  notes:
+    - This is a made-to-order sandwich sold only at Subway locations.
+ja-JP:
+  name: サブウェイ、サブウェイ・クラブ サブ、白パン、レタス・トマト入り
+  aliases:
+    - サブウェイ クラブ
+    - サブのサンドイッチ
+  errand: null
+  notes:
+    - サブウェイの店舗でのみ注文できるサンドイッチです。
+zh-CN:
+  name: 赛百味，赛百味俱乐部三明治，白面包，含生菜和番茄
+  aliases:
+    - 赛百味俱乐部三明治
+    - 赛百味潜艇堡
+  errand: null
+  notes:
+    - 这是赛百味门店现做的三明治，仅在门店供应。

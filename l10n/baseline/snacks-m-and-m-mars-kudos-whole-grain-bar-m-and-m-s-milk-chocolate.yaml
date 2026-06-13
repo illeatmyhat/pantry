@@ -1,0 +1,35 @@
+fdc_id: 173135
+slug: snacks-m-and-m-mars-kudos-whole-grain-bar-m-and-m-s-milk-chocolate
+description: Snacks, M&M MARS, KUDOS Whole Grain Bar, M&M's milk chocolate
+category: Snacks
+brand: M&M MARS
+en-US:
+  aliases:
+    - Kudos bar
+    - Kudos granola bar
+  errand:
+    store: primary
+    section: snacks
+  notes:
+    - Found with granola and snack bars; this product line has been
+      discontinued, so look for similar chocolate-coated granola bars.
+ja-JP:
+  name: スナック菓子、M&M MARS、KUDOS全粒粉バー、M&M'sミルクチョコレート
+  aliases:
+    - クードスバー
+    - グラノーラバー
+  errand:
+    store: online
+    section: sweets
+  notes:
+    - 日本の店舗ではほぼ見かけないため、輸入食品店や通販で探すことになる。
+zh-CN:
+  name: 零食，M&M MARS（玛氏）, KUDOS全谷物棒，M&M's牛奶巧克力
+  aliases:
+    - 燕麦棒
+    - 巧克力谷物棒
+  errand:
+    store: online
+    section: international
+  notes:
+    - 国内商超基本没有，需通过进口食品渠道或跨境电商购买。

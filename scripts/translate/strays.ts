@@ -1,6 +1,7 @@
 import { writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
-import { flag, readJsonl } from './lib.js';
+import { BASELINE_DIR, loadRecords } from './baseline.js';
+import { flag } from './lib.js';
 import { LOCALES } from './locales.js';
 import { STORES } from './task.js';
 
@@ -104,14 +105,12 @@ const invokedDirectly =
   process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href;
 
 if (invokedDirectly) {
-  const input = process.argv[2];
-  if (input === undefined || input.startsWith('--')) {
-    console.log('Usage: npx tsx scripts/translate/strays.ts <results.jsonl> [--output <path>]');
-    process.exit(1);
-  }
+  const positional = process.argv[2];
+  const input =
+    positional === undefined || positional.startsWith('--') ? BASELINE_DIR : positional;
   const outPath = flag('output') ?? 'scripts/translate/out/errand-strays.md';
 
-  const records = readJsonl<ResultRecord>(input);
+  const records = loadRecords(input);
   const { strays, surfaces } = findStrays(records);
   if (surfaces === 0) {
     // A clean report over zero surfaces is a lie — legacy bare-language

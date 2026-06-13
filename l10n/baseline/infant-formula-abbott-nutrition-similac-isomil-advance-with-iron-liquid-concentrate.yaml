@@ -1,0 +1,39 @@
+fdc_id: 171382
+slug: infant-formula-abbott-nutrition-similac-isomil-advance-with-iron-liquid-concentrate
+description: Infant formula, ABBOTT NUTRITION, SIMILAC, ISOMIL, ADVANCE with
+  iron, liquid concentrate
+category: Baby Foods
+brand: Similac
+en-US:
+  aliases:
+    - soy baby formula concentrate
+    - Isomil soy formula
+  errand:
+    store: primary
+    section: baby
+  notes:
+    - Found in the baby aisle; soy-based formula sits alongside the standard
+      milk-based formulas.
+    - Liquid concentrate must be diluted with water before feeding.
+ja-JP:
+  name: 乳児用調製粉乳・液体濃縮タイプ、アボットニュートリション、シミラック、アイソミル、アドバンス（鉄分入り）、液体濃縮
+  aliases:
+    - 大豆乳児用ミルク
+    - アイソミル
+  errand:
+    store: online
+    section: baby
+  notes:
+    - 大豆ベースの輸入用乳児用ミルクで、国内の一般スーパーではほぼ扱いがなく通販が現実的です。
+    - 液体濃縮タイプは水で薄めて使用します。
+zh-CN:
+  name: 婴儿配方奶、雅培营养、雅培（Similac）、Isomil、Advance（含铁）、液体浓缩型
+  aliases:
+    - 大豆婴儿配方奶浓缩液
+    - 雅培豆基奶粉
+  errand:
+    store: online
+    section: baby
+  notes:
+    - 大豆基进口婴儿配方多通过跨境电商购买，普通超市少见。
+    - 液体浓缩型需按比例兑水后喂哺。

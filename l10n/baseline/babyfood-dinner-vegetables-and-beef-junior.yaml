@@ -1,0 +1,34 @@
+fdc_id: 173495
+slug: babyfood-dinner-vegetables-and-beef-junior
+description: Babyfood, dinner, vegetables and beef, junior
+category: Baby Foods
+brand: null
+en-US:
+  aliases:
+    - baby food vegetables and beef
+    - junior beef dinner
+  errand:
+    store: primary
+    section: baby
+  notes:
+    - Found in the baby food aisle, sold in small jars or pouches.
+ja-JP:
+  name: ベビーフード、ディナー、野菜と牛肉、ジュニア
+  aliases:
+    - ベビーフード（野菜と牛肉）
+    - 離乳食 牛肉野菜
+  errand:
+    store: primary
+    section: baby
+  notes:
+    - ベビー用品売り場の離乳食コーナーにあります。
+zh-CN:
+  name: 婴儿食品，正餐，蔬菜牛肉，较大婴儿装
+  aliases:
+    - 婴儿蔬菜牛肉泥
+    - 宝宝牛肉辅食
+  errand:
+    store: primary
+    section: baby
+  notes:
+    - 在母婴用品区或进口超市的婴儿辅食货架可找到。

@@ -1,0 +1,36 @@
+fdc_id: 168196
+slug: guanabana-nectar-canned
+description: Guanabana nectar, canned
+category: Fruits and Fruit Juices
+brand: null
+en-US:
+  aliases:
+    - soursop nectar
+    - guanabana juice
+  errand:
+    store: specialty
+    section: international
+  notes:
+    - Look in the Latin American or Caribbean section, often canned alongside
+      other tropical fruit nectars.
+    - Larger Hispanic grocers stock it reliably; mainstream stores may not.
+ja-JP:
+  name: グアナバナ（サワーソップ）ネクター、缶詰
+  aliases:
+    - サワーソップジュース
+    - グアナバナジュース
+  errand:
+    store: online
+    section: beverages
+  notes:
+    - 日本ではほとんど流通しておらず、輸入食品店か通販で探すのが現実的です。
+zh-CN:
+  name: 刺果番荔枝（番荔枝）果汁饮料，罐装
+  aliases:
+    - 刺果番荔枝汁
+    - 红毛榴莲汁
+  errand:
+    store: online
+    section: beverages
+  notes:
+    - 国内商超少见，通常需通过进口食品店或电商购买。

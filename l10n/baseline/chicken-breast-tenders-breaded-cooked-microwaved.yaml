@@ -1,0 +1,37 @@
+fdc_id: 171514
+slug: chicken-breast-tenders-breaded-cooked-microwaved
+description: Chicken breast tenders, breaded, cooked, microwaved
+category: Poultry Products
+brand: null
+en-US:
+  aliases:
+    - chicken tenders
+    - breaded chicken tenders
+    - chicken strips
+  errand:
+    store: primary
+    section: frozen
+  notes:
+    - Sold in the frozen section as breaded chicken tenders or strips.
+ja-JP:
+  name: 鶏むね肉テンダー、パン粉付き、調理済み、電子レンジ加熱
+  aliases:
+    - チキンテンダー
+    - チキンストリップ
+    - チキンナゲット
+  errand:
+    store: primary
+    section: frozen
+  notes:
+    - 冷凍食品コーナーで冷凍チキンテンダーやチキンストリップとして売られている。
+zh-CN:
+  name: 鸡胸柳条，裹面包屑，熟制，微波炉加热
+  aliases:
+    - 鸡柳
+    - 裹粉鸡柳
+    - 鸡米花
+  errand:
+    store: primary
+    section: frozen
+  notes:
+    - 在冷冻区可找到冷冻裹粉鸡柳或鸡条。

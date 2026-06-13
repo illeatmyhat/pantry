@@ -1,0 +1,38 @@
+fdc_id: 169255
+slug: mushrooms-portabella-raw
+description: Mushrooms, portabella, raw
+category: Vegetables and Vegetable Products
+brand: null
+en-US:
+  aliases:
+    - portabella mushrooms
+    - portobello mushrooms
+  errand:
+    store: primary
+    section: produce
+  notes:
+    - Found in the produce section, often near other fresh mushrooms.
+    - Sold whole or as pre-sliced caps.
+ja-JP:
+  name: きのこ、ポルタベラ、生
+  aliases:
+    - ポルタベラ
+    - ポートベローマッシュルーム
+  errand:
+    store: specialty
+    section: produce
+  notes:
+    - 大型のブラウンマッシュルームで、輸入食材店や大型スーパーの野菜売り場で見つかることがある。
+    - 入手しにくい場合はブラウンマッシュルーム（クレミニ）で代用できる。
+zh-CN:
+  name: 蘑菇，波特菇，生
+  aliases:
+    - 波特菇
+    - 大褐菇
+    - 褐菇
+  errand:
+    store: specialty
+    section: vegetables
+  notes:
+    - 进口超市或大型生鲜超市的蔬菜区可能有售。
+    - 买不到时可用大个的褐色口蘑（双孢菇）代替。

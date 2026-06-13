@@ -27,9 +27,12 @@ copy (recipes#14 is the historical grill).
 - **`l10n/ground-truth/` is HUMAN-written, period.** It is the durable
   overlay that survives every regeneration and wins over any machine
   output. Agents and batch jobs never write it: a model fixing machine
-  output edits the generated baseline (the results JSONL) directly and
-  re-validates with `validateShape` — machine output correcting machine
-  output is the same provenance class and needs no overlay.
+  output edits the stored baseline (`l10n/baseline/<slug>.yaml`) directly
+  and re-validates with `validateShape` — machine output correcting
+  machine output is the same provenance class and needs no overlay.
+- **JSONL is the wire format only** (append-safe generation, streaming
+  collect). Stored data is per-food YAML: collect results are imported
+  into `l10n/baseline/` via `baseline.ts import` before review/emit.
 - **TypeScript strict, no `any`** (house standard).
 - All files LF (`.gitattributes` enforces).
 - `private: true` stays until the first real publish.

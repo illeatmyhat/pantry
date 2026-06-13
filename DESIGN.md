@@ -258,6 +258,16 @@ override.
   involved. The ground-truth overlay exists for exactly one thing: human
   verification, durable across every regeneration, winning over ANY
   machine output, with `basis` as the glossary-decision log.
+- **JSONL is the wire format only; the stored baseline is per-food YAML**
+  (`l10n/baseline/<slug>.yaml`, decided 2026-06-12). JSONL earns its keep
+  during generation (append-safe for crash/resume on long local runs,
+  streamable for batch collect and the progress watcher) and is hostile
+  for stored data. Collect output is imported into the baseline tree
+  (`baseline.ts import`), which is committed: one readable file per food,
+  so an agent fix is a one-file git diff and review is browsing YAML.
+  Failed rows are never stored (retry-queue material); transient wire
+  metadata (tokens, ms) is dropped. emit/review/strays read the baseline
+  tree by default and still accept a .jsonl for pre-import work.
 - **The preferential-vocabulary contract validated on 120 fresh foods**
   (Opus 4.8, ~$1.50/run at batch rates): after the purchasable-form prompt
   rule ("a cooked steak gets the raw steak's errand; null only when no
