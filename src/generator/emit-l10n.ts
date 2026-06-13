@@ -167,9 +167,9 @@ export function* localeEntries(
     // The /full view exposes a name-keyed nutrients map: the 14 panel slugs,
     // plus — when this locale ships a labels.js — each panel nutrient ALSO by
     // its localized name (labels.panel) and the 135 extras by localized name
-    // (labels.nutrients), falling back to the USDA name. This mirrors the
-    // toolkit's assembleFullLocalized (tests/assemble-view.test.ts) exactly.
-    // Without a labels.js the extras key by USDA name, as core does.
+    // (labels.nutrients), falling back to the USDA name. Verified end-to-end
+    // by tests/emit-l10n.test.ts. Without a labels.js the extras key by USDA
+    // name, as core does.
     const hasLabels = options.labels?.[spec.tag] !== undefined;
     const fullMerge = hasLabels
       ? `import labels from '../labels.js';\n` +

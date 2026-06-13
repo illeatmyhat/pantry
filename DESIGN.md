@@ -367,8 +367,7 @@ override.
     the `.d.ts` declares, and the emitted inline `/full` merge keys by those
     same names — the type and the runtime cannot drift. The localized panel
     keys reach the no-toolkit-import inline view through a `panel` map
-    (slug → localized name) added to the shipped `labels.js`, matching the
-    toolkit's `assembleFullLocalized`.
+    (slug → localized name) added to the shipped `labels.js`.
 
 ## Open implementation details (measure/decide during build)
 

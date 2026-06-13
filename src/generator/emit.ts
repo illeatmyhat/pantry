@@ -50,7 +50,7 @@ export function* coreEntries(
         `import extra from './${slug}.extra.js';\n` +
         // Self-contained merge — composes the leaves by reference (no bytes
         // inlined, no toolkit import): panel slugs + the 135 extras by name.
-        // Mirrors the toolkit's assembleFull (tests/assemble-view.test.ts).
+        // Verified end-to-end by tests/consumer.test.ts.
         `const nutrients = { ...core.nutrients };\n` +
         `for (const n of extra.remaining_nutrients) nutrients[n.name.toLowerCase()] = n.amount;\n` +
         `export default { ...core, ...extra, nutrients };\n`,

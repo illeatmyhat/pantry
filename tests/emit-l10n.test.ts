@@ -142,8 +142,7 @@ describe('emitL10n', () => {
 describe('emitL10n /full localized nutrients (runtime)', () => {
   // A real core leaf + locale view: import the emitted /full module and read
   // the merged nutrients map, proving the generated inline merge keys panel
-  // AND extra nutrients by localized name — the same result as the toolkit's
-  // assembleFullLocalized.
+  // AND extra nutrients by localized name.
   const dir = mkdtempSync(join(tmpdir(), 'pantry-l10n-full-'));
   afterAll(() => rmSync(dir, { recursive: true, force: true }));
 
