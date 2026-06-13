@@ -62,6 +62,48 @@ The short version:
 - **Reproducible**: generated output is never committed. Everything builds in
   CI from the vendored, checksum-pinned USDA zip in [`data/`](data/).
 
+## Localization
+
+A localized module arrives with the nutrition inside — importing it gives you
+a `Food` whose name, aliases, errand, and notes are in the target language and
+whose nutrient facts ride along unchanged:
+
+```ts
+import saltPork from '@illeatmyhat/pantry/l10n/ja-JP/sr/pork-cured-salt-pork-raw';
+
+saltPork.name;     // the USDA description, faithfully translated
+saltPork.aliases;  // common Japanese names for the same food
+saltPork.errand;   // { store, section } — which shopping trip, and the shelf within it
+saltPork.notes;    // market availability, written in Japanese
+```
+
+The `errand` and the nutrient facts are keyed by **stable English identifiers**
+(`{ store: 'primary', section: 'meat' }`, `nutrients.protein`) so the data
+shape is identical in every locale. To render those identifiers in the local
+language, each locale package ships a `./labels` table and the toolkit gives
+you two one-call resolvers:
+
+```ts
+import labels from '@illeatmyhat/pantry/l10n/ja-JP/labels'; // { sections, stores, nutrients }
+import { localizeErrand, localizeNutrients } from '@illeatmyhat/pantry';
+
+localizeErrand(saltPork, labels);    // { store: 'スーパー', section: '精肉' }
+localizeNutrients(saltPork, labels); // [{ id: 1008, name: 'カロリー', amount: 212, unit: 'kcal' }, …]
+                                     // the 14-key panel always; + the ~135 extras on a /full view
+```
+
+`localizeErrand` returns `null` for a non-retail food (`errand: null` — fast
+food, subsistence) and falls back to the raw slug for a coined section a
+locale hasn't labeled, so a render never leaves a blank. `localizeNutrients`
+returns the Nutrition Facts panel in label order (amount `null` where SR has no
+row) and appends the long tail when the food is a `/full` view.
+
+Nutrient names cover all 149 SR nutrients (14 panel + 135 extra), keyed by
+USDA nutrient id; en-US uses the FDA panel wording, and other locales source
+their names from the market's national food-composition standard. Adding a
+locale is documented in [docs/adding-a-locale.md](docs/adding-a-locale.md) —
+it is a table row plus data files, never a code change.
+
 ## Status
 
 Generator and toolkit are built and tested: the full module tree generates

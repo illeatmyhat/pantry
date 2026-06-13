@@ -298,9 +298,45 @@ override.
   classes (fast food, subsistence), and only 3 off-vocabulary strays
   remained, all sensible coinages surfaced by strays.ts.
 
+## Settled during the localization-reach pass (2026-06-13)
+
+- **All localized display strings live in data, keyed by stable identifiers;
+  the toolkit resolves them.** A locale package ships one `labels.js`
+  (`./labels` = `{ sections, stores, nutrients }`) and the toolkit gives two
+  one-call resolvers: `localizeErrand(food, labels)` (`{store, section}` slugs
+  → 精肉 / スーパー, `null` for non-retail, slug fallback for a coined stray)
+  and `localizeNutrients(food, labels)` (nutrient → local name). The data
+  shape stays keyed by stable English identifiers in every locale; only the
+  presentation strings are per-locale. No localized string lives in a script.
+- **Store labels moved into the frozen vocabulary YAML.** Section signage was
+  in `l10n/vocabulary/<tag>.yaml`; store-trip labels (スーパー/専門店/通販) had
+  been hardcoded in `LocaleSpec`. They now live in a `stores` map in the same
+  frozen, user-reviewed file — one signage review surface per locale.
+- **Nutrient names are localized via an id-keyed label table, not by
+  localizing the keys.** `core.nutrients` keys (`protein`) and the extra rows'
+  ids are the structural contract — identical in every locale — so they never
+  translate; `labels.nutrients` maps the **stable USDA nutrient id → localized
+  name**. The frozen dataset has **149 distinct nutrients** (14 FDA panel +
+  135 extra), pinned by the invariant suite.
+  - **en-US is generated** from the zip (`nutrient-dictionary.ts`): FDA
+    Nutrition Facts wording for the 14 panel ids ("Total Fat", not USDA's
+    "Total lipid (fat)"), USDA names for the 135 extras. Never committed, same
+    rule as cores.
+  - **Other locales source names from the market's national food-composition
+    standard** (Japan MEXT tables, China GB 28050 / CFCT, …), stored in a
+    committed overlay `l10n/nutrients/<tag>.yaml` (id → name + `basis`), with
+    the **INFOODS tagname as the provenance anchor**.
+  - **Tripwire**: a locale's nutrient table is either empty (`pending`) or
+    covers *exactly* the 149 dataset ids — a gap or a stale id fails the build.
+  - Units (kcal/g/mg/mcg, USDA tokens) are international and do not localize.
+- **Adding a locale is documented** in `docs/adding-a-locale.md`: a BCP-47
+  table row plus the vocabulary, nutrient, baseline, and ground-truth data
+  files — never a code change to prose.
+
 ## Open implementation details (measure/decide during build)
 
-- Search CLI UX (offline analogue of recipes' `fetch-usda.mjs --search`).
-- The en-US surface of a raw SR food (presumably the description itself).
-- Whether reference vocabularies (INFOODS / LanguaL) can strengthen
-  translation provenance.
+- Search CLI UX (offline analogue of recipes' `fetch-usda.mjs --search`);
+  localized/alias-aware search (`searchFoods` is English-only today).
+- INFOODS tagnames now anchor nutrient-name provenance (above); whether
+  LanguaL facets can further strengthen food-level translation provenance is
+  still open.
