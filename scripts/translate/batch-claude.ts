@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import Anthropic from '@anthropic-ai/sdk';
-import { flag, root } from './lib.js';
+import { chunkOf, flag, root } from './lib.js';
 import { extractJson, SCHEMA, SYSTEM_PROMPT, userContent, validateShape } from './task.js';
 import type { ManifestEntry } from '../../src/toolkit/search.js';
 
@@ -12,12 +12,19 @@ import type { ManifestEntry } from '../../src/toolkit/search.js';
  *
  *   npx tsx scripts/translate/batch-claude.ts submit [--model claude-haiku-4-5]
  *     [--input scripts/translate/out/sample.json] [--limit N]
+ *     [--chunk K --of N]
  *   npx tsx scripts/translate/batch-claude.ts collect --batch-id msgbatch_…
  *
- * `submit` records {model, input} per batch id in out/batches.json so
- * `collect` is self-describing — collecting with the wrong flags used to
+ * `submit` records {model, input, chunk, of} per batch id in out/batches.json
+ * so `collect` is self-describing — collecting with the wrong flags used to
  * mislabel results, price them at the wrong rates, and drop identity
  * fields (code-review 2026-06-12). Requires ANTHROPIC_API_KEY.
+ *
+ * `--chunk K --of N` submits a contiguous, review-gated slice of the input:
+ * the production run is the 7,793-food manifest as three chunks (the whole
+ * corpus fits one batch API-wise — chunking gates spend so chunk 1 is
+ * reviewed before chunks 2-3 are paid for). Each chunk collects to its own
+ * `<model>.chunkKofN.jsonl` so same-model chunks never clobber each other.
  */
 const BATCHES_PATH = `${root}scripts/translate/out/batches.json`;
 
@@ -25,6 +32,15 @@ interface BatchInfo {
   readonly model: string;
   readonly input: string;
   readonly submitted_at: string;
+  readonly chunk?: number;
+  readonly of?: number;
+}
+
+/** Suffix that keeps same-model chunk outputs from clobbering each other. */
+function chunkTag(info: { chunk?: number; of?: number } | undefined): string {
+  return info?.chunk !== undefined && info.of !== undefined
+    ? `.chunk${info.chunk}of${info.of}`
+    : '';
 }
 
 function readBatches(): Record<string, BatchInfo> {
@@ -40,8 +56,17 @@ if (COMMAND === 'submit') {
   const model = flag('model') ?? 'claude-haiku-4-5';
   const input = flag('input') ?? `${root}scripts/translate/out/sample.json`;
   const limit = Number(flag('limit') ?? '0');
+  const chunkArg = flag('chunk');
+  const ofArg = flag('of');
+  if ((chunkArg === undefined) !== (ofArg === undefined)) {
+    throw new Error('--chunk and --of must be given together');
+  }
   let foods = JSON.parse(readFileSync(input, 'utf8')) as ManifestEntry[];
   if (limit > 0) foods = foods.slice(0, limit);
+  const chunk = chunkArg === undefined ? undefined : Number(chunkArg);
+  const of = ofArg === undefined ? undefined : Number(ofArg);
+  if (chunk !== undefined && of !== undefined) foods = chunkOf(foods, chunk, of);
+  if (foods.length === 0) throw new Error('nothing to submit — the selected slice is empty');
 
   const batch = await client.messages.batches.create({
     requests: foods.map((entry) => ({
@@ -57,9 +82,17 @@ if (COMMAND === 'submit') {
   });
   mkdirSync(`${root}scripts/translate/out`, { recursive: true });
   const batches = readBatches();
-  batches[batch.id] = { model, input, submitted_at: new Date().toISOString() };
+  batches[batch.id] = {
+    model,
+    input,
+    submitted_at: new Date().toISOString(),
+    ...(chunk !== undefined && of !== undefined ? { chunk, of } : {}),
+  };
   writeFileSync(BATCHES_PATH, `${JSON.stringify(batches, null, 1)}\n`);
-  console.log(`Submitted ${foods.length} requests as ${batch.id} (${batch.processing_status})`);
+  const slice = chunk !== undefined && of !== undefined ? ` (chunk ${chunk} of ${of})` : '';
+  console.log(
+    `Submitted ${foods.length} requests${slice} as ${batch.id} (${batch.processing_status})`,
+  );
   console.log(`Collect with: npx tsx scripts/translate/batch-claude.ts collect --batch-id ${batch.id}`);
 } else if (COMMAND === 'collect') {
   const batchId = flag('batch-id') ?? '';
@@ -86,7 +119,7 @@ if (COMMAND === 'submit') {
   const byFdcId = new Map(
     (JSON.parse(readFileSync(input, 'utf8')) as ManifestEntry[]).map((f) => [`fdc-${f.fdc_id}`, f]),
   );
-  const outPath = flag('output') ?? `${root}scripts/translate/out/${model}.jsonl`;
+  const outPath = flag('output') ?? `${root}scripts/translate/out/${model}${chunkTag(info)}.jsonl`;
   mkdirSync(`${root}scripts/translate/out`, { recursive: true });
 
   const lines: string[] = [];

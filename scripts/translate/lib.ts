@@ -35,6 +35,27 @@ export function mulberry32(a: number): () => number {
   };
 }
 
+/**
+ * Contiguous chunk `k` of `n` (both 1-based) of `items`, balanced so chunk
+ * sizes differ by at most one and order is preserved. The production
+ * translation run submits the 7,793-food manifest as three review-gated
+ * chunks; this is the partition behind `--chunk K --of N`. Throws on
+ * out-of-range arguments so a fat-fingered flag fails loudly instead of
+ * silently submitting the wrong slice.
+ */
+export function chunkOf<T>(items: readonly T[], k: number, n: number): T[] {
+  if (!Number.isInteger(n) || n < 1) throw new Error(`--of must be a positive integer, got ${n}`);
+  if (!Number.isInteger(k) || k < 1 || k > n) {
+    throw new Error(`--chunk must be between 1 and ${n}, got ${k}`);
+  }
+  const base = Math.floor(items.length / n);
+  const remainder = items.length % n;
+  // The first `remainder` chunks carry one extra item.
+  const start = (k - 1) * base + Math.min(k - 1, remainder);
+  const size = base + (k <= remainder ? 1 : 0);
+  return items.slice(start, start + size);
+}
+
 /** Seeded draw of n items without replacement. */
 export function draw<T>(pool: readonly T[], n: number, rand: () => number): T[] {
   const picked: T[] = [];
