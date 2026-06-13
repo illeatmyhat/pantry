@@ -4,22 +4,24 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { loadRecords, readBaseline, writeBaseline } from '../scripts/translate/baseline.js';
 
-const records = [
-  {
-    slug: 'pork-cured-salt-pork-raw',
-    fdc_id: 168287,
-    description: 'Pork, cured, salt pork, raw',
-    category: 'Pork Products',
-    result: {
-      brand: null,
-      'ja-JP': {
-        name: '豚肉、塩蔵、ソルトポーク、生',
-        aliases: ['ソルトポーク'],
-        errand: { store: 'specialty', section: 'meat' },
-        notes: ['日本では流通が少ない。'],
-      },
+const saltPork = {
+  slug: 'pork-cured-salt-pork-raw',
+  fdc_id: 168287,
+  description: 'Pork, cured, salt pork, raw',
+  category: 'Pork Products',
+  result: {
+    brand: null,
+    'ja-JP': {
+      name: '豚肉、塩蔵、ソルトポーク、生',
+      aliases: ['ソルトポーク'],
+      errand: { store: 'specialty', section: 'meat' },
+      notes: ['日本では流通が少ない。'],
     },
   },
+};
+
+const records = [
+  saltPork,
   {
     slug: 'failed-food',
     fdc_id: 1,
@@ -37,7 +39,7 @@ describe('baseline store', () => {
       expect(written).toBe(1);
       expect(skipped).toBe(1); // failed rows are not baseline — retry them instead
       const back = readBaseline(dir);
-      expect(back).toEqual([records[0]]);
+      expect(back).toEqual([saltPork]);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -59,10 +61,10 @@ describe('baseline store', () => {
   it('drops transient generation metadata (tokens, ms) — wire details are not baseline', () => {
     const dir = mkdtempSync(join(tmpdir(), 'pantry-baseline-'));
     try {
-      const wireRecord = { ...records[0], tokens: 393, ms: 1200 };
+      const wireRecord = { ...saltPork, tokens: 393, ms: 1200 };
       writeBaseline([wireRecord], dir);
       const back = readBaseline(dir);
-      expect(back[0]).toEqual(records[0]);
+      expect(back[0]).toEqual(saltPork);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -72,7 +74,7 @@ describe('baseline store', () => {
     const dir = mkdtempSync(join(tmpdir(), 'pantry-baseline-'));
     try {
       writeBaseline(records, dir);
-      expect(loadRecords(dir)).toEqual([records[0]]);
+      expect(loadRecords(dir)).toEqual([saltPork]);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
