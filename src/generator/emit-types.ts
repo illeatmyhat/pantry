@@ -28,15 +28,25 @@ function quoteKey(s: string): string {
   return `'${s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
 }
 
-/** `readonly 'key': <valueType>;` lines, lowercased + deduped + sorted. */
-function members(names: Iterable<string>, valueType: string): string {
+/**
+ * The exact key set a `/full` map carries: raw nutrient names lowercased +
+ * trimmed + deduped (two USDA names can lowercase-collide) + sorted. The single
+ * source the type and the runtime share — `members()` renders the `.d.ts` from
+ * it, and the emitted `nutrient-keys.js` leaf is `JSON.stringify` of it, so the
+ * padded view keys and the declared members cannot drift.
+ */
+export function normalizeKeys(names: Iterable<string>): string[] {
   const keys = new Set<string>();
   for (const raw of names) {
     const key = raw.trim().toLowerCase();
     if (key !== '') keys.add(key);
   }
-  return [...keys]
-    .sort()
+  return [...keys].sort();
+}
+
+/** `readonly 'key': <valueType>;` lines, lowercased + deduped + sorted. */
+function members(names: Iterable<string>, valueType: string): string {
+  return normalizeKeys(names)
     .map((k) => `    readonly ${quoteKey(k)}: ${valueType};`)
     .join('\n');
 }

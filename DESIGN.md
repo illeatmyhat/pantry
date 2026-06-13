@@ -340,6 +340,19 @@ override.
   `/full` view keys panel AND extras by the locale's names (`nutrients['たんぱ
   く質']`). Decided against a `nutrientAmount(food, ref)` accessor — the user
   wants `food.nutrients['name']` property access with editor autocomplete.
+  - **Every `/full` key is present, `null` when SR has no row** (settled
+    2026-06-13). The extra keyspace is padded to the package's full name set,
+    uniform with the panel — so `null` means "no SR row" everywhere and the
+    `number | null` `.d.ts` is honest: an absent nutrient reads `null`, never
+    `undefined`. (`full.d.ts` lists the extras as literal members, which
+    `noUncheckedIndexedAccess` does NOT widen — so without padding the type
+    silently over-promised presence.) The pad is a runtime merge over a shared
+    `nutrient-keys.js` leaf (core) / `labels.nutrients` (locale); the extra
+    leaf still stores only present rows, so no bytes are duplicated. The
+    keyspace has one source — `normalizeKeys` feeds both the leaf and the
+    `.d.ts` members. A locale's `/full` types are emitted only when its nutrient
+    table is complete (the padding tripwire), so a pending locale never ships an
+    over-promising type.
   - **Key breadth on the FOOD is the package's language + the panel slugs.**
     Cross-language access (an English key on a ja food) and INFOODS-tagname
     lookup go through a separate shipped `./nutrients` INDEX (id → ref, keyed by

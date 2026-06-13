@@ -105,6 +105,17 @@ export function* localeEntries(
   // from the core peer package.
   const nutrients = options.nutrients?.[spec.tag];
   if (nutrients !== undefined && options.coreSpecifier !== undefined) {
+    // A /full .d.ts declares every extra key `number | null`; the localized
+    // view pads them to `null` from `labels.nutrients`. Without a complete
+    // nutrient label table there is nothing to pad from, so the type would
+    // over-promise presence — refuse to emit it (the padding tripwire). Launch
+    // locales are complete (149 ids); a pending locale ships no /full types.
+    if (labels === undefined || Object.keys(labels.nutrients).length === 0) {
+      throw new Error(
+        `${spec.tag}: refusing to emit /full types for a locale without a complete ` +
+          'nutrient label table — the padded view could not cover the declared keys.',
+      );
+    }
     yield { path: 'nutrients.js', data: renderIndexJs(nutrients.index) };
     yield { path: 'nutrients.d.ts', data: renderIndexDts(options.coreSpecifier, nutrients.index) };
     yield { path: 'types/core.d.ts', data: renderCoreDts(options.coreSpecifier) };
@@ -174,6 +185,10 @@ export function* localeEntries(
     const fullMerge = hasLabels
       ? `import labels from '../labels.js';\n` +
         `const nutrients = { ...core.nutrients };\n` +
+        // Pad every localized name to null first (panel + extras), then fill:
+        // panel always resolves, extras present resolve, absent extras stay
+        // null — uniform with the panel, so number|null is honest.
+        `for (const id in labels.nutrients) nutrients[labels.nutrients[id].toLowerCase()] = null;\n` +
         `for (const slug in labels.panel) nutrients[labels.panel[slug].toLowerCase()] = core.nutrients[slug];\n` +
         `for (const n of extra.remaining_nutrients) nutrients[(labels.nutrients[n.nutrientId] ?? n.name).toLowerCase()] = n.amount;\n`
       : `const nutrients = { ...core.nutrients };\n` +

@@ -7852,6 +7852,7 @@
     "generated/manifest.json",
     "generated/nutrients.js",
     "generated/nutrients.d.ts",
+    "generated/nutrient-keys.js",
     "generated/types"
   ],
   "peerDependencies": {

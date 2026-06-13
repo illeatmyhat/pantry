@@ -41,8 +41,11 @@ describe('coreEntries nutrient artifacts', () => {
 });
 
 describe('localeEntries nutrient artifacts', () => {
+  // The real split build always pairs `nutrients` with `labels` (build-packages.ts);
+  // emitting /full types without a complete label table trips the padding guard.
   const opts = (extra: object) => ({
     nutrients: { 'ja-JP': { extraNames: ['トリプトファン'], index } },
+    labels: { 'ja-JP': { sections: {}, stores: {}, nutrients: { '1210': 'トリプトファン' }, panel: {} } },
     ...extra,
   });
 

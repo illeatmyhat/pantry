@@ -83,6 +83,7 @@ export function patchCorePackage(pkg: Record<string, unknown>, plan: PackagePlan
       'generated/manifest.json',
       'generated/nutrients.js',
       'generated/nutrients.d.ts',
+      'generated/nutrient-keys.js',
       'generated/types',
     ],
     exports: { ...staticExports, ...aliasExports(plan.manifest, './generated/sr') },

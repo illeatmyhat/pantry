@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import type { GeneratedFood } from './assemble.js';
-import { renderCoreDts, renderFullDts, renderIndexDts, renderIndexJs } from './emit-types.js';
+import { normalizeKeys, renderCoreDts, renderFullDts, renderIndexDts, renderIndexJs } from './emit-types.js';
 import type { TarEntry } from './tarball.js';
 import type { NutrientIndex } from '../toolkit/labels.js';
 
@@ -39,6 +39,12 @@ export function* coreEntries(
   foods: readonly GeneratedFood[],
   nutrients?: CoreNutrientArtifacts,
 ): Generator<TarEntry> {
+  // With the nutrient artifact (the publish/`npm run build` path), the /full
+  // view pads its extra keyspace to `null` from the shared nutrient-keys leaf,
+  // so the `number | null` .d.ts is honest — an absent nutrient reads `null`,
+  // never `undefined`. The bare loose emit (tests, no artifact) ships no types
+  // and no keyspace leaf, so its views stay present-only.
+  const pad = nutrients !== undefined;
   for (const food of foods) {
     const { slug } = food.core;
     yield { path: `sr/${slug}.js`, data: dataModule(food.core) };
@@ -46,12 +52,14 @@ export function* coreEntries(
     yield {
       path: `sr/${slug}.full.js`,
       data:
-        `import core from './${slug}.js';\n` +
-        `import extra from './${slug}.extra.js';\n` +
         // Self-contained merge — composes the leaves by reference (no bytes
         // inlined, no toolkit import): panel slugs + the 135 extras by name.
-        // Verified end-to-end by tests/consumer.test.ts.
+        // Verified end-to-end by tests/consumer.test.ts and tests/full-padding.test.ts.
+        `import core from './${slug}.js';\n` +
+        `import extra from './${slug}.extra.js';\n` +
+        (pad ? `import keys from '../nutrient-keys.js';\n` : '') +
         `const nutrients = { ...core.nutrients };\n` +
+        (pad ? `for (const k of keys) nutrients[k] = null;\n` : '') +
         `for (const n of extra.remaining_nutrients) nutrients[n.name.toLowerCase()] = n.amount;\n` +
         `export default { ...core, ...extra, nutrients };\n`,
     };
@@ -69,6 +77,13 @@ export function* coreEntries(
     yield { path: 'nutrients.d.ts', data: renderIndexDts(nutrients.specifier, nutrients.index) };
     yield { path: 'types/core.d.ts', data: renderCoreDts(nutrients.specifier) };
     yield { path: 'types/full.d.ts', data: renderFullDts(nutrients.specifier, nutrients.extraNames) };
+    // The shared keyspace leaf the /full views pad from — the SAME normalized
+    // names renderFullDts declares, so the runtime keys and the .d.ts members
+    // cannot drift (one source, per the leaf/view law).
+    yield {
+      path: 'nutrient-keys.js',
+      data: `export default ${JSON.stringify(normalizeKeys(nutrients.extraNames))};\n`,
+    };
   }
 }
 
