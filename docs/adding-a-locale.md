@@ -43,10 +43,19 @@ mechanically (food name = description; nutrient names = USDA names + FDA panel
 wording), so they are **generated, never committed**. Every other locale
 supplies its own, committed.
 
-A consumer reaches all of this through two shipped artifacts per locale
-package: the `sr/<slug>` views (food + nutrition) and `labels.js`
-(`{ sections, stores, nutrients }`), resolved by `localizeErrand` and
-`localizeNutrients` in the toolkit.
+A consumer reaches all of this through the locale package's shipped artifacts:
+the `sr/<slug>` views (food + nutrition), `labels.js`
+(`{ sections, stores, nutrients, panel }`, resolved by `localizeErrand` /
+`localizeNutrients`), and the `./nutrients` index (name/tagname → ref). The
+nutrient names you source here do triple duty — they key the localized `/full`
+view (`nutrients['たんぱく質']`), they fill the `nutrients` index, and they ride
+into a generated ambient `.d.ts` so every key autocompletes in a consumer's
+editor (all built from the same id → name table; see
+[DESIGN.md](../DESIGN.md) "name-keyed nutrients").
+
+There is also one **locale-independent** committed artifact the nutrient work
+depends on: `l10n/nutrients/tagnames.yaml`, the id → INFOODS-tagname registry
+(§4.2), shared by every locale.
 
 ---
 
@@ -169,11 +178,18 @@ meet:
 | Amino acids | `_G` suffix | `TRP_G` tryptophan, `LYS_G` lysine |
 | Vitamers | mnemonic | `TOCPHA` α-tocopherol, `RETOL` retinol, `FOLDFE` folate DFE |
 
-The tagname is provenance metadata: it ships nowhere (labels.js carries only
-`id → name`), but it lives in the YAML `tagname:` field and the `basis` so a
-reviewer can audit each name against the canonical component. Confirm tagnames
-against the FAO/INFOODS list — **do not guess them**; several are
-counterintuitive (see §4.6).
+The tagname is provenance metadata, but it is no longer per-locale guesswork.
+The id → tagname mapping is **locale-independent and committed once** in
+`l10n/nutrients/tagnames.yaml`, loaded by `loadTagnames`
+(`scripts/translate/nutrient-index.ts`). It feeds the `./nutrients` index (so a
+nutrient resolves by `trp_g` as well as by name) and is the audit anchor for
+every locale's `tagname:` field. When you source a new locale, **read the
+registry, don't re-derive it** — pass each id's tagname to the sourcing agents
+rather than having 16 of them chase the FAO/INFOODS list independently (the
+lesson of §4.8, now implemented). The per-nutrient `tagname:` in the locale
+YAML must match the registry; treat a mismatch as a sourcing error. Confirm any
+tagname *added* to the registry against the FAO/INFOODS list — **do not guess**;
+several are counterintuitive (see §4.6).
 
 ### 4.3 National food-composition standards — where the names come from
 
@@ -298,15 +314,14 @@ of that was avoidable. If you (or an agent) source another locale, front-load
 this so the agents only do the part that genuinely needs judgement — picking
 the right national-standard term:
 
-- **Resolve the INFOODS tagname once, offline — never per agent.** The biggest
-  waste: all 16 agents independently chased the FAO/INFOODS tagname list, and
-  several eventually rediscovered that the mapping is **already in USDA's own
-  data** (`NUTR_DEF`, cited in their basis as "SR28 NUTR_DEF 319=RETOL"). The
-  tagname is deterministic: USDA `nutrient.csv` carries `nutrient_nbr`, and the
-  SR `NUTR_DEF` maps that number → tagname. Build `nutrientId → tagname` **once**
-  (a committed reference, or a generator step) and pass it into the agents.
-  Tagname is provenance, not translation — it should never be researched 16
-  times. This alone removes most of the web searches.
+- **Resolve the INFOODS tagname once, offline — never per agent. (Done.)** The
+  biggest waste on the launch run: all 16 agents independently chased the
+  FAO/INFOODS tagname list, several rediscovering that the mapping is **already
+  in USDA's own data** (`NUTR_DEF`, cited as "SR28 NUTR_DEF 319=RETOL"). This is
+  now a committed artifact — `l10n/nutrients/tagnames.yaml`, extracted and
+  cross-checked from the launch overlays (§4.2). Pass each id's tagname from the
+  registry into the sourcing agents; tagname is provenance, not translation, and
+  should never be researched again. This alone removes most of the web searches.
 - **Fetch each national standard once into a shared reference, not per agent.**
   16 agents separately `curl`-ed and `pdftotext`-ed the *same* MEXT and GB
   28050 PDFs, each re-fighting Windows codec issues (`tr -d` control chars,
@@ -387,9 +402,15 @@ npm run build:packages   # streams each locale tarball, labels.js baked in
 npm test                 # the gates below must pass
 ```
 
-The locale package ships `labels.js` (`{ sections, stores, nutrients }`) and
-the `sr/<slug>{,.full}` views composing core leaves by reference. A consumer
-renders with `localizeErrand` / `localizeNutrients` from the toolkit.
+The locale package ships `labels.js` (`{ sections, stores, nutrients, panel }`),
+the `sr/<slug>{,.full}` views composing core leaves by reference, the
+`./nutrients` index, and the ambient `types/*.d.ts` wired into the exports map's
+`types` condition (so the localized `/full` keys autocomplete). All of it builds
+from the sourced names — nothing here is hand-written. A consumer renders with
+`localizeErrand` / `localizeNutrients`, reads `food.nutrients['<local name>']`
+directly, or looks a nutrient up cross-lingually in the `./nutrients` index.
+Prove the generated types resolve in a real installed consumer with
+`npm run verify:types`.
 
 ---
 
@@ -399,8 +420,9 @@ renders with `localizeErrand` / `localizeNutrients` from the toolkit.
 |---|---|
 | `tests/locales-vocab.test.ts` | the row's `sections` equal the vocabulary YAML slugs; `stores` label exactly primary/specialty/online |
 | `tests/nutrient-labels.test.ts` | the nutrient table is empty (pending) or covers exactly the 149 dataset ids |
-| `tests/errand-labels.test.ts` | `labels.js` carries sections + stores + nutrients; canonical reads generated names, others read their YAML |
+| `tests/errand-labels.test.ts` | `labels.js` carries sections + stores + nutrients + panel; the `/full` view keys panel AND extras by localized name; canonical reads generated names, others read their YAML |
 | `tests/emit-l10n.test.ts` | the locale's modules emit per the leaf/view law; missing means missing (no English leak) |
+| `tests/emit-nutrients.test.ts` / `tests/emit-types.test.ts` | the `./nutrients` index + ambient `.d.ts` emit with the right keyspace; `npm run verify:types` proves they resolve in an installed consumer |
 
 When these are green for the new tag, the locale is structurally complete —
 what remains is the reviewed quality of the sourced and baseline content.

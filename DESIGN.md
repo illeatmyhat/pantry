@@ -334,6 +334,41 @@ override.
 - **Adding a locale is documented** in `docs/adding-a-locale.md`: a BCP-47
   table row plus the vocabulary, nutrient, baseline, and ground-truth data
   files — never a code change to prose.
+- **A food's `nutrients` is one name-keyed map, and the names autocomplete.**
+  The 14 panel slugs are always present (cores stay structurally complete); a
+  `/full` view additionally keys the 135 extras by name, and a localized
+  `/full` view keys panel AND extras by the locale's names (`nutrients['たんぱ
+  く質']`). Decided against a `nutrientAmount(food, ref)` accessor — the user
+  wants `food.nutrients['name']` property access with editor autocomplete.
+  - **Key breadth on the FOOD is the package's language + the panel slugs.**
+    Cross-language access (an English key on a ja food) and INFOODS-tagname
+    lookup go through a separate shipped `./nutrients` INDEX (id → ref, keyed by
+    en name + localized name + tagname + slug), never by widening every food —
+    keying 7,793 modules with all languages would bloat them. The index is the
+    cross-lingual lookup; the food is the local read.
+  - **Keys are case-sensitive** (lowercased Latin, CJK as-is): an object index
+    cannot be both case-insensitive and autocomplete on its keys.
+  - **Autocomplete is delivered by a per-package ambient `.d.ts` wired into the
+    exports map's `types` condition** — a single static `.d.ts` per view (one
+    `core.d.ts`, one `full.d.ts`, one `nutrients.d.ts`) serves every slug; the
+    `types` condition on a wildcard subpath resolves it in a real NodeNext
+    consumer (proven, then pinned by `npm run verify:types`). Chosen over
+    ambient `declare module` globals, which depend on the consumer's tsconfig
+    pulling the file into its program. The narrowed type is an INTERSECTION with
+    the open base (`NutrientAmounts` / `NutrientIndex`), never a closed object:
+    the literal members make the real keys autocomplete while the base index
+    signature keeps the value assignable to `Food` — so `derive(saltPorkFull,
+    …)` and every toolkit function still accept it — and keeps dynamic
+    string lookup legal. fdc alias routes stay plain string targets (untyped);
+    the slug/`/full` routes are the typed surface, and typing 7,793 aliases as
+    `{types,default}` objects would roughly double the manifest.
+  - **The keyspace has one source.** `coreFullNutrientNames` /
+    `localeFullNutrientNames` (in `nutrient-dictionary.ts`) produce the names
+    the `.d.ts` declares, and the emitted inline `/full` merge keys by those
+    same names — the type and the runtime cannot drift. The localized panel
+    keys reach the no-toolkit-import inline view through a `panel` map
+    (slug → localized name) added to the shipped `labels.js`, matching the
+    toolkit's `assembleFullLocalized`.
 
 ## Open implementation details (measure/decide during build)
 

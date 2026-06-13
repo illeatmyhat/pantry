@@ -62,6 +62,47 @@ The short version:
 - **Reproducible**: generated output is never committed. Everything builds in
   CI from the vendored, checksum-pinned USDA zip in [`data/`](data/).
 
+## Nutrients by name
+
+A food's `nutrients` is one name-keyed map. The 14 Nutrition Facts panel slugs
+are always present; a `/full` view adds the other 135 SR nutrients keyed by
+name — and every name autocompletes in your editor, because each package ships
+an ambient `.d.ts` wired into its export's `types` condition:
+
+```ts
+import saltPork from '@illeatmyhat/pantry/sr/pork-cured-salt-pork-raw';
+import saltPorkFull from '@illeatmyhat/pantry/sr/pork-cured-salt-pork-raw/full';
+
+saltPork.nutrients.protein;            // 5.05  — panel slug, on every view
+saltPorkFull.nutrients['tryptophan'];  // 0.05  — any of the 149 nutrients, by name
+```
+
+On a localized `/full` view the keys are the local-language names — panel and
+extras alike — so the same map reads in the package's language:
+
+```ts
+import 塩豚 from '@illeatmyhat/pantry/l10n/ja-JP/sr/pork-cured-salt-pork-raw/full';
+
+塩豚.nutrients['たんぱく質'];      // 5.05  — panel nutrient, localized
+塩豚.nutrients['トリプトファン'];  // 0.05  — extra nutrient, localized
+塩豚.nutrients.protein;           // 5.05  — the stable slug still works
+```
+
+A food's keys are its own language plus the panel slugs. For cross-lingual or
+tagname lookup — a nutrient by its English name in a Japanese package, or by its
+INFOODS tagname — each package also ships a `./nutrients` index:
+
+```ts
+import nutrients from '@illeatmyhat/pantry/l10n/ja-JP/nutrients';
+
+nutrients['tryptophan'];      // { id: 1210, tagname: 'TRP_G', unit: 'G', name: 'トリプトファン' }
+nutrients['トリプトファン'];   // the same ref, by Japanese name
+nutrients['trp_g'];           // the same ref, by INFOODS tagname
+```
+
+Keys are case-sensitive (lowercased Latin, CJK as-is) — the one constraint of
+making an object index also autocomplete on its keys.
+
 ## Localization
 
 A localized module arrives with the nutrition inside — importing it gives you
@@ -84,7 +125,7 @@ language, each locale package ships a `./labels` table and the toolkit gives
 you two one-call resolvers:
 
 ```ts
-import labels from '@illeatmyhat/pantry/l10n/ja-JP/labels'; // { sections, stores, nutrients }
+import labels from '@illeatmyhat/pantry/l10n/ja-JP/labels'; // { sections, stores, nutrients, panel }
 import { localizeErrand, localizeNutrients } from '@illeatmyhat/pantry';
 
 localizeErrand(saltPork, labels);    // { store: 'スーパー', section: '精肉' }
