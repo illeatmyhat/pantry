@@ -59,7 +59,8 @@ describe('baseline store', () => {
   it('drops transient generation metadata (tokens, ms) — wire details are not baseline', () => {
     const dir = mkdtempSync(join(tmpdir(), 'pantry-baseline-'));
     try {
-      writeBaseline([{ ...records[0], tokens: 393, ms: 1200 } as (typeof records)[0]], dir);
+      const wireRecord = { ...records[0], tokens: 393, ms: 1200 };
+      writeBaseline([wireRecord], dir);
       const back = readBaseline(dir);
       expect(back[0]).toEqual(records[0]);
     } finally {
