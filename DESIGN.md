@@ -258,6 +258,23 @@ override.
   involved. The ground-truth overlay exists for exactly one thing: human
   verification, durable across every regeneration, winning over ANY
   machine output, with `basis` as the glossary-decision log.
+- **Locale scaling path: one package now, per-locale packages when installs
+  hurt** (settled 2026-06-12). npm has no equivalent of pip extras, and the
+  two ecosystem idioms bracket the need: subpath imports in one fat package
+  (the current design — pay-per-import already makes unused locales free at
+  runtime; the only fat-package cost is install time, dominated by file
+  count at ~23.4k files per locale) vs scoped companion packages declared
+  as optional peers (`peerDependenciesMeta: {"…": {optional: true}}`), the
+  npm spelling of `pantry[ja]`. The split point is install pain, not
+  architecture: when locale count makes installs hurt (rough order: beyond
+  ~5 locales), cut over to `@…/pantry-l10n-<tag>` packages whose views
+  import core leaves via `@…/pantry/sr/<slug>.js`, core peer pinned to the
+  major — safe precisely because `/sr/**` never changes within a major.
+  The baseline store, emitters, and exports-map strategy survive the cut
+  unchanged: `generated/l10n/<tag>/` trees are already package-shaped.
+  The stored baseline stays one-file-per-food regardless of locale count
+  (constant file count beats 30× files on every measured axis; single-
+  locale processing waste is linear and trivial at this dataset size).
 - **JSONL is the wire format only; the stored baseline is per-food YAML**
   (`l10n/baseline/<slug>.yaml`, decided 2026-06-12). JSONL earns its keep
   during generation (append-safe for crash/resume on long local runs,
