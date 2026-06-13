@@ -109,6 +109,15 @@ sections:
     note: store-dependent (KALDI/large-format feature) — kept as a fallback bucket
     merges: [輸入食品, 中華食材]
 
+# Store-trip labels for the three `store` enum values (primary/specialty/
+# online), shipped in labels.js next to the section labels so a consumer can
+# render a whole errand in Japanese. User-reviewed 2026-06-13 — lives in the
+# frozen vocabulary, same review surface as the section signage above.
+stores:
+  primary: スーパー
+  specialty: 専門店
+  online: 通販
+
 # Non-retail (decided 2026-06-12): these foods ship `errand: null` — see
 # en-US.yaml for the rationale. Audit-only; checked BEFORE section patterns.
 non_retail:

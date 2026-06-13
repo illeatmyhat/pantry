@@ -47,11 +47,11 @@ describe('localeEntries labels.js', () => {
 describe('loadErrandLabels', () => {
   const ja = LOCALES.find((l) => l.tag.startsWith('ja'));
 
-  it('reads frozen section labels from the vocabulary and store labels from the locale table', () => {
+  it('reads frozen section and store labels both from the vocabulary YAML', () => {
     if (ja === undefined) return;
     const out = loadErrandLabels(ja);
     expect(out.sections['meat']).toBe('精肉'); // frozen signage label
-    expect(out.stores['primary']).toBe(ja.storeLabels.primary); // proposed store label
+    expect(out.stores['primary']).toBe('スーパー'); // store label now in the same frozen YAML
     expect(Object.keys(out.stores)).toEqual(['primary', 'specialty', 'online']);
   });
 });

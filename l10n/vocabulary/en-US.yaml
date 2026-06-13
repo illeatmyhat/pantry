@@ -68,6 +68,15 @@ sections:
   - slug: international
     label: International Foods
     merges: [International Foods]
+# Store-trip labels for the three `store` enum values (primary/specialty/
+# online), shipped in labels.js next to the section labels so a consumer can
+# render a whole errand. User-reviewed 2026-06-13 — lives in the frozen
+# vocabulary, same review surface as the section signage above.
+stores:
+  primary: Supermarket
+  specialty: Specialty Store
+  online: Online
+
 # Non-retail (decided 2026-06-12): these foods ship `errand: null` — no store
 # section honestly fits restaurant menu items, industrial ingredients, or
 # subsistence foods, and there is no parking slug. Merges/patterns below are

@@ -97,6 +97,15 @@ sections:
     note: tier-1/2 standard but trending toward dissolution into per-category shelves
     merges: [进口食品, 日本食品, 进口水果]
 
+# Store-trip labels for the three `store` enum values (primary/specialty/
+# online), shipped in labels.js next to the section labels so a consumer can
+# render a whole errand in Chinese. User-reviewed 2026-06-13 — lives in the
+# frozen vocabulary, same review surface as the section signage above.
+stores:
+  primary: 超市
+  specialty: 专门店
+  online: 网购
+
 # Non-retail (decided 2026-06-12): these foods ship `errand: null` — see
 # en-US.yaml for the rationale. Audit-only; checked BEFORE section patterns.
 non_retail:
