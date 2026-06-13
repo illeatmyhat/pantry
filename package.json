@@ -7814,7 +7814,8 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "build": "tsx src/generator/build.ts",
-    "build:toolkit": "tsc -p tsconfig.build.json"
+    "build:toolkit": "tsc -p tsconfig.build.json",
+    "build:packages": "npm run build:toolkit && tsx scripts/build-packages.ts"
   },
   "repository": {
     "type": "git",

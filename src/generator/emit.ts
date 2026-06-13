@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import type { GeneratedFood } from './assemble.js';
+import type { TarEntry } from './tarball.js';
 
 /**
  * Emits the generated module tree (DESIGN.md "The leaf/view law"):
@@ -12,30 +13,45 @@ import type { GeneratedFood } from './assemble.js';
  *
  * Import-path routing (sr/<slug> → sr/<slug>.js, /full → .full.js) is the
  * package.json exports map's job, not the file layout's.
+ *
+ * coreEntries() is the source of truth; emit() materializes it loose for
+ * dev/debug, build-packages.ts streams it into the publish tarball
+ * without touching disk (decided 2026-06-12 — ~23k loose files were the
+ * slowest possible I/O shape on Windows).
  */
-export function emit(foods: readonly GeneratedFood[], outDir: string): void {
-  const srDir = join(outDir, 'sr');
-  mkdirSync(srDir, { recursive: true });
-
+export function* coreEntries(foods: readonly GeneratedFood[]): Generator<TarEntry> {
   for (const food of foods) {
     const { slug } = food.core;
-    writeFileSync(join(srDir, `${slug}.js`), dataModule(food.core));
-    writeFileSync(join(srDir, `${slug}.extra.js`), dataModule(food.extra));
-    writeFileSync(
-      join(srDir, `${slug}.full.js`),
-      `import core from './${slug}.js';\n` +
+    yield { path: `sr/${slug}.js`, data: dataModule(food.core) };
+    yield { path: `sr/${slug}.extra.js`, data: dataModule(food.extra) };
+    yield {
+      path: `sr/${slug}.full.js`,
+      data:
+        `import core from './${slug}.js';\n` +
         `import extra from './${slug}.extra.js';\n` +
         `export default { ...core, ...extra };\n`,
-    );
+    };
   }
-
   const manifest = foods.map((f) => ({
     slug: f.core.slug,
     fdc_id: f.core.fdc_id,
     description: f.core.description,
     category: f.core.category,
   }));
-  writeFileSync(join(outDir, 'manifest.json'), `${JSON.stringify(manifest, null, 1)}\n`);
+  yield { path: 'manifest.json', data: `${JSON.stringify(manifest, null, 1)}\n` };
+}
+
+export function emit(foods: readonly GeneratedFood[], outDir: string): void {
+  const madeDirs = new Set<string>();
+  for (const entry of coreEntries(foods)) {
+    const filePath = join(outDir, entry.path);
+    const dir = dirname(filePath);
+    if (!madeDirs.has(dir)) {
+      mkdirSync(dir, { recursive: true });
+      madeDirs.add(dir);
+    }
+    writeFileSync(filePath, entry.data);
+  }
 }
 
 function dataModule(data: unknown): string {

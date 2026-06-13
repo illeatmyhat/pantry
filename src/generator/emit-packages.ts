@@ -84,13 +84,20 @@ export function patchCorePackage(pkg: Record<string, unknown>, plan: PackagePlan
   };
 }
 
-/** Writes locale package.jsons into outDir/l10n/<tag>/ and rewrites the core package.json. */
-export function emitPackages(plan: PackagePlan, rootPkgPath: string, outDir: string): void {
-  for (const locale of plan.locales) {
-    writeFileSync(
-      join(outDir, 'l10n', locale.tag, 'package.json'),
-      `${JSON.stringify(localePackageJson(plan, locale.tag), null, 2)}\n`,
-    );
+/**
+ * Rewrites the core package.json and, when outDir is given (loose-tree
+ * mode), writes locale package.jsons into outDir/l10n/<tag>/. Tarball
+ * mode (build-packages.ts) skips the loose writes — the manifests go
+ * straight into the tarballs.
+ */
+export function emitPackages(plan: PackagePlan, rootPkgPath: string, outDir?: string): void {
+  if (outDir !== undefined) {
+    for (const locale of plan.locales) {
+      writeFileSync(
+        join(outDir, 'l10n', locale.tag, 'package.json'),
+        `${JSON.stringify(localePackageJson(plan, locale.tag), null, 2)}\n`,
+      );
+    }
   }
   const core = JSON.parse(readFileSync(rootPkgPath, 'utf8')) as Record<string, unknown>;
   writeFileSync(rootPkgPath, `${JSON.stringify(patchCorePackage(core, plan), null, 2)}\n`);

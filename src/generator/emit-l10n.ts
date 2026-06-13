@@ -1,5 +1,5 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 
 /**
  * Emits locale surfaces from reviewed translation records (baseline +
@@ -52,6 +52,83 @@ export interface EmitL10nOptions {
   readonly coreSpecifier?: string;
 }
 
+/**
+ * Entries for ONE locale's package tree, paths relative to the locale
+ * package root ('sr/<slug>.strings.js' …). The validating source of
+ * truth: emitL10n materializes these loose for dev/debug;
+ * build-packages.ts streams them into locale tarballs without touching
+ * disk (decided 2026-06-12).
+ */
+export function* localeEntries(
+  records: readonly TranslationRecord[],
+  spec: EmitLocale,
+  options: EmitL10nOptions = {},
+): Generator<{ path: string; data: string }> {
+  for (const record of records) {
+    if (record.result === undefined) continue;
+    const value = record.result[spec.tag];
+    if (value === undefined) continue; // missing means missing
+    if (value === null || typeof value !== 'object') {
+      throw new Error(`${record.slug}: ${spec.tag} surface is not an object.`);
+    }
+    const strings = value as LocaleStringsShape;
+
+    let name: string;
+    if (spec.canonical === true) {
+      if (strings.name !== undefined) {
+        throw new Error(
+          `${record.slug}: generated name on canonical locale ${spec.tag} — ` +
+            'the canonical name IS the description, copied mechanically.',
+        );
+      }
+      name = record.description;
+    } else {
+      if (strings.name === undefined || strings.name === '') {
+        throw new Error(
+          `${record.slug}: ${spec.tag} surface has no name — missing means missing; ` +
+            'refusing to leak the English description.',
+        );
+      }
+      name = strings.name;
+    }
+
+    const leaf = {
+      locale: spec.tag,
+      name,
+      aliases: strings.aliases ?? [],
+      ...(strings.errand !== undefined ? { errand: strings.errand } : {}),
+      notes: strings.notes ?? [],
+    };
+    const core =
+      options.coreSpecifier !== undefined
+        ? `${options.coreSpecifier}/sr/${record.slug}`
+        : `../../../sr/${record.slug}.js`;
+    const extra =
+      options.coreSpecifier !== undefined
+        ? `${options.coreSpecifier}/sr/${record.slug}.extra`
+        : `../../../sr/${record.slug}.extra.js`;
+    yield {
+      path: `sr/${record.slug}.strings.js`,
+      data: `export default ${JSON.stringify(leaf)};\n`,
+    };
+    yield {
+      path: `sr/${record.slug}.js`,
+      data:
+        `import core from '${core}';\n` +
+        `import strings from './${record.slug}.strings.js';\n` +
+        `export default { ...core, ...strings };\n`,
+    };
+    yield {
+      path: `sr/${record.slug}.full.js`,
+      data:
+        `import core from '${core}';\n` +
+        `import extra from '${extra}';\n` +
+        `import strings from './${record.slug}.strings.js';\n` +
+        `export default { ...core, ...extra, ...strings };\n`,
+    };
+  }
+}
+
 export function emitL10n(
   records: readonly TranslationRecord[],
   outDir: string,
@@ -59,73 +136,16 @@ export function emitL10n(
   options: EmitL10nOptions = {},
 ): void {
   const madeDirs = new Set<string>();
-  for (const record of records) {
-    if (record.result === undefined) continue;
-    for (const spec of locales) {
-      const value = record.result[spec.tag];
-      if (value === undefined) continue; // missing means missing
-      if (value === null || typeof value !== 'object') {
-        throw new Error(`${record.slug}: ${spec.tag} surface is not an object.`);
+  for (const spec of locales) {
+    for (const entry of localeEntries(records, spec, options)) {
+      const filePath = join(outDir, 'l10n', spec.tag, entry.path);
+      const dir = dirname(filePath);
+      if (!madeDirs.has(dir)) {
+        mkdirSync(dir, { recursive: true });
+        madeDirs.add(dir);
       }
-      const strings = value as LocaleStringsShape;
-
-      let name: string;
-      if (spec.canonical === true) {
-        if (strings.name !== undefined) {
-          throw new Error(
-            `${record.slug}: generated name on canonical locale ${spec.tag} — ` +
-              'the canonical name IS the description, copied mechanically.',
-          );
-        }
-        name = record.description;
-      } else {
-        if (strings.name === undefined || strings.name === '') {
-          throw new Error(
-            `${record.slug}: ${spec.tag} surface has no name — missing means missing; ` +
-              'refusing to leak the English description.',
-          );
-        }
-        name = strings.name;
-      }
-
-      const localeDir = join(outDir, 'l10n', spec.tag, 'sr');
-      if (!madeDirs.has(localeDir)) {
-        mkdirSync(localeDir, { recursive: true });
-        madeDirs.add(localeDir);
-      }
-
-      const leaf = {
-        locale: spec.tag,
-        name,
-        aliases: strings.aliases ?? [],
-        ...(strings.errand !== undefined ? { errand: strings.errand } : {}),
-        notes: strings.notes ?? [],
-      };
-      writeFileSync(
-        join(localeDir, `${record.slug}.strings.js`),
-        `export default ${JSON.stringify(leaf)};\n`,
-      );
-      const core =
-        options.coreSpecifier !== undefined
-          ? `${options.coreSpecifier}/sr/${record.slug}`
-          : `../../../sr/${record.slug}.js`;
-      const extra =
-        options.coreSpecifier !== undefined
-          ? `${options.coreSpecifier}/sr/${record.slug}.extra`
-          : `../../../sr/${record.slug}.extra.js`;
-      writeFileSync(
-        join(localeDir, `${record.slug}.js`),
-        `import core from '${core}';\n` +
-          `import strings from './${record.slug}.strings.js';\n` +
-          `export default { ...core, ...strings };\n`,
-      );
-      writeFileSync(
-        join(localeDir, `${record.slug}.full.js`),
-        `import core from '${core}';\n` +
-          `import extra from '${extra}';\n` +
-          `import strings from './${record.slug}.strings.js';\n` +
-          `export default { ...core, ...extra, ...strings };\n`,
-      );
+      writeFileSync(filePath, entry.data);
     }
   }
 }
+
