@@ -10,8 +10,18 @@
       "types": "./dist/toolkit/index.d.ts",
       "default": "./dist/toolkit/index.js"
     },
-    "./sr/*/full": "./generated/sr/*.full.js",
-    "./sr/*": "./generated/sr/*.js",
+    "./nutrients": {
+      "types": "./generated/nutrients.d.ts",
+      "default": "./generated/nutrients.js"
+    },
+    "./sr/*/full": {
+      "types": "./generated/types/full.d.ts",
+      "default": "./generated/sr/*.full.js"
+    },
+    "./sr/*": {
+      "types": "./generated/types/core.d.ts",
+      "default": "./generated/sr/*.js"
+    },
     "./manifest.json": "./generated/manifest.json",
     "./sr/fdc/167512": "./generated/sr/pillsbury-golden-layer-buttermilk-biscuits-artificial-flavor-refrigerated-dough.js",
     "./sr/fdc/167513": "./generated/sr/pillsbury-cinnamon-rolls-with-icing-refrigerated-dough.js",
@@ -7815,7 +7825,8 @@
     "typecheck": "tsc --noEmit",
     "build": "tsx src/generator/build.ts",
     "build:toolkit": "tsc -p tsconfig.build.json",
-    "build:packages": "npm run build:toolkit && tsx scripts/build-packages.ts"
+    "build:packages": "npm run build:toolkit && tsx scripts/build-packages.ts",
+    "verify:types": "npm run build:toolkit && tsx scripts/verify-types.ts"
   },
   "repository": {
     "type": "git",
@@ -7838,7 +7849,10 @@
   "files": [
     "dist",
     "generated/sr",
-    "generated/manifest.json"
+    "generated/manifest.json",
+    "generated/nutrients.js",
+    "generated/nutrients.d.ts",
+    "generated/types"
   ],
   "peerDependencies": {
     "@illeatmyhat/pantry-l10n-en-us": "0.0.0",

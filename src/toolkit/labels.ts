@@ -23,16 +23,28 @@ export interface NutrientLabels {
 }
 
 /**
- * Everything a locale package's `./labels` export ships — the errand labels
- * and the nutrient dictionary in one table (labels.js):
+ * The panel slug → local-language name table (`{ protein: 'たんぱく質', … }`,
+ * the 14 keys present in a complete locale). Redundant with the id-keyed
+ * `nutrients` map but keyed by the stable panel slug, so the generated `/full`
+ * view can add a localized panel key (`nutrients['たんぱく質']`) by walking
+ * `core.nutrients` without importing the toolkit's LABEL_SET. Empty for a
+ * locale whose nutrient names are not yet sourced.
+ */
+export interface PanelLabels {
+  readonly panel: Record<string, string>;
+}
+
+/**
+ * Everything a locale package's `./labels` export ships — the errand labels,
+ * the nutrient dictionary, and the panel slug table in one object (labels.js):
  *
  *   import labels from '@illeatmyhat/pantry/l10n/ja-JP/labels';
- *   // labels = { sections, stores, nutrients }
+ *   // labels = { sections, stores, nutrients, panel }
  *
  * The resolvers take only the slice they need, so this whole object satisfies
- * both `localizeErrand` (ErrandLabels) and `localizeNutrients` (NutrientLabels).
+ * `localizeErrand` (ErrandLabels) and `localizeNutrients` (NutrientLabels) alike.
  */
-export interface LocaleLabels extends ErrandLabels, NutrientLabels {}
+export interface LocaleLabels extends ErrandLabels, NutrientLabels, PanelLabels {}
 
 /** A food's errand resolved to display strings in the locale's language. */
 export interface LocalizedErrand {

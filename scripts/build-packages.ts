@@ -7,12 +7,18 @@ import { localeEntries } from '../src/generator/emit-l10n.js';
 import { emitPackages, localePackageJson, localePackageName, patchCorePackage } from '../src/generator/emit-packages.js';
 import { createTarGz, type TarEntry } from '../src/generator/tarball.js';
 import { loadDataset } from '../src/generator/load.js';
-import { canonicalNutrientNames } from '../src/generator/nutrient-dictionary.js';
+import {
+  buildNutrientDictionary,
+  canonicalNutrientNames,
+  coreFullNutrientNames,
+  localeFullNutrientNames,
+} from '../src/generator/nutrient-dictionary.js';
 import { BASELINE_DIR, readBaseline } from './translate/baseline.js';
 import { applyGroundTruth, loadGroundTruth } from './translate/ground-truth.js';
 import { root } from './translate/lib.js';
 import { LOCALES } from './translate/locales.js';
-import { loadAllErrandLabels } from './translate/vocabulary.js';
+import { buildNutrientIndex, loadTagnames } from './translate/nutrient-index.js';
+import { loadAllErrandLabels, loadLocaleNutrientNames } from './translate/vocabulary.js';
 
 /**
  * The publish build: streams every package straight into its tarball —
@@ -84,22 +90,50 @@ function writePackage(pkgName: string, entries: Iterable<TarEntry>): void {
   console.log(`${tarballName(pkgName, plan.version)}  ${(tgz.length / 1e6).toFixed(1)} MB`);
 }
 
-// Core: manifest + toolkit + sr leaves/views, paths matching the exports map.
+// Nutrient keyspace: the dictionary, the INFOODS tagname registry, and the
+// en-US names drive the typed ./nutrients index and the ambient .d.ts keyspace
+// (DESIGN.md name-keyed nutrient access).
+const dict = buildNutrientDictionary(dataset);
+const tagnames = loadTagnames();
+const enNames = canonicalNutrientNames(dataset);
+
+// Core: manifest + toolkit + sr leaves/views + nutrient index/types, paths
+// matching the exports map. The core index keys by English name, tagname, and
+// panel slug (no localized names); the /full keyspace is the 135 USDA names.
+const coreNutrients = {
+  specifier: plan.coreName,
+  extraNames: coreFullNutrientNames(dict),
+  index: buildNutrientIndex(dict, tagnames, enNames).index,
+};
 writePackage(plan.coreName, (function* core(): Generator<TarEntry> {
   yield { path: 'package.json', data: `${JSON.stringify(corePkg, null, 2)}\n` };
   yield* distFiles(`${root}dist/toolkit`);
-  for (const entry of coreEntries(foods)) {
+  for (const entry of coreEntries(foods, coreNutrients)) {
     yield { path: `generated/${entry.path}`, data: entry.data }; // l10n never rides in core
   }
 })());
 
-// Locales: stored baseline + ground truth, cross-package views.
+// Locales: stored baseline + ground truth, cross-package views. Each locale's
+// index and /full keyspace add its localized names on top of the en/tagname/
+// slug keys; the type files import the toolkit types from the core peer.
 const baselineRecords = readBaseline(BASELINE_DIR);
 const merged = applyGroundTruth(baselineRecords, loadGroundTruth(root)) as typeof baselineRecords;
-const labels = loadAllErrandLabels(LOCALES, canonicalNutrientNames(dataset));
+const labels = loadAllErrandLabels(LOCALES, enNames);
+const localeNutrients = Object.fromEntries(
+  LOCALES.map((spec) => {
+    const localized = spec.canonical === true ? enNames : loadLocaleNutrientNames(spec.tag);
+    return [
+      spec.tag,
+      {
+        extraNames: localeFullNutrientNames(dict, enNames, localized),
+        index: buildNutrientIndex(dict, tagnames, enNames, localized).index,
+      },
+    ];
+  }),
+);
 for (const spec of LOCALES) {
   writePackage(localePackageName(plan.coreName, spec.tag), (function* locale(): Generator<TarEntry> {
     yield { path: 'package.json', data: `${JSON.stringify(localePackageJson(plan, spec.tag), null, 2)}\n` };
-    yield* localeEntries(merged, spec, { coreSpecifier: plan.coreName, labels });
+    yield* localeEntries(merged, spec, { coreSpecifier: plan.coreName, labels, nutrients: localeNutrients });
   })());
 }

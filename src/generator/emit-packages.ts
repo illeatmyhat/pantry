@@ -51,11 +51,16 @@ export function localePackageJson(plan: PackagePlan, tag: string): object {
     description: `${tag} locale surfaces for ${plan.coreName} — strings leaves and composed views per food.`,
     license: 'MIT',
     type: 'module',
-    files: ['sr', 'labels.js'],
+    files: ['sr', 'labels.js', 'nutrients.js', 'nutrients.d.ts', 'types'],
     exports: {
       './labels': './labels.js',
-      './sr/*/full': './sr/*.full.js',
-      './sr/*': './sr/*.js',
+      './nutrients': { types: './nutrients.d.ts', default: './nutrients.js' },
+      // The `types` condition narrows nutrient keys for autocomplete; a single
+      // static .d.ts per view serves every slug (DESIGN.md name-keyed access).
+      // fdc alias routes stay plain string targets — the slug routes are the
+      // typed surface; typing 7,793 aliases would double the manifest.
+      './sr/*/full': { types: './types/full.d.ts', default: './sr/*.full.js' },
+      './sr/*': { types: './types/core.d.ts', default: './sr/*.js' },
       ...aliasExports(plan.manifest, './sr'),
     },
     // Lockstep pin: locale strings reference core slugs, which are frozen
@@ -72,7 +77,14 @@ export function patchCorePackage(pkg: Record<string, unknown>, plan: PackagePlan
   const localeNames = plan.locales.map((l) => localePackageName(plan.coreName, l.tag));
   return {
     ...pkg,
-    files: ['dist', 'generated/sr', 'generated/manifest.json'],
+    files: [
+      'dist',
+      'generated/sr',
+      'generated/manifest.json',
+      'generated/nutrients.js',
+      'generated/nutrients.d.ts',
+      'generated/types',
+    ],
     exports: { ...staticExports, ...aliasExports(plan.manifest, './generated/sr') },
     peerDependencies: {
       ...((pkg['peerDependencies'] ?? {}) as Record<string, string>),

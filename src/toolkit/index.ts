@@ -6,6 +6,7 @@ export {
   localizeNutrients,
   type ErrandLabels,
   type NutrientLabels,
+  type PanelLabels,
   type LocaleLabels,
   type LocalizedErrand,
   type LocalizedNutrient,

@@ -1,7 +1,9 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import type { GeneratedFood } from './assemble.js';
+import { renderCoreDts, renderFullDts, renderIndexDts, renderIndexJs } from './emit-types.js';
 import type { TarEntry } from './tarball.js';
+import type { NutrientIndex } from '../toolkit/labels.js';
 
 /**
  * Emits the generated module tree (DESIGN.md "The leaf/view law"):
@@ -19,7 +21,24 @@ import type { TarEntry } from './tarball.js';
  * without touching disk (decided 2026-06-12 — ~23k loose files were the
  * slowest possible I/O shape on Windows).
  */
-export function* coreEntries(foods: readonly GeneratedFood[]): Generator<TarEntry> {
+/**
+ * The package-level nutrient artifacts (DESIGN.md "name-keyed nutrient
+ * access"): the typed `./nutrients` lookup index and the ambient `.d.ts` that
+ * make `nutrients['tryptophan']` autocomplete. Passed by the publish build;
+ * omitted by the loose dev/debug emit (which ships no exports map to wire them
+ * into). `specifier` is the package's own name (the core self-references it);
+ * `extraNames` is the 135 USDA names this core `/full` view keys.
+ */
+export interface CoreNutrientArtifacts {
+  readonly specifier: string;
+  readonly extraNames: readonly string[];
+  readonly index: NutrientIndex;
+}
+
+export function* coreEntries(
+  foods: readonly GeneratedFood[],
+  nutrients?: CoreNutrientArtifacts,
+): Generator<TarEntry> {
   for (const food of foods) {
     const { slug } = food.core;
     yield { path: `sr/${slug}.js`, data: dataModule(food.core) };
@@ -44,6 +63,13 @@ export function* coreEntries(foods: readonly GeneratedFood[]): Generator<TarEntr
     category: f.core.category,
   }));
   yield { path: 'manifest.json', data: `${JSON.stringify(manifest, null, 1)}\n` };
+
+  if (nutrients !== undefined) {
+    yield { path: 'nutrients.js', data: renderIndexJs(nutrients.index) };
+    yield { path: 'nutrients.d.ts', data: renderIndexDts(nutrients.specifier, nutrients.index) };
+    yield { path: 'types/core.d.ts', data: renderCoreDts(nutrients.specifier) };
+    yield { path: 'types/full.d.ts', data: renderFullDts(nutrients.specifier, nutrients.extraNames) };
+  }
 }
 
 export function emit(foods: readonly GeneratedFood[], outDir: string): void {

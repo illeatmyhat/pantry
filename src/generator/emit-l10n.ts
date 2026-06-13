@@ -1,5 +1,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { renderCoreDts, renderFullDts, renderIndexDts, renderIndexJs } from './emit-types.js';
+import type { NutrientIndex } from '../toolkit/labels.js';
 
 /**
  * Emits locale surfaces from reviewed translation records (baseline +
@@ -50,6 +52,8 @@ export interface ErrandLabelTable {
   readonly sections: Record<string, string>;
   readonly stores: Record<string, string>;
   readonly nutrients: Record<string, string>;
+  /** Panel slug → localized name; lets the /full view key panel nutrients by local name. */
+  readonly panel: Record<string, string>;
 }
 
 export interface EmitL10nOptions {
@@ -67,6 +71,15 @@ export interface EmitL10nOptions {
    * table for rendering store/section slugs in the local language.
    */
   readonly labels?: Record<string, ErrandLabelTable>;
+  /**
+   * Per-locale nutrient artifacts keyed by BCP-47 tag — the typed `./nutrients`
+   * index and the `/full` keyspace for the ambient `.d.ts`. Emitted only
+   * alongside `coreSpecifier` (the publish/split build): the type files import
+   * `Food`/`NutrientAmounts`/`NutrientIndex` from the core package, so they
+   * need its bare specifier to resolve. `extraNames` is this locale's 149
+   * localized names (or the USDA fallback for a pending locale).
+   */
+  readonly nutrients?: Record<string, { readonly extraNames: readonly string[]; readonly index: NutrientIndex }>;
 }
 
 /**
@@ -86,6 +99,16 @@ export function* localeEntries(
   const labels = options.labels?.[spec.tag];
   if (labels !== undefined) {
     yield { path: 'labels.js', data: `export default ${JSON.stringify(labels, null, 2)};\n` };
+  }
+  // Locale nutrient artifacts: the typed index + ambient .d.ts. Only in the
+  // split build (coreSpecifier set) — the type files import the toolkit types
+  // from the core peer package.
+  const nutrients = options.nutrients?.[spec.tag];
+  if (nutrients !== undefined && options.coreSpecifier !== undefined) {
+    yield { path: 'nutrients.js', data: renderIndexJs(nutrients.index) };
+    yield { path: 'nutrients.d.ts', data: renderIndexDts(options.coreSpecifier, nutrients.index) };
+    yield { path: 'types/core.d.ts', data: renderCoreDts(options.coreSpecifier) };
+    yield { path: 'types/full.d.ts', data: renderFullDts(options.coreSpecifier, nutrients.extraNames) };
   }
   for (const record of records) {
     if (record.result === undefined) continue;
@@ -141,13 +164,17 @@ export function* localeEntries(
         `import strings from './${record.slug}.strings.js';\n` +
         `export default { ...core, ...strings };\n`,
     };
-    // The /full view exposes a name-keyed nutrients map (panel slugs + the 135
-    // extras). When this locale ships a labels.js, the extras key by their
-    // localized name; otherwise they fall back to the USDA name (as core does).
+    // The /full view exposes a name-keyed nutrients map: the 14 panel slugs,
+    // plus — when this locale ships a labels.js — each panel nutrient ALSO by
+    // its localized name (labels.panel) and the 135 extras by localized name
+    // (labels.nutrients), falling back to the USDA name. This mirrors the
+    // toolkit's assembleFullLocalized (tests/assemble-view.test.ts) exactly.
+    // Without a labels.js the extras key by USDA name, as core does.
     const hasLabels = options.labels?.[spec.tag] !== undefined;
     const fullMerge = hasLabels
       ? `import labels from '../labels.js';\n` +
         `const nutrients = { ...core.nutrients };\n` +
+        `for (const slug in labels.panel) nutrients[labels.panel[slug].toLowerCase()] = core.nutrients[slug];\n` +
         `for (const n of extra.remaining_nutrients) nutrients[(labels.nutrients[n.nutrientId] ?? n.name).toLowerCase()] = n.amount;\n`
       : `const nutrients = { ...core.nutrients };\n` +
         `for (const n of extra.remaining_nutrients) nutrients[n.name.toLowerCase()] = n.amount;\n`;

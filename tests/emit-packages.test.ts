@@ -20,16 +20,18 @@ describe('localePackageJson', () => {
       name: string;
       type: string;
       files: string[];
-      exports: Record<string, string>;
+      exports: Record<string, unknown>;
       peerDependencies: Record<string, string>;
     };
     expect(pkg.name).toBe('@illeatmyhat/pantry-l10n-ja-jp');
     expect(pkg.type).toBe('module');
-    expect(pkg.files).toEqual(['sr', 'labels.js']);
+    expect(pkg.files).toEqual(['sr', 'labels.js', 'nutrients.js', 'nutrients.d.ts', 'types']);
     expect(pkg.exports['./labels']).toBe('./labels.js'); // slug → local-language label table
-    expect(pkg.exports['./sr/*']).toBe('./sr/*.js');
-    expect(pkg.exports['./sr/*/full']).toBe('./sr/*.full.js');
-    // fdc alias routes — exports-map entries, the measured decision
+    // Views carry a types condition (autocomplete) over the default .js.
+    expect(pkg.exports['./sr/*']).toEqual({ types: './types/core.d.ts', default: './sr/*.js' });
+    expect(pkg.exports['./sr/*/full']).toEqual({ types: './types/full.d.ts', default: './sr/*.full.js' });
+    expect(pkg.exports['./nutrients']).toEqual({ types: './nutrients.d.ts', default: './nutrients.js' });
+    // fdc alias routes — plain string targets (the typed surface is the slug routes)
     expect(pkg.exports['./sr/fdc/167782']).toBe('./sr/abiyuch-raw.js');
     expect(pkg.peerDependencies['@illeatmyhat/pantry']).toBe('0.0.0');
   });
@@ -71,6 +73,8 @@ describe('patchCorePackage', () => {
   it('scopes the published files so locale trees never ride in the core tarball', () => {
     const patched = patchCorePackage(core, opts) as { files: string[] };
     expect(patched.files).toContain('generated/sr');
+    expect(patched.files).toContain('generated/types'); // ambient .d.ts ship
+    expect(patched.files).toContain('generated/nutrients.js'); // the index ships
     expect(patched.files).not.toContain('generated');
     expect(patched.files.some((f) => f.includes('l10n'))).toBe(false);
   });

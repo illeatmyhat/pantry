@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { parse } from 'yaml';
+import { LABEL_SET } from '../../src/toolkit/food.js';
 import { root } from './lib.js';
 import type { LocaleSpec } from './locales.js';
 
@@ -21,6 +22,8 @@ export interface ErrandLabels {
   readonly sections: Record<string, string>;
   readonly stores: Record<string, string>;
   readonly nutrients: Record<string, string>;
+  /** Panel slug → localized name (the 14 panel ids resolved through `nutrients`). */
+  readonly panel: Record<string, string>;
 }
 
 interface VocabEntry {
@@ -62,7 +65,14 @@ export function loadErrandLabels(
   const sections = Object.fromEntries((doc.sections ?? []).map((e) => [e.slug, e.label]));
   const nutrients =
     spec.canonical === true ? canonicalNutrients : loadLocaleNutrientNames(spec.tag);
-  return { sections, stores: { ...(doc.stores ?? {}) }, nutrients };
+  // Panel slug → localized name, derived from the id-keyed table so the /full
+  // view can key a panel nutrient by its local name without the toolkit.
+  const panel: Record<string, string> = {};
+  for (const e of LABEL_SET) {
+    const name = nutrients[String(e.nutrientId)];
+    if (name !== undefined) panel[e.key] = name;
+  }
+  return { sections, stores: { ...(doc.stores ?? {}) }, nutrients, panel };
 }
 
 /**

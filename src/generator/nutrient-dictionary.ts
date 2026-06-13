@@ -56,3 +56,38 @@ export function canonicalNutrientNames(dataset: Dataset): Record<string, string>
   }
   return out;
 }
+
+/**
+ * The names a CORE `/full` view keys nutrients by, beyond the 14 panel slugs:
+ * the 135 extra USDA names. (The panel stays keyed by slug only — the core
+ * package carries no display-name keys.) The keyspace for the generated
+ * `full.d.ts`; the renderer lowercases and dedupes.
+ */
+export function coreFullNutrientNames(dict: readonly NutrientDictEntry[]): string[] {
+  return dict.filter((e) => !e.panel).map((e) => e.name);
+}
+
+/**
+ * The names a LOCALE `/full` view keys nutrients by, mirroring the emitted
+ * inline merge exactly: each panel nutrient by its localized name (only when
+ * the locale has sourced it — `labels.panel` carries only those), each extra
+ * by its localized name or the USDA fallback. For a complete locale this is
+ * all 149 localized names; for a pending locale (no sourced names) it is the
+ * 135 USDA extra names, identical to core.
+ */
+export function localeFullNutrientNames(
+  dict: readonly NutrientDictEntry[],
+  enNames: Record<string, string>,
+  localized: Record<string, string>,
+): string[] {
+  const out: string[] = [];
+  for (const e of dict) {
+    const id = String(e.id);
+    if (e.panel) {
+      if (localized[id] !== undefined) out.push(localized[id]);
+    } else {
+      out.push(localized[id] ?? enNames[id] ?? e.name);
+    }
+  }
+  return out;
+}

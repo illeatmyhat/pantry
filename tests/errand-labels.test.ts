@@ -21,6 +21,7 @@ const labels = {
     sections: { meat: '精肉', produce: '青果' },
     stores: { primary: 'スーパー', specialty: '専門店', online: '通販' },
     nutrients: { '1003': 'タンパク質' },
+    panel: { protein: 'タンパク質' },
   },
 };
 
@@ -51,6 +52,13 @@ describe('localeEntries labels.js', () => {
     expect(full?.data).toContain("import labels from '../labels.js'");
     expect(full?.data).toContain('labels.nutrients[n.nutrientId]');
     expect(full?.data).toContain('...strings, nutrients }');
+  });
+
+  it('the /full view also keys panel nutrients by localized name via labels.panel', () => {
+    const entries = [...localeEntries([record], { tag: 'ja-JP' }, { labels })];
+    const full = entries.find((e) => e.path === 'sr/beef-chuck.full.js');
+    expect(full?.data).toContain('for (const slug in labels.panel)');
+    expect(full?.data).toContain('core.nutrients[slug]');
   });
 });
 
