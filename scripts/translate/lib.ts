@@ -24,6 +24,23 @@ export function readJsonl<T>(path: string): T[] {
     .map((line) => JSON.parse(line) as T);
 }
 
+/**
+ * Brand-bearing foods: an ALL-CAPS token (KEEBLER, HEINZ) or a known
+ * mixed-case brand (Pillsbury, Gerber). Branded foods carry market-specific
+ * retail judgment (brand→null, specialty availability), so the tier router
+ * sends them to the strong model regardless of category. Shared with the
+ * sampler so "what counts as branded" has one definition.
+ */
+const MIXED_CASE_BRANDS =
+  /\b(Pillsbury|Hormel|Heinz|Campbell|Kraft|Nabisco|Keebler|Udi's|Mission|Martha White|Mead Johnson|Gerber|Nestle|Ross|Abbott)\b/i;
+
+export function looksBranded(description: string): boolean {
+  if (MIXED_CASE_BRANDS.test(description)) return true;
+  return /\b[A-Z][A-Z'&-]{2,}[A-Z]\b/.test(
+    description.replace(/\bUSDA\b|\bNLEA\b|\bRTF\b|\bUSA\b/g, ''),
+  );
+}
+
 /** mulberry32 — small, deterministic, good enough for sampling. */
 export function mulberry32(a: number): () => number {
   return () => {

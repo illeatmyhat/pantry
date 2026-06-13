@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { draw as drawSeeded, flag, mulberry32, root } from './lib.js';
+import { draw as drawSeeded, flag, looksBranded, mulberry32, root } from './lib.js';
 import type { ManifestEntry } from '../../src/toolkit/search.js';
 
 /**
@@ -32,14 +32,6 @@ const manifest = (
 const randomN = Number(positional[0] ?? 32);
 const brandN = Number(positional[1] ?? 8);
 const seed = Number(positional[2] ?? 20260611);
-
-/** Brand-bearing foods: an ALL-CAPS token (KEEBLER, HEINZ) or a known mixed-case brand. */
-const MIXED_CASE_BRANDS =
-  /\b(Pillsbury|Hormel|Heinz|Campbell|Kraft|Nabisco|Keebler|Udi's|Mission|Martha White|Mead Johnson|Gerber|Nestle|Ross|Abbott)\b/i;
-function looksBranded(description: string): boolean {
-  if (MIXED_CASE_BRANDS.test(description)) return true;
-  return /\b[A-Z][A-Z'&-]{2,}[A-Z]\b/.test(description.replace(/\bUSDA\b|\bNLEA\b|\bRTF\b|\bUSA\b/g, ''));
-}
 
 const rand = mulberry32(seed);
 const branded = manifest.filter((e) => looksBranded(e.description));
