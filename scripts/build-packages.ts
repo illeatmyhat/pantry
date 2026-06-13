@@ -96,14 +96,18 @@ function writePackage(pkgName: string, entries: Iterable<TarEntry>): void {
 const dict = buildNutrientDictionary(dataset);
 const tagnames = loadTagnames();
 const enNames = canonicalNutrientNames(dataset);
+// Ambiguous keys the index drops (never mis-resolves) — reported, per DESIGN.md.
+const dropped = new Set<string>();
 
 // Core: manifest + toolkit + sr leaves/views + nutrient index/types, paths
 // matching the exports map. The core index keys by English name, tagname, and
 // panel slug (no localized names); the /full keyspace is the 135 USDA names.
+const coreIndex = buildNutrientIndex(dict, tagnames, enNames);
+coreIndex.dropped.forEach((d) => dropped.add(d));
 const coreNutrients = {
   specifier: plan.coreName,
   extraNames: coreFullNutrientNames(dict),
-  index: buildNutrientIndex(dict, tagnames, enNames).index,
+  index: coreIndex.index,
 };
 writePackage(plan.coreName, (function* core(): Generator<TarEntry> {
   yield { path: 'package.json', data: `${JSON.stringify(corePkg, null, 2)}\n` };
@@ -122,12 +126,11 @@ const labels = loadAllErrandLabels(LOCALES, enNames);
 const localeNutrients = Object.fromEntries(
   LOCALES.map((spec) => {
     const localized = spec.canonical === true ? enNames : loadLocaleNutrientNames(spec.tag);
+    const built = buildNutrientIndex(dict, tagnames, enNames, localized);
+    built.dropped.forEach((d) => dropped.add(d));
     return [
       spec.tag,
-      {
-        extraNames: localeFullNutrientNames(dict, enNames, localized),
-        index: buildNutrientIndex(dict, tagnames, enNames, localized).index,
-      },
+      { extraNames: localeFullNutrientNames(dict, enNames, localized), index: built.index },
     ];
   }),
 );
@@ -136,4 +139,8 @@ for (const spec of LOCALES) {
     yield { path: 'package.json', data: `${JSON.stringify(localePackageJson(plan, spec.tag), null, 2)}\n` };
     yield* localeEntries(merged, spec, { coreSpecifier: plan.coreName, labels, nutrients: localeNutrients });
   })());
+}
+
+if (dropped.size > 0) {
+  console.log(`Dropped ${dropped.size} ambiguous index key(s) (kept resolvable by display name): ${[...dropped].join(', ')}`);
 }

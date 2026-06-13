@@ -33,11 +33,15 @@ const foods = assemble(dataset);
 // only the core artifacts apply; the index keys by en name, tagname, and slug.
 const dict = buildNutrientDictionary(dataset);
 const coreName = (JSON.parse(readFileSync(`${root}package.json`, 'utf8')) as { name: string }).name;
+const builtIndex = buildNutrientIndex(dict, loadTagnames(), canonicalNutrientNames(dataset));
 const coreNutrients = {
   specifier: coreName,
   extraNames: coreFullNutrientNames(dict),
-  index: buildNutrientIndex(dict, loadTagnames(), canonicalNutrientNames(dataset)).index,
+  index: builtIndex.index,
 };
+if (builtIndex.dropped.length > 0) {
+  console.log(`Dropped ${builtIndex.dropped.length} ambiguous index key(s): ${builtIndex.dropped.join(', ')}`);
+}
 
 rmSync(outDir, { recursive: true, force: true });
 emit(foods, outDir, coreNutrients);

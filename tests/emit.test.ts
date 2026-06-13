@@ -87,4 +87,23 @@ describe('emit', () => {
       },
     ]);
   });
+
+  it('writes the nutrient index + ambient .d.ts to disk when given the artifacts', () => {
+    // The loose dev build must materialize the same typed surface as the
+    // published tarball — types/ + nutrients.js, not cores only.
+    const index = { protein: { id: 1003, tagname: 'PROCNT', unit: 'G', name: 'Protein' } };
+    emit([saltPork], outDir, { specifier: '@illeatmyhat/pantry', extraNames: ['Tryptophan'], index });
+    expect(readFileSync(join(outDir, 'nutrients.js'), 'utf8')).toContain('"PROCNT"');
+    expect(readFileSync(join(outDir, 'nutrients.d.ts'), 'utf8')).toContain("readonly 'protein': NutrientRef;");
+    expect(readFileSync(join(outDir, 'types', 'core.d.ts'), 'utf8')).toContain('declare const food: Food;');
+    expect(readFileSync(join(outDir, 'types', 'full.d.ts'), 'utf8')).toContain("readonly 'tryptophan': number | null;");
+  });
+
+  it('writes cores only when no artifacts are given (no stray type files)', () => {
+    const bare = mkdtempSync(join(tmpdir(), 'pantry-emit-bare-'));
+    emit([saltPork], bare);
+    expect(() => readFileSync(join(bare, 'nutrients.js'))).toThrow();
+    expect(() => readFileSync(join(bare, 'types', 'core.d.ts'))).toThrow();
+    rmSync(bare, { recursive: true, force: true });
+  });
 });
