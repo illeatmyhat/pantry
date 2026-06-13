@@ -1,4 +1,5 @@
-import { mkdtempSync, rmSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { cpSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -7,6 +8,7 @@ import { applyGroundTruth, parseGroundTruth } from '../scripts/translate/ground-
 import type { GeneratedFood } from '../src/generator/assemble.js';
 import { emit } from '../src/generator/emit.js';
 import { emitL10n } from '../src/generator/emit-l10n.js';
+import { localePackageJson } from '../src/generator/emit-packages.js';
 import { LABEL_KEYS, localize } from '../src/toolkit/index.js';
 import type { Food, LabelNutrients } from '../src/toolkit/index.js';
 
@@ -130,5 +132,78 @@ describe('consumer imports', () => {
     );
     const view = await importDefault<Food>('l10n', 'ja-JP', 'sr', `${SLUG}.js`);
     expect(localize(core, strings)).toEqual(view);
+  });
+});
+
+describe('split-package consumer (per-locale packages, optional peers)', () => {
+  // A simulated npm install: core and locale packages junction-linked into
+  // a consumer's node_modules, all imports resolved through bare specifiers
+  // and the packages' exports maps — including the fdc alias routes.
+  const split = mkdtempSync(join(tmpdir(), 'pantry-split-'));
+  afterAll(() => rmSync(split, { recursive: true, force: true }));
+
+  const plan = {
+    coreName: '@illeatmyhat/pantry',
+    version: '0.0.0',
+    manifest: [{ slug: SLUG, fdc_id: 168287 }],
+    locales: [{ tag: 'ja-JP' }],
+  };
+
+  beforeAll(async () => {
+    const coreDir = join(split, 'core');
+    emit([saltPork], coreDir);
+    writeFileSync(
+      join(coreDir, 'package.json'),
+      JSON.stringify({
+        name: plan.coreName,
+        version: plan.version,
+        type: 'module',
+        exports: { './sr/*/full': './sr/*.full.js', './sr/*': './sr/*.js' },
+      }),
+    );
+
+    const merged = applyGroundTruth(
+      baseline,
+      new Map([['ja-JP', groundTruth]]),
+    ) as typeof baseline;
+    emitL10n(merged, join(split, 'out'), [{ tag: 'ja-JP' }], { coreSpecifier: plan.coreName });
+    const localeDir = join(split, 'out', 'l10n', 'ja-JP');
+    writeFileSync(
+      join(localeDir, 'package.json'),
+      JSON.stringify(localePackageJson(plan, 'ja-JP')),
+    );
+
+    // Copy, don't link: npm installs place package files physically under
+    // node_modules, and Node resolves a package's own imports from its
+    // realpath — a symlinked package would look for its peers in the
+    // wrong tree.
+    const scope = join(split, 'consumer', 'node_modules', '@illeatmyhat');
+    mkdirSync(scope, { recursive: true });
+    cpSync(coreDir, join(scope, 'pantry'), { recursive: true });
+    cpSync(localeDir, join(scope, 'pantry-l10n-ja-jp'), { recursive: true });
+    writeFileSync(
+      join(split, 'consumer', 'probe.mjs'),
+      `import view from '@illeatmyhat/pantry-l10n-ja-jp/sr/${SLUG}';\n` +
+        `import full from '@illeatmyhat/pantry-l10n-ja-jp/sr/${SLUG}/full';\n` +
+        `import byFdc from '@illeatmyhat/pantry-l10n-ja-jp/sr/fdc/168287';\n` +
+        `process.stdout.write(JSON.stringify({ view, full, byFdc }));\n`,
+    );
+  });
+
+  it('resolves locale views cross-package, by slug, /full, and fdc alias', () => {
+    // A real child Node process: bare-specifier resolution through
+    // node_modules and the exports maps, no test-runner interception.
+    const stdout = execFileSync(process.execPath, [join(split, 'consumer', 'probe.mjs')], {
+      encoding: 'utf8',
+    });
+    const probe = JSON.parse(stdout) as {
+      view: Food;
+      full: Food & { ndb_number: string };
+      byFdc: Food;
+    };
+    expect(probe.view.name).toBe('豚肉、塩蔵、ソルトポーク、生');
+    expect(probe.view.nutrients.calories).toBe(748); // core leaf reached through the peer package
+    expect(probe.full.ndb_number).toBe('10165');
+    expect(probe.byFdc.fdc_id).toBe(168287); // exports-map alias route
   });
 });

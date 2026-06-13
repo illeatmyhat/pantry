@@ -41,10 +41,22 @@ interface LocaleStringsShape {
   readonly notes?: readonly string[];
 }
 
+export interface EmitL10nOptions {
+  /**
+   * Bare package specifier for the core package (e.g. '@illeatmyhat/pantry').
+   * When set, views import core leaves cross-package ('<core>/sr/<slug>',
+   * extensionless — the exports map appends .js), making each
+   * l10n/<tag>/ tree publishable as its own package. Default: relative
+   * imports, the single-package layout.
+   */
+  readonly coreSpecifier?: string;
+}
+
 export function emitL10n(
   records: readonly TranslationRecord[],
   outDir: string,
   locales: readonly EmitLocale[],
+  options: EmitL10nOptions = {},
 ): void {
   const madeDirs = new Set<string>();
   for (const record of records) {
@@ -93,16 +105,24 @@ export function emitL10n(
         join(localeDir, `${record.slug}.strings.js`),
         `export default ${JSON.stringify(leaf)};\n`,
       );
+      const core =
+        options.coreSpecifier !== undefined
+          ? `${options.coreSpecifier}/sr/${record.slug}`
+          : `../../../sr/${record.slug}.js`;
+      const extra =
+        options.coreSpecifier !== undefined
+          ? `${options.coreSpecifier}/sr/${record.slug}.extra`
+          : `../../../sr/${record.slug}.extra.js`;
       writeFileSync(
         join(localeDir, `${record.slug}.js`),
-        `import core from '../../../sr/${record.slug}.js';\n` +
+        `import core from '${core}';\n` +
           `import strings from './${record.slug}.strings.js';\n` +
           `export default { ...core, ...strings };\n`,
       );
       writeFileSync(
         join(localeDir, `${record.slug}.full.js`),
-        `import core from '../../../sr/${record.slug}.js';\n` +
-          `import extra from '../../../sr/${record.slug}.extra.js';\n` +
+        `import core from '${core}';\n` +
+          `import extra from '${extra}';\n` +
           `import strings from './${record.slug}.strings.js';\n` +
           `export default { ...core, ...extra, ...strings };\n`,
       );

@@ -265,13 +265,19 @@ override.
   runtime; the only fat-package cost is install time, dominated by file
   count at ~23.4k files per locale) vs scoped companion packages declared
   as optional peers (`peerDependenciesMeta: {"…": {optional: true}}`), the
-  npm spelling of `pantry[ja]`. The split point is install pain, not
-  architecture: when locale count makes installs hurt (rough order: beyond
-  ~5 locales), cut over to `@…/pantry-l10n-<tag>` packages whose views
-  import core leaves via `@…/pantry/sr/<slug>.js`, core peer pinned to the
-  major — safe precisely because `/sr/**` never changes within a major.
-  The baseline store, emitters, and exports-map strategy survive the cut
-  unchanged: `generated/l10n/<tag>/` trees are already package-shaped.
+  npm spelling of `pantry[ja]`. The split is IMPLEMENTED up front (same
+  day): each `generated/l10n/<tag>/` tree is a publishable
+  `@…/pantry-l10n-<tag>` package — emit writes its package.json
+  (files: [sr], exports incl. fdc aliases, core peer pinned in version
+  lockstep, safe precisely because `/sr/**` never changes within a
+  major), locale views import core leaves via the bare specifier
+  (`@…/pantry/sr/<slug>`, extensionless so the exports map appends .js),
+  and emit syncs the root package.json with the fdc alias exports,
+  `files` scoping (locale trees never ride in the core tarball), and
+  optional-peer declarations. tests/consumer.test.ts proves the shape
+  with a real child-node consumer resolving through node_modules.
+  Publishing per-locale is now a choice made at `npm publish` time, not
+  a refactor.
   The stored baseline stays one-file-per-food regardless of locale count
   (constant file count beats 30× files on every measured axis; single-
   locale processing waste is linear and trivial at this dataset size).

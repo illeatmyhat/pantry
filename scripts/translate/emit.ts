@@ -1,9 +1,11 @@
+import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { BASELINE_DIR, loadRecords } from './baseline.js';
 import { applyGroundTruth, loadGroundTruth } from './ground-truth.js';
 import { flag, root } from './lib.js';
 import { LOCALES } from './locales.js';
 import { emitL10n } from '../../src/generator/emit-l10n.js';
+import { emitPackages, type PackageManifestEntry } from '../../src/generator/emit-packages.js';
 
 /**
  * The post-batch pipeline tail (DESIGN.md "After the run"): a results
@@ -28,7 +30,27 @@ const groundTruth = loadGroundTruth(root);
 const verified = [...groundTruth.values()].reduce((sum, set) => sum + set.size, 0);
 const merged = applyGroundTruth(records, groundTruth) as typeof records;
 
-emitL10n(merged, outDir, LOCALES);
+// Locale trees are publishable packages (DESIGN.md "Locale scaling path"):
+// views import core leaves via the bare specifier, and each tree gets its
+// own package.json; the root package.json gains the fdc alias exports and
+// the optional-peer declarations.
+const corePkg = JSON.parse(readFileSync(`${root}package.json`, 'utf8')) as {
+  name: string;
+  version: string;
+};
+emitL10n(merged, outDir, LOCALES, { coreSpecifier: corePkg.name });
+emitPackages(
+  {
+    coreName: corePkg.name,
+    version: corePkg.version,
+    manifest: JSON.parse(
+      readFileSync(`${root}generated/manifest.json`, 'utf8'),
+    ) as PackageManifestEntry[],
+    locales: LOCALES,
+  },
+  `${root}package.json`,
+  outDir,
+);
 
 const failed = records.filter((r) => r.result === undefined).length;
 const perLocale = LOCALES.map((spec) => {
