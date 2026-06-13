@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import Anthropic from '@anthropic-ai/sdk';
-import { chunkOf, flag, root } from './lib.js';
+import { chunkOf, failedEntries, flag, readJsonl, root } from './lib.js';
 import { extractJson, SCHEMA, SYSTEM_PROMPT, userContent, validateShape } from './task.js';
 import type { ManifestEntry } from '../../src/toolkit/search.js';
 
@@ -12,8 +12,12 @@ import type { ManifestEntry } from '../../src/toolkit/search.js';
  *
  *   npx tsx scripts/translate/batch-claude.ts submit [--model claude-haiku-4-5]
  *     [--input scripts/translate/out/sample.json] [--limit N]
- *     [--chunk K --of N]
+ *     [--chunk K --of N] [--retry <results.jsonl>]
  *   npx tsx scripts/translate/batch-claude.ts collect --batch-id msgbatch_…
+ *
+ * `--retry <results.jsonl>` re-submits only the failed rows of a prior
+ * collect (the ones baseline import skipped), so a partial failure across
+ * the chunk cycles never silently drops foods. Pass the same `--model`.
  *
  * `submit` records {model, input, chunk, of} per batch id in out/batches.json
  * so `collect` is self-describing — collecting with the wrong flags used to
@@ -54,14 +58,29 @@ const client = new Anthropic();
 
 if (COMMAND === 'submit') {
   const model = flag('model') ?? 'claude-haiku-4-5';
-  const input = flag('input') ?? `${root}scripts/translate/out/sample.json`;
   const limit = Number(flag('limit') ?? '0');
   const chunkArg = flag('chunk');
   const ofArg = flag('of');
   if ((chunkArg === undefined) !== (ofArg === undefined)) {
     throw new Error('--chunk and --of must be given together');
   }
-  let foods = JSON.parse(readFileSync(input, 'utf8')) as ManifestEntry[];
+
+  // --retry <results.jsonl>: re-submit just the failed rows of a prior
+  // collect. We materialize them as a .retry.json array so collect can read
+  // the input the same way it reads a sample (JSON array, not wire JSONL).
+  const retryPath = flag('retry');
+  let input: string;
+  let foods: ManifestEntry[];
+  if (retryPath !== undefined) {
+    foods = failedEntries(readJsonl(retryPath));
+    if (foods.length === 0) throw new Error(`no failed rows in ${retryPath} — nothing to retry`);
+    input = `${retryPath.replace(/\.jsonl$/, '')}.retry.json`;
+    writeFileSync(input, `${JSON.stringify(foods, null, 1)}\n`);
+    console.log(`Retrying ${foods.length} failed rows from ${retryPath} (→ ${input})`);
+  } else {
+    input = flag('input') ?? `${root}scripts/translate/out/sample.json`;
+    foods = JSON.parse(readFileSync(input, 'utf8')) as ManifestEntry[];
+  }
   if (limit > 0) foods = foods.slice(0, limit);
   const chunk = chunkArg === undefined ? undefined : Number(chunkArg);
   const of = ofArg === undefined ? undefined : Number(ofArg);

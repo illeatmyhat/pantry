@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import type { ManifestEntry } from '../../src/toolkit/search.js';
 
 /**
  * Shared helpers for the translate scripts. Every script previously
@@ -22,6 +23,25 @@ export function readJsonl<T>(path: string): T[] {
     .split('\n')
     .filter((line) => line !== '')
     .map((line) => JSON.parse(line) as T);
+}
+
+/** A collect-result row: the food's identity plus either a result or an error. */
+export interface CollectRow extends ManifestEntry {
+  readonly error?: string;
+  readonly result?: unknown;
+}
+
+/**
+ * The food identities of the failed rows in a collect result — the retry
+ * queue. collect writes {...entry, error} for a failed request and
+ * {...entry, result} for a success; baseline import skips the failures.
+ * This pulls just the identity back out so a retry batch re-submits exactly
+ * those foods and nothing else.
+ */
+export function failedEntries(rows: readonly CollectRow[]): ManifestEntry[] {
+  return rows
+    .filter((row) => row.error !== undefined)
+    .map(({ slug, fdc_id, description, category }) => ({ slug, fdc_id, description, category }));
 }
 
 /**
