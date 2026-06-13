@@ -24,13 +24,15 @@ const entries = [
 
 describe('createTarGz', () => {
   it('produces a tarball the system tar extracts byte-for-byte', () => {
-    const tgz = join(dir, 'pkg.tgz');
-    writeFileSync(tgz, createTarGz(entries));
-    const out = join(dir, 'extract');
-    mkdirSync(out);
-    execFileSync('tar', ['-xzf', tgz, '-C', out]);
+    writeFileSync(join(dir, 'pkg.tgz'), createTarGz(entries));
+    mkdirSync(join(dir, 'extract'));
+    // GNU tar on Windows reads a drive-lettered path (C:\…) as a remote
+    // host spec ("C:" → connect to host C), which starves the gzip child.
+    // Run with cwd so the archive and dest are relative and colon-free —
+    // works on both GNU tar and bsdtar.
+    execFileSync('tar', ['-xzf', 'pkg.tgz', '-C', 'extract'], { cwd: dir });
     for (const entry of entries) {
-      expect(readFileSync(join(out, entry.path), 'utf8')).toBe(entry.data);
+      expect(readFileSync(join(dir, 'extract', entry.path), 'utf8')).toBe(entry.data);
     }
   });
 
