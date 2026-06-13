@@ -62,6 +62,8 @@ describe('loadErrandLabels', () => {
     if (ja === undefined || en === undefined) return;
     const canonical = { '1003': 'Protein', '1210': 'Tryptophan' };
     expect(loadErrandLabels(en, canonical).nutrients).toEqual(canonical); // canonical → generated
-    expect(loadErrandLabels(ja, canonical).nutrients).toEqual({}); // ja-JP pending → empty, never the en names
+    const jaNutrients = loadErrandLabels(ja, canonical).nutrients;
+    expect(jaNutrients['1003']).toBe('たんぱく質'); // ja-JP → its own YAML, never the en names
+    expect(jaNutrients['1003']).not.toBe(canonical['1003']);
   });
 });

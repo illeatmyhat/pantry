@@ -1,18 +1,668 @@
 # ja-JP nutrient names — id → localized display name for labels.nutrients.
 #
-# PENDING: not yet sourced. The en-US names are generated from the USDA zip
-# (FDA panel wording + USDA nutrient names); this file is the ja-JP overlay,
-# keyed by the stable USDA nutrient id. When sourced it must cover EXACTLY the
-# dataset's 149 nutrient ids (the build tripwire fails on any gap or extra),
-# each name taken from Japan's national food-composition standard (MEXT
-# Standard Tables of Food Composition) with `basis` as the decision log and an
-# INFOODS `tagname` as the provenance anchor. Example of a sourced entry:
-#
-#   - id: 1003
-#     name: たんぱく質
-#     tagname: PROCNT
-#     basis: MEXT 2020 (8th rev.) item 'たんぱく質'
-#
-# Empty list = pending: the ja-JP package ships no nutrient names yet.
-status: pending
-nutrients: []
+# Sourced 2026-06-13 from Japan MEXT 日本食品標準成分表2020年版（八訂）, INFOODS tagname as the provenance anchor,
+# via web-verified subagent research + an adversarial verify pass. Keyed by
+# the stable USDA nutrient id; covers exactly the dataset's 149 ids
+# (tests/nutrient-labels.test.ts fails on any gap). `basis` is the decision log.
+status: sourced
+sourced: 2026-06-13
+nutrients:
+  - id: 1003
+    name: たんぱく質
+    tagname: PROCNT
+    basis: MEXT 日本食品標準成分表2020年版（八訂）一般成分「たんぱく質」
+  - id: 1004
+    name: 脂質
+    tagname: FAT
+    basis: MEXT 成分表2020（八訂）一般成分「脂質」(INFOODS FAT = total fat by analysis)
+  - id: 1005
+    name: 炭水化物
+    tagname: CHOCDF
+    basis: MEXT 成分表2020（八訂）「炭水化物」(差引き法による); INFOODS CHOCDF = carbohydrate available
+      by difference
+  - id: 1007
+    name: 灰分
+    tagname: ASH
+    basis: MEXT 成分表2020（八訂）一般成分「灰分」
+  - id: 1008
+    name: エネルギー（kcal）
+    tagname: ENERC_KCAL
+    basis: MEXT 成分表2020（八訂）「エネルギー」(kcal表記); INFOODS ENERC_KCAL
+  - id: 1009
+    name: でん粉
+    tagname: STARCH
+    basis: MEXT 成分表2020（八訂）炭水化物成分表編 利用可能炭水化物「でん粉」; INFOODS STARCH = starch
+  - id: 1010
+    name: しょ糖
+    tagname: SUCS
+    basis: 日本食品標準成分表2020年版（八訂）炭水化物成分表編、利用可能炭水化物の成分項目「しょ糖」（ひらがな表記が正式）
+  - id: 1011
+    name: ぶどう糖
+    tagname: GLUS
+    basis: 日本食品標準成分表2020年版（八訂）炭水化物成分表編、利用可能炭水化物の成分項目「ぶどう糖」（ひらがな表記が正式）
+  - id: 1012
+    name: 果糖
+    tagname: FRUS
+    basis: 日本食品標準成分表2020年版（八訂）炭水化物成分表編、利用可能炭水化物の成分項目「果糖」
+  - id: 1013
+    name: 乳糖
+    tagname: LACS
+    basis: 日本食品標準成分表2020年版（八訂）炭水化物成分表編、利用可能炭水化物の成分項目「乳糖」
+  - id: 1014
+    name: 麦芽糖
+    tagname: MALS
+    basis: 日本食品標準成分表2020年版（八訂）炭水化物成分表編、利用可能炭水化物の成分項目「麦芽糖」
+  - id: 1018
+    name: アルコール
+    tagname: ALC
+    basis: MEXT 成分表2020（八訂）エネルギー産生成分「アルコール」(エタノール); INFOODS ALC = alcohol (ethanol)
+  - id: 1051
+    name: 水分
+    tagname: WATER
+    basis: MEXT 成分表2020（八訂）一般成分「水分」; INFOODS WATER
+  - id: 1057
+    name: カフェイン
+    tagname: CAFFN
+    basis: MEXT 成分表2020（八訂）エネルギー計算時控除成分「カフェイン」; INFOODS CAFFN = caffeine
+  - id: 1058
+    name: テオブロミン
+    tagname: THEBRN
+    basis: MEXT 成分表2020（八訂）エネルギー計算時控除成分「テオブロミン」; INFOODS THEBRN = theobromine
+  - id: 1062
+    name: エネルギー（kJ）
+    tagname: ENERC_KJ
+    basis: MEXT 成分表2020（八訂）「エネルギー」(kJ表記); INFOODS ENERC_KJ
+  - id: 1075
+    name: ガラクトース
+    tagname: GALS
+    basis: 日本食品標準成分表2020年版（八訂）炭水化物成分表編、利用可能炭水化物の成分項目「ガラクトース」（カタカナ表記が正式）
+  - id: 1079
+    name: 食物繊維総量
+    tagname: FIBTG
+    basis: MEXT 成分表2020（八訂）炭水化物成分表編「食物繊維総量」; INFOODS FIBTG = total dietary fibre
+  - id: 1087
+    name: カルシウム
+    tagname: CA
+    basis: 日本食品標準成分表2020年版（八訂）無機質（カルシウム）
+  - id: 1089
+    name: 鉄
+    tagname: FE
+    basis: 日本食品標準成分表2020年版（八訂）無機質（鉄）
+  - id: 1090
+    name: マグネシウム
+    tagname: MG
+    basis: 日本食品標準成分表2020年版（八訂）無機質（マグネシウム）
+  - id: 1091
+    name: リン
+    tagname: P
+    basis: 日本食品標準成分表2020年版（八訂）無機質（リン）
+  - id: 1092
+    name: カリウム
+    tagname: K
+    basis: 日本食品標準成分表2020年版（八訂）無機質（カリウム）
+  - id: 1093
+    name: ナトリウム
+    tagname: NA
+    basis: 日本食品標準成分表2020年版（八訂）無機質（ナトリウム）
+  - id: 1095
+    name: 亜鉛
+    tagname: ZN
+    basis: 日本食品標準成分表2020年版（八訂）無機質（亜鉛）
+  - id: 1098
+    name: 銅
+    tagname: CU
+    basis: 日本食品標準成分表2020年版（八訂）無機質（銅）
+  - id: 1099
+    name: フッ素
+    tagname: FD
+    basis: 成分表2020年版（八訂）の無機質項目には未収載；慣用呼称「フッ素」（栄養学上の標準語はフッ化物）。INFOODS tagname FD =
+      fluoride
+  - id: 1101
+    name: マンガン
+    tagname: MN
+    basis: 日本食品標準成分表2020年版（八訂）無機質（マンガン）
+  - id: 1103
+    name: セレン
+    tagname: SE
+    basis: 日本食品標準成分表2020年版（八訂）無機質（セレン）
+  - id: 1104
+    name: ビタミンA（IU）
+    tagname: VITA_IU
+    basis: USDA SR28 NUTR_DEF 318=VITA_IU。MEXT 成分表2020 はビタミンAをμg
+      RAEで収載しIU項目はない。記述名「ビタミンA（IU）」が妥当。
+  - id: 1105
+    name: レチノール
+    tagname: RETOL
+    basis: USDA SR28 NUTR_DEF 319=RETOL。MEXT 成分表2020 ビタミンA項の列名「レチノール」に一致。
+  - id: 1106
+    name: レチノール活性当量
+    tagname: VITA_RAE
+    basis: USDA SR28 NUTR_DEF 320=VITA_RAE。MEXT 成分表2020 ビタミンA項の列名「レチノール活性当量」に一致。
+  - id: 1107
+    name: β-カロテン
+    tagname: CARTB
+    basis: USDA SR28 NUTR_DEF 321=CARTB。MEXT 成分表2020 ビタミンA項の列名「β-カロテン」に一致。
+  - id: 1108
+    name: α-カロテン
+    tagname: CARTA
+    basis: USDA SR28 NUTR_DEF 322=CARTA。MEXT 成分表2020 ビタミンA項の列名「α-カロテン」に一致。
+  - id: 1109
+    name: α-トコフェロール
+    tagname: TOCPHA
+    basis: USDA SR28 NUTR_DEF 323=TOCPHA。MEXT 成分表2020 ビタミンE項の列名「α-トコフェロール」に一致。
+  - id: 1110
+    name: ビタミンD（IU）
+    tagname: VITD
+    basis: USDA SR28 NUTR_DEF 324=VITD（D2+D3, IU）。MEXT 成分表2020
+      はμg収載でIU項目なし。記述名「ビタミンD（IU）」が妥当。
+  - id: 1111
+    name: ビタミンD2（エルゴカルシフェロール）
+    tagname: ERGCAL
+    basis: USDA SR28 NUTR_DEF 325=ERGCAL。学術標準名「エルゴカルシフェロール（ビタミンD2）」。MEXT
+      成分表はビタミンD総量収載のため個別列なし。
+  - id: 1112
+    name: ビタミンD3（コレカルシフェロール）
+    tagname: CHOCAL
+    basis: USDA SR28 NUTR_DEF 326=CHOCAL。学術標準名「コレカルシフェロール（ビタミンD3）」。MEXT
+      成分表はビタミンD総量収載のため個別列なし。
+  - id: 1114
+    name: ビタミンD
+    tagname: VITD
+    basis: USDA SR28 NUTR_DEF 328=VITD（D2+D3, μg）。MEXT 成分表2020 の列名「ビタミンD」に一致。
+  - id: 1120
+    name: β-クリプトキサンチン
+    tagname: CRYPX
+    basis: USDA SR28 NUTR_DEF 334=CRYPX。MEXT 成分表2020 ビタミンA項の列名「β-クリプトキサンチン」に一致。
+  - id: 1122
+    name: リコピン
+    tagname: LYCPN
+    basis: カロテノイド慣用名「リコピン」(JIS/医学用語の標準形; 異形リコペン)。MEXT成分表2020は本成分を非収載; INFOODS LYCPN
+      = lycopene
+  - id: 1123
+    name: ルテイン＋ゼアキサンチン
+    tagname: LUTN+ZEA
+    basis: カロテノイド慣用名「ルテイン」「ゼアキサンチン」。MEXT成分表2020は本合算値を非収載; INFOODS LUTN+ZEA = lutein
+      + zeaxanthin (unresolved sum)
+  - id: 1125
+    name: β-トコフェロール
+    tagname: TOCPHB
+    basis: USDA SR28 NUTR_DEF 341=TOCPHB。MEXT 成分表2020 ビタミンE項の列名「β-トコフェロール」に一致。
+  - id: 1126
+    name: γ-トコフェロール
+    tagname: TOCPHG
+    basis: USDA SR28 NUTR_DEF 342=TOCPHG。MEXT 成分表2020 ビタミンE項の列名「γ-トコフェロール」に一致。
+  - id: 1127
+    name: δ-トコフェロール
+    tagname: TOCPHD
+    basis: USDA SR28 NUTR_DEF 343=TOCPHD。MEXT 成分表2020 ビタミンE項の列名「δ-トコフェロール」に一致。
+  - id: 1128
+    name: α-トコトリエノール
+    tagname: TOCTRA
+    basis: USDA SR28 NUTR_DEF 344=TOCTRA。学術標準名「α-トコトリエノール」。MEXT
+      成分表はトコフェロール4種のみ収載のため個別列なし。
+  - id: 1129
+    name: β-トコトリエノール
+    tagname: TOCTRB
+    basis: USDA SR28 NUTR_DEF 345=TOCTRB。学術標準名「β-トコトリエノール」。
+  - id: 1130
+    name: γ-トコトリエノール
+    tagname: TOCTRG
+    basis: USDA SR28 NUTR_DEF 346=TOCTRG。学術標準名「γ-トコトリエノール」。
+  - id: 1131
+    name: δ-トコトリエノール
+    tagname: TOCTRD
+    basis: USDA SR28 NUTR_DEF 347=TOCTRD。学術標準名「δ-トコトリエノール」。
+  - id: 1162
+    name: ビタミンC
+    tagname: VITC
+    basis: USDA SR28 NUTR_DEF 401=VITC。MEXT 成分表2020 の列名「ビタミンC」（総アスコルビン酸）に一致。
+  - id: 1165
+    name: ビタミンB1
+    tagname: THIA
+    basis: USDA SR28 NUTR_DEF 404=THIA。MEXT 成分表2020 の列名「ビタミンB1」（チアミン）に一致。
+  - id: 1166
+    name: ビタミンB2
+    tagname: RIBF
+    basis: USDA SR28 NUTR_DEF 405=RIBF。MEXT 成分表2020 の列名「ビタミンB2」（リボフラビン）に一致。
+  - id: 1167
+    name: ナイアシン
+    tagname: NIA
+    basis: USDA SR28 NUTR_DEF 406=NIA。MEXT 成分表2020 の列名「ナイアシン」に一致。
+  - id: 1170
+    name: パントテン酸
+    tagname: PANTAC
+    basis: USDA SR28 NUTR_DEF 410=PANTAC。MEXT 成分表2020 の列名「パントテン酸」に一致。
+  - id: 1175
+    name: ビタミンB6
+    tagname: VITB6A
+    basis: USDA SR28 NUTR_DEF 415=VITB6A。MEXT 成分表2020 の列名「ビタミンB6」に一致。
+  - id: 1177
+    name: 葉酸
+    tagname: FOL
+    basis: USDA SR28 NUTR_DEF 417=FOL（Folate, total）。MEXT 成分表2020 の列名「葉酸」に一致。
+  - id: 1178
+    name: ビタミンB12
+    tagname: VITB12
+    basis: USDA SR28 NUTR_DEF 418=VITB12。MEXT 成分表2020 の列名「ビタミンB12」に一致。
+  - id: 1180
+    name: コリン
+    tagname: CHOLN
+    basis: USDA SR28 NUTR_DEF 421=CHOLN（total choline）。学術標準名「コリン」。MEXT 成分表は未収載。
+  - id: 1183
+    name: ビタミンK（メナキノン-4）
+    tagname: MK4
+    basis: USDA SR28 NUTR_DEF 428=MK4。学術標準名「メナキノン-4（ビタミンK2）」。MEXT 成分表はビタミンK総量収載。
+  - id: 1184
+    name: ビタミンK（ジヒドロフィロキノン）
+    tagname: VITK1D
+    basis: USDA SR28 NUTR_DEF 429=VITK1D。学術標準名「ジヒドロフィロキノン」(dihydrophylloquinone)。
+  - id: 1185
+    name: ビタミンK（フィロキノン）
+    tagname: VITK1
+    basis: USDA SR28 NUTR_DEF 430=VITK1。MEXT 成分表2020 の列名は「ビタミンK」（主にフィロキノン）。
+  - id: 1186
+    name: 葉酸（プテロイルモノグルタミン酸）
+    tagname: FOLAC
+    basis: USDA SR28 NUTR_DEF 431=FOLAC（Folic acid）。合成葉酸の化学名「プテロイルモノグルタミン酸」。
+  - id: 1187
+    name: 食事性葉酸
+    tagname: FOLFD
+    basis: USDA SR28 NUTR_DEF 432=FOLFD（Folate, food）。天然由来の「食事性葉酸」。
+  - id: 1190
+    name: 葉酸（食事性葉酸当量）
+    tagname: FOLDFE
+    basis: USDA SR28 NUTR_DEF 435=FOLDFE。学術標準名「食事性葉酸当量」(Dietary Folate Equivalents,
+      DFE)。
+  - id: 1198
+    name: ベタイン
+    tagname: BETN
+    basis: USDA SR28 NUTR_DEF 454=BETN。学術標準名「ベタイン」。MEXT 成分表は未収載。
+  - id: 1210
+    name: トリプトファン
+    tagname: TRP_G
+    basis: MEXT 成分表2020 アミノ酸成分表編（トリプトファン）
+  - id: 1211
+    name: トレオニン
+    tagname: THR_G
+    basis: MEXT 成分表2020 アミノ酸成分表編（表頭はトレオニン；別名スレオニン）
+  - id: 1212
+    name: イソロイシン
+    tagname: ILE_G
+    basis: MEXT 成分表2020 アミノ酸成分表編（イソロイシン）
+  - id: 1213
+    name: ロイシン
+    tagname: LEU_G
+    basis: MEXT 成分表2020 アミノ酸成分表編（ロイシン）
+  - id: 1214
+    name: リシン
+    tagname: LYS_G
+    basis: MEXT 成分表2020 アミノ酸成分表編（表頭はリシン；別名リジン）
+  - id: 1215
+    name: メチオニン
+    tagname: MET_G
+    basis: MEXT 成分表2020 アミノ酸成分表編（メチオニン、含硫アミノ酸）
+  - id: 1216
+    name: シスチン
+    tagname: CYS_G
+    basis: MEXT 成分表2020 アミノ酸成分表編（シスチン、含硫アミノ酸）
+  - id: 1217
+    name: フェニルアラニン
+    tagname: PHE_G
+    basis: MEXT 成分表2020 アミノ酸成分表編（芳香族アミノ酸）
+  - id: 1218
+    name: チロシン
+    tagname: TYR_G
+    basis: MEXT 成分表2020 アミノ酸成分表編（芳香族アミノ酸）
+  - id: 1219
+    name: バリン
+    tagname: VAL_G
+    basis: MEXT 成分表2020 アミノ酸成分表編（バリン）
+  - id: 1220
+    name: アルギニン
+    tagname: ARG_G
+    basis: MEXT 成分表2020 アミノ酸成分表編（アルギニン）
+  - id: 1221
+    name: ヒスチジン
+    tagname: HIS_G
+    basis: MEXT 成分表2020 アミノ酸成分表編（ヒスチジン）
+  - id: 1222
+    name: アラニン
+    tagname: ALA_G
+    basis: MEXT 成分表2020 アミノ酸成分表編（その他のアミノ酸）
+  - id: 1223
+    name: アスパラギン酸
+    tagname: ASP_G
+    basis: MEXT 成分表2020 アミノ酸成分表編（アスパラギン酸）
+  - id: 1224
+    name: グルタミン酸
+    tagname: GLU_G
+    basis: MEXT 成分表2020 アミノ酸成分表編（グルタミン酸）
+  - id: 1225
+    name: グリシン
+    tagname: GLY_G
+    basis: MEXT 成分表2020 アミノ酸成分表編（グリシン）
+  - id: 1226
+    name: プロリン
+    tagname: PRO_G
+    basis: MEXT 成分表2020 アミノ酸成分表編（プロリン）
+  - id: 1227
+    name: セリン
+    tagname: SER_G
+    basis: MEXT 成分表2020 アミノ酸成分表編（セリン）
+  - id: 1228
+    name: ヒドロキシプロリン
+    tagname: HYP_G
+    basis: MEXT 成分表2020 アミノ酸成分表編（ヒドロキシプロリン）
+  - id: 1242
+    name: ビタミンE（添加）
+    tagname: VITE_ADD
+    basis: SR28 NUTR_DEF 573 はタグ名空欄。FDC/USDA 標準タグ VITE_ADD（added vitamin
+      E）。記述名「ビタミンE（添加/強化）量」。
+  - id: 1246
+    name: ビタミンB12（添加）
+    tagname: VITB12_ADD
+    basis: SR28 NUTR_DEF 578 はタグ名空欄。FDC/USDA 標準タグ VITB12_ADD（added vitamin
+      B-12）。記述名「ビタミンB12（添加/強化）量」。
+  - id: 1253
+    name: コレステロール
+    tagname: CHOLE
+    basis: MEXT 日本食品標準成分表2020年版(八訂) 脂肪酸成分表編 コレステロール (mg); USDA SR NUTR_DEF nbr 601
+      tagname CHOLE (INFOODS)
+  - id: 1257
+    name: 脂肪酸総量（トランス）
+    tagname: FATRN
+    basis: MEXT 成分表2020 脂肪酸成分表編「トランス脂肪酸」(=USDA 1257 Fatty acids, total trans)
+  - id: 1258
+    name: 飽和脂肪酸
+    tagname: FASAT
+    basis: MEXT 成分表2020 脂肪酸成分表編「飽和」(=USDA 1258 Fatty acids, total saturated);
+      INFOODS FASAT. 確認済み.
+  - id: 1259
+    name: 4:0（酪酸）
+    tagname: F4D0
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「4:0 酪酸」(=USDA 1259 SFA 4:0)
+  - id: 1260
+    name: 6:0（ヘキサン酸）
+    tagname: F6D0
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「6:0 ヘキサン酸」(=USDA 1260 SFA 6:0)
+  - id: 1261
+    name: 8:0（オクタン酸）
+    tagname: F8D0
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「8:0 オクタン酸」(=USDA 1261 SFA 8:0)
+  - id: 1262
+    name: 10:0（デカン酸）
+    tagname: F10D0
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「10:0 デカン酸」(=USDA 1262 SFA 10:0)
+  - id: 1263
+    name: 12:0（ラウリン酸）
+    tagname: F12D0
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「12:0 ラウリン酸」(=USDA 1263 SFA 12:0)
+  - id: 1264
+    name: 14:0（ミリスチン酸）
+    tagname: F14D0
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「14:0 ミリスチン酸」(=USDA 1264 SFA 14:0)
+  - id: 1265
+    name: 16:0（パルミチン酸）
+    tagname: F16D0
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「16:0 パルミチン酸」(=USDA 1265 SFA 16:0)
+  - id: 1266
+    name: 18:0（ステアリン酸）
+    tagname: F18D0
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「18:0 ステアリン酸」(=USDA 1266 SFA 18:0)
+  - id: 1267
+    name: 20:0（アラキジン酸）
+    tagname: F20D0
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「20:0 アラキジン酸」(=USDA 1267 SFA 20:0)
+  - id: 1268
+    name: 18:1（オレイン酸）
+    tagname: F18D1
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「18:1 計／オレイン酸」(=USDA 1268 MUFA 18:1, n位無指定の総量)
+  - id: 1269
+    name: 18:2（リノール酸）
+    tagname: F18D2
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「18:2 n-6 リノール酸」(=USDA 1269 PUFA 18:2, n位無指定)
+  - id: 1270
+    name: 18:3（α-リノレン酸）
+    tagname: F18D3
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「18:3 n-3 α-リノレン酸」(=USDA 1270 PUFA 18:3, n位無指定)
+  - id: 1271
+    name: 20:4（アラキドン酸）
+    tagname: F20D4
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「20:4 n-6 アラキドン酸」(=USDA 1271 PUFA 20:4, n位無指定)
+  - id: 1272
+    name: 22:6 n-3（ドコサヘキサエン酸）
+    tagname: F22D6N3
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「22:6 n-3 ドコサヘキサエン酸」(=USDA 1272 PUFA 22:6 n-3
+      DHA). DHA は略号で本名はカナ表記.
+  - id: 1273
+    name: 22:0（ベヘン酸）
+    tagname: F22D0
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「22:0 ベヘン酸」(=USDA 1273 SFA 22:0)
+  - id: 1274
+    name: 14:1（ミリストレイン酸）
+    tagname: F14D1
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「14:1 ミリストレイン酸」(=USDA 1274 MUFA 14:1)
+  - id: 1275
+    name: 16:1（パルミトレイン酸）
+    tagname: F16D1
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「16:1 パルミトレイン酸」(=USDA 1275 MUFA 16:1)
+  - id: 1276
+    name: 18:4（オクタデカテトラエン酸）
+    tagname: F18D4
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「18:4 n-3 オクタデカテトラエン酸」(=USDA 1276 PUFA 18:4, n位無指定)
+  - id: 1277
+    name: 20:1（イコセン酸）
+    tagname: F20D1
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「20:1 イコセン酸」(=USDA 1277 MUFA 20:1)
+  - id: 1278
+    name: 20:5 n-3（イコサペンタエン酸）
+    tagname: F20D5N3
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「20:5 n-3 イコサペンタエン酸」(=USDA 1278 PUFA 20:5 n-3
+      EPA). EPA は略号で本名はカナ表記.
+  - id: 1279
+    name: 22:1（ドコセン酸）
+    tagname: F22D1
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「22:1 ドコセン酸」(=USDA 1279 MUFA 22:1)
+  - id: 1280
+    name: 22:5 n-3（ドコサペンタエン酸）
+    tagname: F22D5N3
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「22:5 n-3 ドコサペンタエン酸」(=USDA 1280 PUFA 22:5 n-3
+      DPA). DPA は略号で本名はカナ表記.
+  - id: 1283
+    name: 植物ステロール
+    tagname: PHYSTR
+    basis: USDA SR NUTR_DEF nbr 636 tagname PHYSTR (INFOODS) — corrected from
+      non-standard 'PHYTSTR'; JA chem term 植物ステロール (=フィトステロール,
+      Wikipedia/J-GLOBAL), 八訂の独立成分列には非掲載
+  - id: 1285
+    name: スチグマステロール
+    tagname: STID7
+    basis: USDA SR NUTR_DEF nbr 638 tagname STID7 (INFOODS); JA chem name スチグマステロール
+      (J-GLOBAL/JST, 富士フイルム和光純薬 試薬名)
+  - id: 1286
+    name: カンペステロール
+    tagname: CAMD5
+    basis: USDA SR NUTR_DEF nbr 639 tagname CAMD5 (INFOODS); JA chem name カンペステロール
+      (Wikipedia フィトステロール, TCI)
+  - id: 1288
+    name: β-シトステロール
+    tagname: SITSTR
+    basis: USDA SR NUTR_DEF nbr 641 tagname SITSTR (INFOODS); JA chem name β-シトステロール
+      (Wikipedia, TCI S0040)
+  - id: 1292
+    name: 一価不飽和脂肪酸
+    tagname: FAMS
+    basis: MEXT 成分表2020 脂肪酸成分表編「一価不飽和」(=USDA 1292 Fatty acids, total
+      monounsaturated); INFOODS FAMS. 確認済み.
+  - id: 1293
+    name: 多価不飽和脂肪酸
+    tagname: FAPU
+    basis: MEXT 成分表2020 脂肪酸成分表編「多価不飽和」(=USDA 1293 Fatty acids, total
+      polyunsaturated); INFOODS FAPU. 確認済み.
+  - id: 1299
+    name: 15:0（ペンタデカン酸）
+    tagname: F15D0
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「15:0 ペンタデカン酸」(=USDA 1299 SFA 15:0)
+  - id: 1300
+    name: 17:0（ヘプタデカン酸）
+    tagname: F17D0
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「17:0 ヘプタデカン酸」(=USDA 1300 SFA 17:0)
+  - id: 1301
+    name: 24:0（リグノセリン酸）
+    tagname: F24D0
+    basis: MEXT 成分表2020 脂肪酸成分表編 第2表「24:0 リグノセリン酸」(=USDA 1301 SFA 24:0)
+  - id: 1303
+    name: 16:1 トランス（パルミトエライジン酸）
+    tagname: F16D1T
+    basis: INFOODS F16D1T = 'fatty acid trans 16:1' (confirmed, infoods/tagnames
+      index.csv) = USDA nbr 662; MEXT 2020 脂肪酸成分表編 一価不飽和 16:1 (系統名 ヘキサデセン酸／慣用
+      パルミトレイン酸; trans 体)
+  - id: 1304
+    name: 18:1 トランス（エライジン酸等）
+    tagname: F18D1T
+    basis: INFOODS F18D1T = 'fatty acid trans 18:1' (confirmed) = USDA nbr 663 (TFA
+      18:1 t, not further defined); MEXT 2020 脂肪酸成分表編 (系統名 オクタデセン酸; trans 体)
+  - id: 1305
+    name: 22:1 トランス（ブラシジン酸）
+    tagname: F22D1TN9
+    basis: INFOODS F22D1TN9 = 'fatty acid trans 22:1 n-9' (syn. brassidic acid,
+      confirmed) = USDA nbr 664; MEXT 2020 脂肪酸成分表編 22:1 (慣用 ブラシジン酸=trans erucic)
+  - id: 1306
+    name: 18:2 トランス（異性体不特定）
+    tagname: F18D2T
+    basis: INFOODS F18D2T = 'fatty acid 18:2 trans' (confirmed) = USDA nbr 665 (TFA
+      18:2 t, not further defined); MEXT 2020 脂肪酸成分表編 (系統名 オクタデカジエン酸; trans)
+  - id: 1307
+    name: 18:2 異性体（未分別）
+    tagname: F18D2
+    basis: INFOODS F18D2 = 'fatty acid 18:2' generic (confirmed) ≈ USDA nbr 666
+      (PUFA 18:2 i, undifferentiated isomer); MEXT 2020 脂肪酸成分表編 (系統名 オクタデカジエン酸)
+  - id: 1310
+    name: 18:2 トランス,トランス
+    tagname: F18D2T
+    basis: USDA nbr 669 (TFA 18:2 t,t); INFOODS 无 t,t 专用码, 取最近通用 F18D2T = 'fatty
+      acid 18:2 trans' (confirmed); MEXT 2020 脂肪酸成分表編
+  - id: 1311
+    name: 18:2 共役リノール酸（CLA）
+    tagname: F18D2CLA
+    basis: INFOODS F18D2CLA = 'fatty acid 18:2 cla clas' (confirmed) = USDA nbr 670
+      (PUFA 18:2 CLAs); MEXT 2020 脂肪酸成分表編 共役リノール酸
+  - id: 1312
+    name: 24:1 シス（ネルボン酸）
+    tagname: F24D1C
+    basis: INFOODS F24D1C = 'fatty acid cis 24:1' (confirmed) = USDA nbr 671; MEXT
+      2020 脂肪酸成分表編 24:1 (系統名 テトラコセン酸／慣用 ネルボン酸)
+  - id: 1313
+    name: 20:2 n-6 シス,シス（イコサジエン酸）
+    tagname: F20D2CN6
+    basis: INFOODS F20D2CN6 = 'fatty acid cis,cis 20:2 n-6' (confirmed) = USDA nbr
+      672; MEXT 2020 脂肪酸成分表編 20:2 n-6 (系統名 イコサジエン酸; MEXT 2020 採用「イコサ」表記)
+  - id: 1314
+    name: 16:1 シス（パルミトレイン酸）
+    tagname: F16D1C
+    basis: INFOODS F16D1C = 'fatty acid cis 16:1' (confirmed) = USDA nbr 673; MEXT
+      2020 脂肪酸成分表編 16:1 (系統名 ヘキサデセン酸／慣用 パルミトレイン酸)
+  - id: 1315
+    name: 18:1 シス（オレイン酸）
+    tagname: F18D1C
+    basis: INFOODS F18D1C = 'fatty acid cis 18:1' (confirmed) = USDA nbr 674; MEXT
+      2020 脂肪酸成分表編 18:1 (系統名 オクタデセン酸／慣用 オレイン酸)
+  - id: 1316
+    name: 18:2 n-6 シス,シス（リノール酸）
+    tagname: F18D2CN6
+    basis: INFOODS F18D2CN6 = 'fatty acid cis,cis 18:2 n-6' (syn. linoleic acid,
+      confirmed) = USDA nbr 675; MEXT 2020 脂肪酸成分表編 18:2 n-6 (系統名
+      オクタデカジエン酸(n-6)／慣用 リノール酸)
+  - id: 1317
+    name: 22:1 シス（エルカ酸）
+    tagname: F22D1CN9
+    basis: INFOODS F22D1CN9 = 'fatty acid cis 22:1 n-9' (syn. erucic acid,
+      confirmed) = USDA nbr 676; MEXT 2020 脂肪酸成分表編 22:1 (系統名 ドコセン酸／慣用 エルカ酸)
+  - id: 1321
+    name: 18:3 n-6（γ-リノレン酸）
+    tagname: F18D3N6
+    basis: INFOODS F18D3N6 = 'fatty acid 18:3 n-6' (syn. gamma-linolenic acid,
+      confirmed) = USDA nbr 685; MEXT 2020 脂肪酸成分表編 18:3 n-6 (系統名
+      オクタデカトリエン酸(n-6)／慣用 γ-リノレン酸)
+  - id: 1323
+    name: 17:1（ヘプタデセン酸）
+    tagname: F17D1
+    basis: INFOODS F17D1 = 'fatty acid 17:1' (confirmed) = USDA nbr 687; MEXT 2020
+      脂肪酸成分表編 17:1 (系統名 ヘプタデセン酸)
+  - id: 1325
+    name: 20:3（イコサトリエン酸）
+    tagname: F20D3
+    basis: INFOODS F20D3 = 'fatty acid 20:3' (syn. eicosatrienoic acid, confirmed) =
+      USDA nbr 689 (undifferentiated); MEXT 2020 脂肪酸成分表編 20:3 (系統名 イコサトリエン酸;
+      MEXT 2020 採用「イコサ」表記)
+  - id: 1329
+    name: トランス一価不飽和脂肪酸（総量）
+    tagname: FATRNM
+    basis: INFOODS FATRNM = 'fatty acids, total trans-monoenoic' (confirmed) = USDA
+      nbr 693; MEXT 2020 トランス脂肪酸 (一価不飽和)
+  - id: 1331
+    name: トランス多価不飽和脂肪酸（総量）
+    tagname: FATRNP
+    basis: INFOODS FATRNP = 'fatty acids, total trans-polyenoic' (confirmed) = USDA
+      nbr 695; MEXT 2020 トランス脂肪酸 (多価不飽和)
+  - id: 1332
+    name: 13:0（トリデカン酸）
+    tagname: F13D0
+    basis: INFOODS F13D0 = 'fatty acid 13:0' (syn. tridecanoic acid, confirmed) =
+      USDA nbr 696; MEXT 2020 脂肪酸成分表編 13:0 (系統名 トリデカン酸)
+  - id: 1333
+    name: 15:1（ペンタデセン酸）
+    tagname: F15D1
+    basis: INFOODS F15D1 = 'fatty acid 15:1' (syn. pentadecenoic acid, confirmed) =
+      USDA nbr 697; MEXT 2020 脂肪酸成分表編 15:1 (系統名 ペンタデセン酸)
+  - id: 1404
+    name: 18:3 n-3（α-リノレン酸）
+    tagname: F18D3CN3
+    basis: INFOODS F18D3CN3 = 'fatty acid cis,cis,cis 18:3 n-3' (confirmed) = USDA
+      nbr 851; MEXT 2020 脂肪酸成分表編 18:3 n-3 (系統名 オクタデカトリエン酸(n-3)／慣用 α-リノレン酸)
+  - id: 1405
+    name: 20:3 n-3（イコサトリエン酸）
+    tagname: F20D3N3
+    basis: INFOODS F20D3N3 = 'fatty acid 20:3 n-3' (confirmed) = USDA nbr 852; MEXT
+      2020 脂肪酸成分表編 20:3 n-3 (系統名 イコサトリエン酸(n-3); MEXT 2020「イコサ」表記)
+  - id: 1406
+    name: 20:3 n-6（ジホモ-γ-リノレン酸）
+    tagname: F20D3N6
+    basis: INFOODS F20D3N6 = 'fatty acid 20:3 n-6' (syn. homogammalinolenic,
+      confirmed) = USDA nbr 853 (FDC id 1406; USDA 标签「PUFA 20:4 n-6」为已知误标, 标记名按
+      nbr-853 取义); MEXT 2020 脂肪酸成分表編 20:3 n-6 (系統名 イコサトリエン酸(n-6)／慣用 ジホモ-γ-リノレン酸)
+  - id: 1408
+    name: 20:4 n-6（アラキドン酸）
+    tagname: F20D4N6
+    basis: INFOODS F20D4N6 = 'fatty acid 20:4 n-6' (syn. arachidonic acid,
+      confirmed) = USDA nbr 855 (FDC id 1408; USDA 标签「PUFA 2:4 n-6」为 20:4 n-6
+      笔误, 标记名按 nbr-855 取义); MEXT 2020 脂肪酸成分表編 20:4 n-6 (系統名 イコサテトラエン酸(n-6)／慣用
+      アラキドン酸)
+  - id: 1409
+    name: 18:3 異性体（未分別）
+    tagname: F18D3
+    basis: INFOODS F18D3 = 'fatty acid 18:3' generic (syn. 18:3i, confirmed) ≈ USDA
+      nbr 856 (PUFA 18:3i, undifferentiated isomer); MEXT 2020 脂肪酸成分表編 (系統名
+      オクタデカトリエン酸)
+  - id: 1410
+    name: 21:5 n-3（ヘンイコサペンタエン酸）
+    tagname: F21D5N3
+    basis: INFOODS F21D5N3 = 'fatty acid 21:5 n-3' (confirmed; only 21:5 code) =
+      USDA nbr 857; MEXT 2020 脂肪酸成分表編 21:5 (系統名 ヘンイコサペンタエン酸; MEXT 2020「イコサ」表記,
+      非「エイコサ」)
+  - id: 1411
+    name: 22:4（ドコサテトラエン酸）
+    tagname: F22D4
+    basis: INFOODS F22D4 = 'fatty acid 22:4' (syn. docosatetraenoic acid, confirmed)
+      = USDA nbr 858; MEXT 2020 脂肪酸成分表編 22:4 (系統名 ドコサテトラエン酸)
+  - id: 1412
+    name: 18:1 トランス n-7（トランスバクセン酸）
+    tagname: F18D1T
+    basis: USDA nbr 859 (MUFA 18:1-11 t, trans-vaccenic, 18:1t n-7); INFOODS 无 n-7
+      专用 trans 码, 取最近通用 F18D1T = 'fatty acid trans 18:1' (confirmed); MEXT 2020
+      脂肪酸成分表編 18:1 n-7 (系統名 オクタデセン酸(n-7); trans 体=トランスバクセン酸)
+  - id: 2000
+    name: 糖類
+    tagname: SUGAR
+    basis: "食品表示基準・健康増進法「糖類」(単糖類＋二糖類の総量) ＝ INFOODS SUGAR = total sugars。注:
+      MEXT成分表2020本体は「単糖当量/質量計」表記で「糖類」項目名は栄養表示制度側の語"

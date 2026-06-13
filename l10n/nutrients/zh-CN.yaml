@@ -1,18 +1,628 @@
 # zh-CN nutrient names — id → localized display name for labels.nutrients.
 #
-# PENDING: not yet sourced. The en-US names are generated from the USDA zip
-# (FDA panel wording + USDA nutrient names); this file is the zh-CN overlay,
-# keyed by the stable USDA nutrient id. When sourced it must cover EXACTLY the
-# dataset's 149 nutrient ids (the build tripwire fails on any gap or extra),
-# each name taken from China's national standard (GB 28050 nutrition labelling
-# + China Food Composition Tables) with `basis` as the decision log and an
-# INFOODS `tagname` as the provenance anchor. Example of a sourced entry:
-#
-#   - id: 1003
-#     name: 蛋白质
-#     tagname: PROCNT
-#     basis: GB 28050-2011 Table A.1 '蛋白质'
-#
-# Empty list = pending: the zh-CN package ships no nutrient names yet.
-status: pending
-nutrients: []
+# Sourced 2026-06-13 from China GB 28050-2011 / 中国食物成分表 / WS-T 464, INFOODS tagname as the provenance anchor,
+# via web-verified subagent research + an adversarial verify pass. Keyed by
+# the stable USDA nutrient id; covers exactly the dataset's 149 ids
+# (tests/nutrient-labels.test.ts fails on any gap). `basis` is the decision log.
+status: sourced
+sourced: 2026-06-13
+nutrients:
+  - id: 1003
+    name: 蛋白质
+    tagname: PROCNT
+    basis: GB 28050-2011 强制标示「蛋白质」；中国食物成分表（标准版第6版）「蛋白质」
+  - id: 1004
+    name: 脂肪
+    tagname: FAT
+    basis: GB 28050-2011 强制标示「脂肪」(total fat)
+  - id: 1005
+    name: 碳水化合物
+    tagname: CHOCDF
+    basis: GB 28050-2011 强制标示「碳水化合物」(总碳水=100−蛋白−脂肪−水分−灰分); INFOODS CHOCDF
+  - id: 1007
+    name: 灰分
+    tagname: ASH
+    basis: 中国食物成分表（标准版第6版）一般营养成分「灰分」
+  - id: 1008
+    name: 能量（千卡）
+    tagname: ENERC_KCAL
+    basis: GB 28050-2011「能量」(以千焦kJ为强制单位，千卡kcal为换算); INFOODS ENERC_KCAL
+  - id: 1009
+    name: 淀粉
+    tagname: STARCH
+    basis: 中国食物成分表（标准版第6版）「淀粉」; INFOODS STARCH
+  - id: 1010
+    name: 蔗糖
+    tagname: SUCS
+    basis: 中国食物成分表（杨月欣）双糖：蔗糖。GB 28050-2011は総「糖」を規定するのみで個別糖種を列挙しない
+  - id: 1011
+    name: 葡萄糖
+    tagname: GLUS
+    basis: 中国食物成分表（杨月欣）单糖：葡萄糖
+  - id: 1012
+    name: 果糖
+    tagname: FRUS
+    basis: 中国食物成分表（杨月欣）单糖：果糖
+  - id: 1013
+    name: 乳糖
+    tagname: LACS
+    basis: 中国食物成分表（杨月欣）双糖：乳糖
+  - id: 1014
+    name: 麦芽糖
+    tagname: MALS
+    basis: 中国食物成分表（杨月欣）双糖：麦芽糖
+  - id: 1018
+    name: 乙醇（酒精）
+    tagname: ALC
+    basis: 中国食物成分表 / 食物成分监测技术手册「乙醇（酒精）」; INFOODS ALC = ethanol
+  - id: 1051
+    name: 水分
+    tagname: WATER
+    basis: 中国食物成分表（标准版第6版）一般营养成分「水分」; INFOODS WATER
+  - id: 1057
+    name: 咖啡因
+    tagname: CAFFN
+    basis: 中国食物成分表（标准版第6版）植物化学物「咖啡因」; INFOODS CAFFN
+  - id: 1058
+    name: 可可碱
+    tagname: THEBRN
+    basis: 中国食物成分表（标准版第6版）「可可碱」; INFOODS THEBRN
+  - id: 1062
+    name: 能量（千焦）
+    tagname: ENERC_KJ
+    basis: GB 28050-2011「能量」(以千焦kJ为强制标示单位); INFOODS ENERC_KJ
+  - id: 1075
+    name: 半乳糖
+    tagname: GALS
+    basis: 中国食物成分表（杨月欣）单糖：半乳糖
+  - id: 1079
+    name: 膳食纤维
+    tagname: FIBTG
+    basis: GB 28050-2011 可选标示「膳食纤维」(total); INFOODS FIBTG
+  - id: 1087
+    name: 钙
+    tagname: CA
+    basis: GB 28050-2011 营养素参考值（钙）；中国食物成分表 矿物质（钙）
+  - id: 1089
+    name: 铁
+    tagname: FE
+    basis: GB 28050-2011 营养素参考值（铁）；中国食物成分表 矿物质（铁）
+  - id: 1090
+    name: 镁
+    tagname: MG
+    basis: GB 28050-2011 营养素参考值（镁）；中国食物成分表 矿物质（镁）
+  - id: 1091
+    name: 磷
+    tagname: P
+    basis: GB 28050-2011 营养素参考值（磷）；中国食物成分表 矿物质（磷）
+  - id: 1092
+    name: 钾
+    tagname: K
+    basis: GB 28050-2011 营养素参考值（钾）；中国食物成分表 矿物质（钾）
+  - id: 1093
+    name: 钠
+    tagname: NA
+    basis: GB 28050-2011 核心营养素（钠）；中国食物成分表 矿物质（钠）
+  - id: 1095
+    name: 锌
+    tagname: ZN
+    basis: GB 28050-2011 营养素参考值（锌）；中国食物成分表 矿物质（锌）
+  - id: 1098
+    name: 铜
+    tagname: CU
+    basis: GB 28050-2011 营养素参考值（铜）；中国食物成分表 矿物质（铜）
+  - id: 1099
+    name: 氟
+    tagname: FD
+    basis: GB 28050-2011 营养素参考值（氟，1 mg）；中国食物成分表 矿物质（氟）；INFOODS FD
+  - id: 1101
+    name: 锰
+    tagname: MN
+    basis: GB 28050-2011 营养素参考值（锰）；中国食物成分表 矿物质（锰）
+  - id: 1103
+    name: 硒
+    tagname: SE
+    basis: GB 28050-2011 营养素参考值（硒）；中国食物成分表 矿物质（硒）
+  - id: 1104
+    name: 维生素A（国际单位）
+    tagname: VITA_IU
+    basis: GB 28050-2011 表1「维生素A」。中国食物成分表は视黄醇当量（μg RE/RAE）で収載。IUは国际单位换算表示。
+  - id: 1105
+    name: 视黄醇
+    tagname: RETOL
+    basis: 中国食物成分表 ビタミンA項「视黄醇」(retinol)。WS/T 464-2015 でも标准用语。
+  - id: 1106
+    name: 视黄醇活性当量
+    tagname: VITA_RAE
+    basis: 中国食物成分表 维生素A「视黄醇活性当量」(RAE)。GB/Z 21922・WS/T 464 准拠。
+  - id: 1107
+    name: β-胡萝卜素
+    tagname: CARTB
+    basis: 中国食物成分表 类胡萝卜素「β-胡萝卜素」。GB 28050 解读资料でも标准用语。
+  - id: 1108
+    name: α-胡萝卜素
+    tagname: CARTA
+    basis: 中国食物成分表 类胡萝卜素「α-胡萝卜素」。
+  - id: 1109
+    name: α-生育酚
+    tagname: TOCPHA
+    basis: GB 28050-2011 维生素E（以α-生育酚当量表示）。中国食物成分表「α-生育酚」。
+  - id: 1110
+    name: 维生素D（国际单位）
+    tagname: VITD
+    basis: GB 28050-2011 维生素D（单位仅用μg）。IUは国际单位换算表示。
+  - id: 1111
+    name: 维生素D2（麦角钙化醇）
+    tagname: ERGCAL
+    basis: 中国药典/食物成分表 维生素D2「麦角钙化醇」(ergocalciferol)。
+  - id: 1112
+    name: 维生素D3（胆钙化醇）
+    tagname: CHOCAL
+    basis: 中国药典/食物成分表 维生素D3「胆钙化醇」(cholecalciferol)。
+  - id: 1114
+    name: 维生素D
+    tagname: VITD
+    basis: GB 28050-2011 表1「维生素D」。中国食物成分表 维生素D。
+  - id: 1120
+    name: β-隐黄质
+    tagname: CRYPX
+    basis: 中国食物成分表 类胡萝卜素「β-隐黄质」(β-cryptoxanthin)。
+  - id: 1122
+    name: 番茄红素
+    tagname: LYCPN
+    basis: 中国食物成分表（标准版第6版）植物化学物「番茄红素」; INFOODS LYCPN
+  - id: 1123
+    name: 叶黄素＋玉米黄素
+    tagname: LUTN+ZEA
+    basis: 中国食物成分表（标准版第6版）表6-3「叶黄素和玉米黄素」(玉米黄素=玉米黄质); INFOODS LUTN+ZEA
+  - id: 1125
+    name: β-生育酚
+    tagname: TOCPHB
+    basis: 中国食物成分表 维生素E「β-生育酚」。
+  - id: 1126
+    name: γ-生育酚
+    tagname: TOCPHG
+    basis: 中国食物成分表 维生素E「γ-生育酚」。
+  - id: 1127
+    name: δ-生育酚
+    tagname: TOCPHD
+    basis: 中国食物成分表 维生素E「δ-生育酚」。
+  - id: 1128
+    name: α-生育三烯酚
+    tagname: TOCTRA
+    basis: 中国食物成分表/维生素E检测 标准品「α-生育三烯酚」(α-tocotrienol)。
+  - id: 1129
+    name: β-生育三烯酚
+    tagname: TOCTRB
+    basis: 中国食物成分表/维生素E检测 标准品「β-生育三烯酚」。
+  - id: 1130
+    name: γ-生育三烯酚
+    tagname: TOCTRG
+    basis: 中国食物成分表/维生素E检测 标准品「γ-生育三烯酚」。
+  - id: 1131
+    name: δ-生育三烯酚
+    tagname: TOCTRD
+    basis: 中国食物成分表/维生素E检测 标准品「δ-生育三烯酚」。
+  - id: 1162
+    name: 维生素C
+    tagname: VITC
+    basis: GB 28050-2011 表1「维生素C（抗坏血酸）」。中国食物成分表 维生素C。
+  - id: 1165
+    name: 维生素B1
+    tagname: THIA
+    basis: GB 28050-2011 表1「维生素B1（硫胺素）」。
+  - id: 1166
+    name: 维生素B2
+    tagname: RIBF
+    basis: GB 28050-2011 表1「维生素B2（核黄素）」。
+  - id: 1167
+    name: 烟酸
+    tagname: NIA
+    basis: GB 28050-2011 表1「烟酸（烟酰胺）」。中国食物成分表 烟酸（旧称尼克酸は非标准）。
+  - id: 1170
+    name: 泛酸
+    tagname: PANTAC
+    basis: GB 28050-2011 表1「泛酸」。中国食物成分表 泛酸。
+  - id: 1175
+    name: 维生素B6
+    tagname: VITB6A
+    basis: GB 28050-2011 表1「维生素B6」。
+  - id: 1177
+    name: 总叶酸
+    tagname: FOL
+    basis: 中国食物成分表「总叶酸」(folate, total)。GB 28050 表1 は「叶酸」表示。
+  - id: 1178
+    name: 维生素B12
+    tagname: VITB12
+    basis: GB 28050-2011 表1「维生素B12」。
+  - id: 1180
+    name: 胆碱
+    tagname: CHOLN
+    basis: 中国食物成分表/WS-T 464-2015「胆碱」(total choline)。
+  - id: 1183
+    name: 维生素K（甲基萘醌-4）
+    tagname: MK4
+    basis: 中国食物成分表/学术 维生素K2「甲基萘醌-4」(menaquinone-4, MK-4)。
+  - id: 1184
+    name: 维生素K（二氢叶绿醌）
+    tagname: VITK1D
+    basis: 中国食物成分表/学术 维生素K「二氢叶绿醌」(dihydrophylloquinone)。
+  - id: 1185
+    name: 维生素K（叶绿醌）
+    tagname: VITK1
+    basis: GB 28050-2011 维生素K。中国食物成分表 维生素K1「叶绿醌」(phylloquinone)。
+  - id: 1186
+    name: 合成叶酸
+    tagname: FOLAC
+    basis: 中国食物成分表「合成叶酸」(folic acid, 合成型)。GB 28050
+      は添加叶酸を叶酸として表示。原案「叶酸（合成）」より「合成叶酸」が标准。
+  - id: 1187
+    name: 食物叶酸
+    tagname: FOLFD
+    basis: 中国食物成分表「食物叶酸」(folate, food)。
+  - id: 1190
+    name: 膳食叶酸当量
+    tagname: FOLDFE
+    basis: WS/T 464-2015・中国营养学会「膳食叶酸当量」(μg DFE)。
+  - id: 1198
+    name: 甜菜碱
+    tagname: BETN
+    basis: 中国食物成分表「甜菜碱」(betaine)。
+  - id: 1210
+    name: 色氨酸
+    tagname: TRP_G
+    basis: 中国食物成分表 氨基酸表（色氨酸）；INFOODS TRP_G=tryptophan
+  - id: 1211
+    name: 苏氨酸
+    tagname: THR_G
+    basis: 中国食物成分表 氨基酸表（苏氨酸）；INFOODS THR_G=threonine
+  - id: 1212
+    name: 异亮氨酸
+    tagname: ILE_G
+    basis: 中国食物成分表 氨基酸表（异亮氨酸）；INFOODS ILE_G=isoleucine
+  - id: 1213
+    name: 亮氨酸
+    tagname: LEU_G
+    basis: 中国食物成分表 氨基酸表（亮氨酸）；INFOODS LEU_G=leucine
+  - id: 1214
+    name: 赖氨酸
+    tagname: LYS_G
+    basis: 中国食物成分表 氨基酸表（赖氨酸）；INFOODS LYS_G=lysine
+  - id: 1215
+    name: 蛋氨酸
+    tagname: MET_G
+    basis: 中国食物成分表 氨基酸表（蛋氨酸；IUPAC名 甲硫氨酸）；WS/T 464-2015 蛋氨酸(Met)
+  - id: 1216
+    name: 胱氨酸
+    tagname: CYS_G
+    basis: 中国食物成分表 氨基酸表（胱氨酸；半胱氨酸为单体cysteine）；INFOODS CYS_G=cystine
+  - id: 1217
+    name: 苯丙氨酸
+    tagname: PHE_G
+    basis: 中国食物成分表 氨基酸表（苯丙氨酸）；INFOODS PHE_G=phenylalanine
+  - id: 1218
+    name: 酪氨酸
+    tagname: TYR_G
+    basis: 中国食物成分表 氨基酸表（酪氨酸）；INFOODS TYR_G=tyrosine
+  - id: 1219
+    name: 缬氨酸
+    tagname: VAL_G
+    basis: 中国食物成分表 氨基酸表（缬氨酸）；INFOODS VAL_G=valine
+  - id: 1220
+    name: 精氨酸
+    tagname: ARG_G
+    basis: 中国食物成分表 氨基酸表（精氨酸）；INFOODS ARG_G=arginine
+  - id: 1221
+    name: 组氨酸
+    tagname: HIS_G
+    basis: 中国食物成分表 氨基酸表（组氨酸）；INFOODS HIS_G=histidine
+  - id: 1222
+    name: 丙氨酸
+    tagname: ALA_G
+    basis: 中国食物成分表 氨基酸表（丙氨酸）；INFOODS ALA_G=alanine
+  - id: 1223
+    name: 天冬氨酸
+    tagname: ASP_G
+    basis: 中国食物成分表 氨基酸表（天冬氨酸；亦作天门冬氨酸）；INFOODS ASP_G=aspartic acid
+  - id: 1224
+    name: 谷氨酸
+    tagname: GLU_G
+    basis: 中国食物成分表 氨基酸表（谷氨酸）；INFOODS GLU_G=glutamic acid
+  - id: 1225
+    name: 甘氨酸
+    tagname: GLY_G
+    basis: 中国食物成分表 氨基酸表（甘氨酸）；INFOODS GLY_G=glycine
+  - id: 1226
+    name: 脯氨酸
+    tagname: PRO_G
+    basis: 中国食物成分表 氨基酸表（脯氨酸）；INFOODS PRO_G=proline
+  - id: 1227
+    name: 丝氨酸
+    tagname: SER_G
+    basis: 中国食物成分表 氨基酸表（丝氨酸）；INFOODS SER_G=serine
+  - id: 1228
+    name: 羟脯氨酸
+    tagname: HYP_G
+    basis: 中国食物成分表 氨基酸表（羟脯氨酸）；INFOODS HYP_G=hydroxyproline
+  - id: 1242
+    name: 维生素E（添加）
+    tagname: VITE_ADD
+    basis: GB 28050 营养强化 维生素E（添加/强化）。FDC tagname VITE_ADD。
+  - id: 1246
+    name: 维生素B12（添加）
+    tagname: VITB12_ADD
+    basis: GB 28050 营养强化 维生素B12（添加/强化）。FDC tagname VITB12_ADD。
+  - id: 1253
+    name: 胆固醇
+    tagname: CHOLE
+    basis: WS/T 464-2015 食物成分数据表达规范 / 中国食物成分表 第6版 胆固醇 (mg)
+  - id: 1257
+    name: 反式脂肪酸
+    tagname: FATRN
+    basis: GB 28050-2011 4.4「反式脂肪（酸）」; 中国食物成分表「反式脂肪酸」; INFOODS FATRN. 確認済み.
+  - id: 1258
+    name: 饱和脂肪酸
+    tagname: FASAT
+    basis: GB 28050-2011「饱和脂肪（酸）」; 中国食物成分表「饱和脂肪酸」; INFOODS FASAT. 確認済み.
+  - id: 1259
+    name: 丁酸 (4:0)
+    tagname: F4D0
+    basis: WS/T 464-2015 表A.5「丁酸」; 中国食物成分表 脂肪酸表「丁酸 C4:0」; INFOODS F4D0. 確認済み.
+  - id: 1260
+    name: 己酸 (6:0)
+    tagname: F6D0
+    basis: WS/T 464-2015 表A.5「己酸」; 中国食物成分表「己酸 C6:0」; INFOODS F6D0. 確認済み.
+  - id: 1261
+    name: 辛酸 (8:0)
+    tagname: F8D0
+    basis: WS/T 464-2015 表A.5「辛酸」; 中国食物成分表「辛酸 C8:0」; INFOODS F8D0. 確認済み.
+  - id: 1262
+    name: 癸酸 (10:0)
+    tagname: F10D0
+    basis: 中国食物成分表「癸酸 C10:0」; INFOODS F10D0. 化学標準字は「癸酸」(WS/T 464
+      本文は誤植で「葵酸」を併用するが正字は癸酸). 確認済み.
+  - id: 1263
+    name: 月桂酸 (12:0)
+    tagname: F12D0
+    basis: 中国食物成分表「月桂酸 C12:0」(WS/T 464 系統名は十二酸); INFOODS F12D0. 確認済み.
+  - id: 1264
+    name: 肉豆蔻酸 (14:0)
+    tagname: F14D0
+    basis: 中国食物成分表「肉豆蔻酸 C14:0」(WS/T 464 系統名は十四酸); INFOODS F14D0. 確認済み.
+  - id: 1265
+    name: 棕榈酸 (16:0)
+    tagname: F16D0
+    basis: 中国食物成分表「棕榈酸 C16:0」(WS/T 464 系統名は十六酸); INFOODS F16D0. 確認済み.
+  - id: 1266
+    name: 硬脂酸 (18:0)
+    tagname: F18D0
+    basis: 中国食物成分表「硬脂酸 C18:0」(WS/T 464 系統名は十八酸); INFOODS F18D0. 確認済み.
+  - id: 1267
+    name: 花生酸 (20:0)
+    tagname: F20D0
+    basis: 中国食物成分表「花生酸 C20:0」(WS/T 464 系統名は二十酸); INFOODS F20D0. 確認済み.
+  - id: 1268
+    name: 油酸 (18:1)
+    tagname: F18D1
+    basis: 中国食物成分表「油酸 C18:1」; INFOODS F18D1 (n位無指定). 確認済み.
+  - id: 1269
+    name: 亚油酸 (18:2)
+    tagname: F18D2
+    basis: 中国食物成分表「亚油酸 C18:2」; INFOODS F18D2 (n位無指定). 確認済み.
+  - id: 1270
+    name: 亚麻酸 (18:3)
+    tagname: F18D3
+    basis: 中国食物成分表「亚麻酸 C18:3」; INFOODS F18D3 (n位無指定). 確認済み.
+  - id: 1271
+    name: 花生四烯酸 (20:4)
+    tagname: F20D4
+    basis: 中国食物成分表「花生四烯酸 C20:4」; INFOODS F20D4 (n位無指定). 確認済み.
+  - id: 1272
+    name: 二十二碳六烯酸 (22:6 n-3, DHA)
+    tagname: F22D6N3
+    basis: 中国食物成分表「二十二碳六烯酸(DHA) C22:6」; INFOODS F22D6N3. 確認済み.
+  - id: 1273
+    name: 山嵛酸 (22:0)
+    tagname: F22D0
+    basis: 中国食物成分表「山嵛酸 C22:0」(WS/T 464 系統名は二十二酸); INFOODS F22D0. 山嵛酸が標準字(山萮酸ではない).
+      確認済み.
+  - id: 1274
+    name: 肉豆蔻烯酸 (14:1)
+    tagname: F14D1
+    basis: 中国食物成分表「肉豆蔻烯酸 C14:1」(WS/T 464 系統名は十四碳-9-烯酸(顺)); INFOODS F14D1. 確認済み.
+  - id: 1275
+    name: 棕榈油酸 (16:1)
+    tagname: F16D1
+    basis: "修正: 「棕榈一烯酸」→「棕榈油酸」. C16:1 の標準慣用名は棕榈油酸(中国食物成分表/WS/T 578.1-2017 が採用; WS/T
+      464 系統名は十六碳-9-烯酸(顺)). 「棕榈一烯酸」は非標準. INFOODS F16D1."
+  - id: 1276
+    name: 十八碳四烯酸 (18:4)
+    tagname: F18D4
+    basis: 中国食物成分表「十八碳四烯酸 C18:4」; INFOODS F18D4 (n位無指定). 確認済み.
+  - id: 1277
+    name: 二十碳一烯酸 (20:1)
+    tagname: F20D1
+    basis: 中国食物成分表「二十碳一烯酸 C20:1」(WS/T 464 系統名は二十碳-9-烯酸(顺)); INFOODS F20D1. 確認済み.
+  - id: 1278
+    name: 二十碳五烯酸 (20:5 n-3, EPA)
+    tagname: F20D5N3
+    basis: 中国食物成分表「二十碳五烯酸(EPA) C20:5」; INFOODS F20D5N3. 確認済み.
+  - id: 1279
+    name: 二十二碳一烯酸 (22:1)
+    tagname: F22D1
+    basis: 中国食物成分表「二十二碳一烯酸 C22:1」(慣用名は芥酸; WS/T 464 系統名は二十二碳-13-烯酸(顺)); INFOODS
+      F22D1. 確認済み.
+  - id: 1280
+    name: 二十二碳五烯酸 (22:5 n-3, DPA)
+    tagname: F22D5N3
+    basis: 中国食物成分表「二十二碳五烯酸(DPA) C22:5」; INFOODS F22D5N3. 確認済み.
+  - id: 1283
+    name: 植物甾醇
+    tagname: PHYSTR
+    basis: WS/T 464-2015 食物成分数据表达规范 / 中国食物成分表 第6版 植物甾醇(总量) (mg); 同义 植物固醇
+  - id: 1285
+    name: 豆甾醇
+    tagname: STID7
+    basis: WS/T 464-2015 食物成分数据表达规范 豆甾醇 (stigmasterol, mg)
+  - id: 1286
+    name: 菜油甾醇
+    tagname: CAMD5
+    basis: WS/T 464-2015 食物成分数据表达规范 菜油甾醇 (campesterol, mg)
+  - id: 1288
+    name: β-谷甾醇
+    tagname: SITSTR
+    basis: WS/T 464-2015 食物成分数据表达规范 谷甾醇/β-谷甾醇 (beta-sitosterol, mg)
+  - id: 1292
+    name: 单不饱和脂肪酸
+    tagname: FAMS
+    basis: GB 28050-2011「单不饱和脂肪（酸）」; 中国食物成分表「单不饱和脂肪酸」; INFOODS FAMS. 確認済み.
+  - id: 1293
+    name: 多不饱和脂肪酸
+    tagname: FAPU
+    basis: GB 28050-2011「多不饱和脂肪（酸）」; 中国食物成分表「多不饱和脂肪酸」; INFOODS FAPU. 確認済み.
+  - id: 1299
+    name: 十五烷酸 (15:0)
+    tagname: F15D0
+    basis: 中国食物成分表「十五烷酸 C15:0」(WS/T 464 系統名は十五酸); INFOODS F15D0. 確認済み.
+  - id: 1300
+    name: 十七烷酸 (17:0)
+    tagname: F17D0
+    basis: 中国食物成分表「十七烷酸 C17:0」(WS/T 464 系統名は十七酸; 慣用名マルガリン酸); INFOODS F17D0. 確認済み.
+  - id: 1301
+    name: 二十四烷酸 (24:0)
+    tagname: F24D0
+    basis: 中国食物成分表「二十四烷酸(木蜡酸) C24:0」(WS/T 464 系統名は二十四酸); INFOODS F24D0. 確認済み.
+  - id: 1303
+    name: 反式十六碳一烯酸（16:1t）
+    tagname: F16D1T
+    basis: WS/T 464-2015 表A.5 标记名 F16D1T = 系统名「十六碳-烯酸(总反)」; 中国食物成分表(单不饱和) 反式 16:1 常用名
+  - id: 1304
+    name: 反式十八碳一烯酸（18:1t，反油酸）
+    tagname: F18D1T
+    basis: WS/T 464-2015 标记名 F18D1TN9=「十八碳-9-烯酸(反)」为9位特异码; 此处未细分总反式 18:1 取通用 F18D1T;
+      中国食物成分表 反式十八碳一烯酸/反油酸
+  - id: 1305
+    name: 反式二十二碳一烯酸（22:1t，芥酸反式异构体）
+    tagname: F22D1TN9
+    basis: WS/T 464-2015 表A.5 标记名 F22D1TN9 =
+      系统名「二十二碳-13-烯酸(反)」(trans-13-Docosenoic); 中国食物成分表 反式二十二碳一烯酸 (芥酸反式异构体)
+  - id: 1306
+    name: 反式十八碳二烯酸（18:2t，未细分）
+    tagname: F18D2T
+    basis: WS/T 464-2015 系统名 18:2 反式异构体未单列总反码, 取 INFOODS 通用 F18D2T; 中国食物成分表 反式十八碳二烯酸
+      (未细分)
+  - id: 1307
+    name: 十八碳二烯酸（18:2，异构体未分别）
+    tagname: F18D2
+    basis: WS/T 464-2015 表A.5 标记名 F18D2 = 系统名「十八碳-9,12-二烯酸(顺,顺)」; 此处取通用
+      F18D2(未细分异构体); 中国食物成分表 多不饱和 十八碳二烯酸
+  - id: 1310
+    name: 反式,反式十八碳二烯酸（18:2 t,t）
+    tagname: F18D2T
+    basis: WS/T 464-2015 无 t,t 专用标记名, 取通用 F18D2T; 中国食物成分表 反式,反式十八碳二烯酸
+  - id: 1311
+    name: 共轭亚油酸（CLA，18:2）
+    tagname: F18D2CLA
+    basis: 中国食物成分表 共轭亚油酸 (conjugated linoleic acid, CLA); GB 28050 / 国标命名
+  - id: 1312
+    name: 顺式二十四碳一烯酸（24:1c，神经酸）
+    tagname: F24D1C
+    basis: WS/T 464-2015 表A.5 标记名 F24D1C = 系统名「二十四碳-15-烯酸(顺)」(cis-15-Tetracosenoic);
+      中国食物成分表 神经酸 24:1 (nervonic)
+  - id: 1313
+    name: 顺,顺-二十碳二烯酸（20:2 n-6）
+    tagname: F20D2CN6
+    basis: WS/T 464-2015 表A.5 标记名 F20D2CN6 =
+      系统名「二十碳-11,14-二烯酸(全顺)」(cis,cis-11,14-Eicosadienoic); 中国食物成分表 二十碳二烯酸 20:2
+      n-6
+  - id: 1314
+    name: 顺式十六碳一烯酸（16:1c，棕榈油酸）
+    tagname: F16D1C
+    basis: 中国食物成分表 棕榈油酸 16:1 (palmitoleic); WS/T 464-2015 顺式十六碳-9-烯酸 对应 cis 体
+  - id: 1315
+    name: 顺式十八碳一烯酸（18:1c，油酸）
+    tagname: F18D1C
+    basis: 中国食物成分表 油酸 18:1 (oleic); WS/T 464-2015 标记名 F18D1N9=「十八碳-9-烯酸(顺)」对应 cis 体
+  - id: 1316
+    name: 顺,顺-十八碳二烯酸（18:2 n-6，亚油酸）
+    tagname: F18D2CN6
+    basis: WS/T 464-2015 标记名 F18D2CN6 (国标列为顺,反 9,12-二烯酸); 中国食物成分表 亚油酸 18:2 n-6
+      (linoleic); GB 28050
+  - id: 1317
+    name: 顺式二十二碳一烯酸（22:1c，芥酸）
+    tagname: F22D1CN9
+    basis: WS/T 464-2015 标记名 F22D1N9 = 系统名「二十二碳-13-烯酸(顺)」(cis-13-Docosenoic);
+      中国食物成分表 芥酸 22:1 (erucic)
+  - id: 1321
+    name: γ-亚麻酸（18:3 n-6）
+    tagname: F18D3N6
+    basis: 中国食物成分表 γ-亚麻酸 18:3 n-6 (gamma-linolenic); WS/T 464-2015
+      系统名「十八碳-6,9,12-三烯酸(全顺)」 F18D3CN6
+  - id: 1323
+    name: 十七碳一烯酸（17:1）
+    tagname: F17D1
+    basis: WS/T 464-2015 表A.5 标记名 F17D1 = 系统名「十七碳-10-烯酸」(10-Heptadecenoic); 中国食物成分表
+      十七碳一烯酸 17:1
+  - id: 1325
+    name: 二十碳三烯酸（20:3）
+    tagname: F20D3
+    basis: WS/T 464-2015 标记名 F20D3 = 系统名「二十碳-9,12,15-三烯酸(全顺)」; 中国食物成分表 二十碳三烯酸 20:3
+  - id: 1329
+    name: 反式单不饱和脂肪酸（总量）
+    tagname: FATRNM
+    basis: WS/T 464-2015 反式脂肪酸 (FATRN); 中国食物成分表 反式单不饱和脂肪酸总量 (trans-monoenoic; 反式单烯酸)
+  - id: 1331
+    name: 反式多不饱和脂肪酸（总量）
+    tagname: FATRNP
+    basis: WS/T 464-2015 反式脂肪酸 (FATRN); 中国食物成分表 反式多不饱和脂肪酸总量 (trans-polyenoic; 反式多烯酸)
+  - id: 1332
+    name: 十三烷酸（13:0）
+    tagname: F13D0
+    basis: WS/T 464-2015 表A.5 标记名 F13D0 = 系统名「十三酸」(Tridecanoic); 中国食物成分表 十三烷酸 13:0
+  - id: 1333
+    name: 十五碳一烯酸（15:1）
+    tagname: F15D1
+    basis: WS/T 464-2015 表A.5 标记名 F15D1 = 系统名「十五碳-10-烯酸」(10-Pentadecenoic); 中国食物成分表
+      十五碳一烯酸 15:1
+  - id: 1404
+    name: α-亚麻酸（18:3 n-3，ALA）
+    tagname: F18D3CN3
+    basis: WS/T 464-2015 标记名 F18D3CN3 = 系统名「十八碳-9,12,15-三烯酸(全顺)」; 中国食物成分表 α-亚麻酸 18:3
+      n-3 (alpha-linolenic); GB 28050
+  - id: 1405
+    name: 二十碳三烯酸 n-3（20:3 n-3）
+    tagname: F20D3N3
+    basis: WS/T 464-2015 系统名「二十碳-11,14,17-三烯酸」(n-3); 中国食物成分表 二十碳三烯酸 20:3 n-3
+  - id: 1406
+    name: 二十碳三烯酸 n-6（20:3 n-6，二高-γ-亚麻酸）
+    tagname: F20D3N6
+    basis: WS/T 464-2015 标记名 F20D3N6 = 系统名「二十碳-8,11,14-三烯酸(全顺)」; 中国食物成分表 二十碳三烯酸 20:3
+      n-6 (双高/二高-γ-亚麻酸, dihomo-gamma-linolenic); 按 USDA 编号 853 取义
+  - id: 1408
+    name: 花生四烯酸（20:4 n-6，ARA）
+    tagname: F20D4N6
+    basis: WS/T 464-2015 标记名 F20D4N6 = 系统名「二十碳-5,8,11,14-四烯酸(全顺)」; 中国食物成分表 花生四烯酸
+      20:4 n-6 (arachidonic); GB 28050; 按 USDA 编号 855 取义
+  - id: 1409
+    name: 十八碳三烯酸（18:3，异构体未分别）
+    tagname: F18D3
+    basis: WS/T 464-2015 18:3 异构体未单列通用码, 取 INFOODS 通用 F18D3; 中国食物成分表 十八碳三烯酸 18:3
+      (异构体未分别)
+  - id: 1410
+    name: 二十一碳五烯酸 n-3（21:5 n-3）
+    tagname: F21D5N3
+    basis: WS/T 464-2015 系统名 二十一碳-五烯酸 (n-3); 中国食物成分表 二十一碳五烯酸 21:5 n-3
+  - id: 1411
+    name: 二十二碳四烯酸（22:4）
+    tagname: F22D4
+    basis: WS/T 464-2015 表A.5 标记名 F22D4 = 系统名「二十二碳-7,10,13,16-四烯酸(全顺)」; 中国食物成分表
+      二十二碳四烯酸 22:4 (docosatetraenoic)
+  - id: 1412
+    name: 反式十八碳一烯酸 n-7（18:1t n-7，反式十八碳-11-烯酸/反式异油酸）
+    tagname: F18D1T
+    basis: WS/T 464-2015 反式脂肪酸命名; 中国食物成分表 反式十八碳一烯酸 n-7 (反式十八碳-11-烯酸, trans-vaccenic
+      acid)
+  - id: 2000
+    name: 糖
+    tagname: SUGAR
+    basis: GB 28050-2011 强制标示「糖」(果糖+葡萄糖+蔗糖+麦芽糖+乳糖等之和); INFOODS SUGAR

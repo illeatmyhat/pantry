@@ -325,7 +325,9 @@ override.
   - **Other locales source names from the market's national food-composition
     standard** (Japan MEXT tables, China GB 28050 / CFCT, …), stored in a
     committed overlay `l10n/nutrients/<tag>.yaml` (id → name + `basis`), with
-    the **INFOODS tagname as the provenance anchor**.
+    the **INFOODS tagname as the provenance anchor**. ja-JP and zh-CN were
+    sourced 2026-06-13 via web-verified subagent research (per-family source +
+    adversarial verify), all 149 ids each — not the paid Batch API.
   - **Tripwire**: a locale's nutrient table is either empty (`pending`) or
     covers *exactly* the 149 dataset ids — a gap or a stale id fails the build.
   - Units (kcal/g/mg/mcg, USDA tokens) are international and do not localize.
