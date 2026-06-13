@@ -28,6 +28,52 @@ export type LabelKey = (typeof LABEL_KEYS)[number];
 /** Amounts per 100 g in label units (kcal / g / mg / mcg). `null` = SR has no row. */
 export type LabelNutrients = Record<LabelKey, number | null>;
 
+export interface LabelSetEntry {
+  readonly key: LabelKey;
+  /** The SR Legacy nutrient id this label key reads from (DESIGN.md label-set mapping). */
+  readonly nutrientId: number;
+  readonly unit: 'kcal' | 'g' | 'mg' | 'mcg';
+  /** The FDA Nutrition Facts panel display name — the canonical en-US label for this key. */
+  readonly label: string;
+}
+
+/**
+ * The panel ↔ SR-nutrient-id ↔ unit ↔ FDA-label mapping (DESIGN.md, settled
+ * 2026-06-11). Single source of truth: the generator's buildLabelNutrients
+ * reads it, and localizeNutrients uses it to resolve a panel key to its
+ * stable nutrient id. `label` is the FDA Nutrition Facts panel wording
+ * ("Total Fat", not USDA's "Total lipid (fat)") — the canonical en-US name
+ * other locales translate.
+ */
+export const LABEL_SET: readonly LabelSetEntry[] = [
+  { key: 'calories', nutrientId: 1008, unit: 'kcal', label: 'Calories' },
+  { key: 'fat', nutrientId: 1004, unit: 'g', label: 'Total Fat' },
+  { key: 'saturated_fat', nutrientId: 1258, unit: 'g', label: 'Saturated Fat' },
+  { key: 'trans_fat', nutrientId: 1257, unit: 'g', label: 'Trans Fat' },
+  { key: 'cholesterol', nutrientId: 1253, unit: 'mg', label: 'Cholesterol' },
+  { key: 'sodium', nutrientId: 1093, unit: 'mg', label: 'Sodium' },
+  { key: 'carbohydrate', nutrientId: 1005, unit: 'g', label: 'Total Carbohydrate' },
+  { key: 'fiber', nutrientId: 1079, unit: 'g', label: 'Dietary Fiber' },
+  { key: 'sugars', nutrientId: 2000, unit: 'g', label: 'Total Sugars' },
+  { key: 'protein', nutrientId: 1003, unit: 'g', label: 'Protein' },
+  { key: 'vitamin_d', nutrientId: 1114, unit: 'mcg', label: 'Vitamin D' },
+  { key: 'calcium', nutrientId: 1087, unit: 'mg', label: 'Calcium' },
+  { key: 'iron', nutrientId: 1089, unit: 'mg', label: 'Iron' },
+  { key: 'potassium', nutrientId: 1092, unit: 'mg', label: 'Potassium' },
+];
+
+/**
+ * One row of the `extra` leaf — a nutrient outside the 14-key panel, carried
+ * on `/full` views (DESIGN.md leaf/view law). Keyed by the stable SR nutrient
+ * id; `name`/`unit` are the USDA values, `amount` is per 100 g.
+ */
+export interface ExtraNutrient {
+  readonly nutrientId: number;
+  readonly name: string;
+  readonly unit: string;
+  readonly amount: number;
+}
+
 export interface DensityCitation {
   readonly portionId: number;
   readonly amount: number;
@@ -77,6 +123,8 @@ export interface Food {
   /** Curation — an overlay act, never invented by pantry. */
   readonly name?: string;
   readonly aliases?: readonly string[];
+  /** The long tail of SR nutrients — present on `/full` views (core + extra). */
+  readonly remaining_nutrients?: readonly ExtraNutrient[];
   /** Locale surface — present on localized foods only. */
   readonly locale?: string;
   /** `null` = non-retail (no store sells it — fast food, subsistence); absent = no errand stated. */

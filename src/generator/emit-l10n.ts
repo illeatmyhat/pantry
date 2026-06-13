@@ -41,10 +41,15 @@ interface LocaleStringsShape {
   readonly notes?: readonly string[];
 }
 
-/** slug → local-language display label tables for one locale's errands. */
+/**
+ * The locale-wide label tables shipped in labels.js: errand `sections`/`stores`
+ * (slug → signage) and `nutrients` (USDA nutrient id → localized name). For a
+ * locale whose nutrient names are not yet sourced, `nutrients` is `{}`.
+ */
 export interface ErrandLabelTable {
   readonly sections: Record<string, string>;
   readonly stores: Record<string, string>;
+  readonly nutrients: Record<string, string>;
 }
 
 export interface EmitL10nOptions {

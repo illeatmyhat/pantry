@@ -1,0 +1,18 @@
+# ja-JP nutrient names — id → localized display name for labels.nutrients.
+#
+# PENDING: not yet sourced. The en-US names are generated from the USDA zip
+# (FDA panel wording + USDA nutrient names); this file is the ja-JP overlay,
+# keyed by the stable USDA nutrient id. When sourced it must cover EXACTLY the
+# dataset's 149 nutrient ids (the build tripwire fails on any gap or extra),
+# each name taken from Japan's national food-composition standard (MEXT
+# Standard Tables of Food Composition) with `basis` as the decision log and an
+# INFOODS `tagname` as the provenance anchor. Example of a sourced entry:
+#
+#   - id: 1003
+#     name: たんぱく質
+#     tagname: PROCNT
+#     basis: MEXT 2020 (8th rev.) item 'たんぱく質'
+#
+# Empty list = pending: the ja-JP package ships no nutrient names yet.
+status: pending
+nutrients: []

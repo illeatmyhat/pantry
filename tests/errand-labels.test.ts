@@ -20,6 +20,7 @@ const labels = {
   'ja-JP': {
     sections: { meat: '精肉', produce: '青果' },
     stores: { primary: 'スーパー', specialty: '専門店', online: '通販' },
+    nutrients: { '1003': 'タンパク質' },
   },
 };
 
@@ -30,6 +31,7 @@ describe('localeEntries labels.js', () => {
     expect(labelsEntry).toBeDefined();
     expect(labelsEntry?.data).toContain('"meat": "精肉"');
     expect(labelsEntry?.data).toContain('"primary": "スーパー"');
+    expect(labelsEntry?.data).toContain('"1003": "タンパク質"'); // nutrient names fold into the same table
   });
 
   it('emits no labels.js when no table is provided for the locale', () => {
@@ -46,12 +48,20 @@ describe('localeEntries labels.js', () => {
 
 describe('loadErrandLabels', () => {
   const ja = LOCALES.find((l) => l.tag.startsWith('ja'));
+  const en = LOCALES.find((l) => l.canonical === true);
 
   it('reads frozen section and store labels both from the vocabulary YAML', () => {
     if (ja === undefined) return;
-    const out = loadErrandLabels(ja);
+    const out = loadErrandLabels(ja, {});
     expect(out.sections['meat']).toBe('精肉'); // frozen signage label
     expect(out.stores['primary']).toBe('スーパー'); // store label now in the same frozen YAML
     expect(Object.keys(out.stores)).toEqual(['primary', 'specialty', 'online']);
+  });
+
+  it('takes nutrient names from the dataset for the canonical locale, from YAML otherwise', () => {
+    if (ja === undefined || en === undefined) return;
+    const canonical = { '1003': 'Protein', '1210': 'Tryptophan' };
+    expect(loadErrandLabels(en, canonical).nutrients).toEqual(canonical); // canonical → generated
+    expect(loadErrandLabels(ja, canonical).nutrients).toEqual({}); // ja-JP pending → empty, never the en names
   });
 });

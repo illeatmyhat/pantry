@@ -1,21 +1,26 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { parse } from 'yaml';
 import { root } from './lib.js';
 import type { LocaleSpec } from './locales.js';
 
 /**
- * Builds the slug → display-label tables shipped in each locale package's
- * labels.js, so a consumer can render an errand's English slugs in the local
- * language: `labels.sections["meat"]` → 精肉, `labels.stores["primary"]` →
- * スーパー. Both come from the signage-verified, frozen vocabulary
- * (l10n/vocabulary/<tag>.yaml): section labels from the `sections` list,
- * store labels from the `stores` map — one review surface, no localized
- * strings in code. Coined off-vocabulary sections (strays) have no label
- * until adopted; a consumer falls back to the slug.
+ * Builds the label tables shipped in each locale package's labels.js, so a
+ * consumer can render English slugs/ids in the local language:
+ * `labels.sections["meat"]` → 精肉, `labels.stores["primary"]` → スーパー,
+ * `labels.nutrients["1003"]` → タンパク質.
+ *
+ * Errand labels (sections, stores) come from the signage-verified, frozen
+ * vocabulary (l10n/vocabulary/<tag>.yaml) — one review surface, no localized
+ * strings in code. Nutrient names come from the dataset for the canonical
+ * locale (USDA + FDA wording, generated — pass `canonicalNutrients`) and from
+ * l10n/nutrients/<tag>.yaml for every other locale (`{}` until sourced).
+ * Coined off-vocabulary sections (strays) have no label until adopted; a
+ * consumer falls back to the slug.
  */
 export interface ErrandLabels {
   readonly sections: Record<string, string>;
   readonly stores: Record<string, string>;
+  readonly nutrients: Record<string, string>;
 }
 
 interface VocabEntry {
@@ -27,15 +32,50 @@ interface VocabFile {
   readonly stores?: Record<string, string>;
 }
 
-export function loadErrandLabels(spec: LocaleSpec): ErrandLabels {
+interface NutrientEntry {
+  readonly id: number;
+  readonly name: string;
+}
+interface NutrientFile {
+  readonly nutrients?: readonly NutrientEntry[];
+}
+
+/**
+ * id → localized nutrient name from l10n/nutrients/<tag>.yaml. Returns `{}`
+ * when the file is absent or still pending (empty list) — the locale ships no
+ * nutrient names yet, and the build tripwire treats empty as "not sourced".
+ */
+export function loadLocaleNutrientNames(tag: string): Record<string, string> {
+  const path = `${root}l10n/nutrients/${tag}.yaml`;
+  if (!existsSync(path)) return {};
+  const doc = parse(readFileSync(path, 'utf8')) as NutrientFile;
+  return Object.fromEntries((doc.nutrients ?? []).map((e) => [String(e.id), e.name]));
+}
+
+export function loadErrandLabels(
+  spec: LocaleSpec,
+  canonicalNutrients: Record<string, string>,
+): ErrandLabels {
   const doc = parse(
     readFileSync(`${root}l10n/vocabulary/${spec.tag}.yaml`, 'utf8'),
   ) as VocabFile;
   const sections = Object.fromEntries((doc.sections ?? []).map((e) => [e.slug, e.label]));
-  return { sections, stores: { ...(doc.stores ?? {}) } };
+  const nutrients =
+    spec.canonical === true ? canonicalNutrients : loadLocaleNutrientNames(spec.tag);
+  return { sections, stores: { ...(doc.stores ?? {}) }, nutrients };
 }
 
-/** The label tables for every locale, keyed by BCP-47 tag (for emit options). */
-export function loadAllErrandLabels(locales: readonly LocaleSpec[]): Record<string, ErrandLabels> {
-  return Object.fromEntries(locales.map((spec) => [spec.tag, loadErrandLabels(spec)]));
+/**
+ * The label tables for every locale, keyed by BCP-47 tag (for emit options).
+ * `canonicalNutrients` is the generated en-US id → name map
+ * (canonicalNutrientNames from the dataset); non-canonical locales read their
+ * own l10n/nutrients/<tag>.yaml.
+ */
+export function loadAllErrandLabels(
+  locales: readonly LocaleSpec[],
+  canonicalNutrients: Record<string, string>,
+): Record<string, ErrandLabels> {
+  return Object.fromEntries(
+    locales.map((spec) => [spec.tag, loadErrandLabels(spec, canonicalNutrients)]),
+  );
 }

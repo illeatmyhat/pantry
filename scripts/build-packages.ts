@@ -7,6 +7,7 @@ import { localeEntries } from '../src/generator/emit-l10n.js';
 import { emitPackages, localePackageJson, localePackageName, patchCorePackage } from '../src/generator/emit-packages.js';
 import { createTarGz, type TarEntry } from '../src/generator/tarball.js';
 import { loadDataset } from '../src/generator/load.js';
+import { canonicalNutrientNames } from '../src/generator/nutrient-dictionary.js';
 import { BASELINE_DIR, readBaseline } from './translate/baseline.js';
 import { applyGroundTruth, loadGroundTruth } from './translate/ground-truth.js';
 import { root } from './translate/lib.js';
@@ -43,7 +44,8 @@ if (!existsSync(`${root}dist/toolkit`)) {
   throw new Error('dist/toolkit missing — run `npm run build:toolkit` first (build:packages chains it).');
 }
 
-const foods = assemble(loadDataset(zipPath));
+const dataset = loadDataset(zipPath);
+const foods = assemble(dataset);
 const manifest = foods.map((f) => ({ slug: f.core.slug, fdc_id: f.core.fdc_id }));
 const corePkgRaw = JSON.parse(readFileSync(`${root}package.json`, 'utf8')) as Record<string, unknown> & {
   name: string;
@@ -94,7 +96,7 @@ writePackage(plan.coreName, (function* core(): Generator<TarEntry> {
 // Locales: stored baseline + ground truth, cross-package views.
 const baselineRecords = readBaseline(BASELINE_DIR);
 const merged = applyGroundTruth(baselineRecords, loadGroundTruth(root)) as typeof baselineRecords;
-const labels = loadAllErrandLabels(LOCALES);
+const labels = loadAllErrandLabels(LOCALES, canonicalNutrientNames(dataset));
 for (const spec of LOCALES) {
   writePackage(localePackageName(plan.coreName, spec.tag), (function* locale(): Generator<TarEntry> {
     yield { path: 'package.json', data: `${JSON.stringify(localePackageJson(plan, spec.tag), null, 2)}\n` };

@@ -1,19 +1,38 @@
-import type { Food } from './food.js';
+import { LABEL_SET, type Food } from './food.js';
 
 /**
- * The slug → local-language label tables shipped as each locale package's
- * `./labels` export (labels.js). `sections` maps an errand section slug
- * (per-locale, e.g. 'meat') to its signage label (精肉); `stores` maps the
- * three `Errand.store` enum values to their local labels (スーパー / 専門店 /
- * 通販). Built from the frozen vocabulary (l10n/vocabulary/<tag>.yaml) — the
- * single review surface; no localized strings live in code.
- *
- *   import labels from '@illeatmyhat/pantry/l10n/ja-JP/labels';
+ * The errand slug → local-language label tables. `sections` maps an errand
+ * section slug (per-locale, e.g. 'meat') to its signage label (精肉); `stores`
+ * maps the three `Errand.store` enum values to their local labels (スーパー /
+ * 専門店 / 通販). Built from the frozen vocabulary (l10n/vocabulary/<tag>.yaml).
  */
 export interface ErrandLabels {
   readonly sections: Record<string, string>;
   readonly stores: Record<string, string>;
 }
+
+/**
+ * The nutrient id → local-language name table. Keyed by the stable USDA
+ * nutrient id (as a string), covering all 149 SR nutrients — the 14 panel
+ * keys and the 135 extras a `/full` view surfaces. en-US names are the FDA
+ * panel wording + USDA names (generated); other locales translate them from
+ * their national food-composition standard.
+ */
+export interface NutrientLabels {
+  readonly nutrients: Record<string, string>;
+}
+
+/**
+ * Everything a locale package's `./labels` export ships — the errand labels
+ * and the nutrient dictionary in one table (labels.js):
+ *
+ *   import labels from '@illeatmyhat/pantry/l10n/ja-JP/labels';
+ *   // labels = { sections, stores, nutrients }
+ *
+ * The resolvers take only the slice they need, so this whole object satisfies
+ * both `localizeErrand` (ErrandLabels) and `localizeNutrients` (NutrientLabels).
+ */
+export interface LocaleLabels extends ErrandLabels, NutrientLabels {}
 
 /** A food's errand resolved to display strings in the locale's language. */
 export interface LocalizedErrand {
@@ -39,4 +58,47 @@ export function localizeErrand(food: Food, labels: ErrandLabels): LocalizedErran
     store: labels.stores[errand.store] ?? errand.store,
     section: labels.sections[errand.section] ?? errand.section,
   };
+}
+
+/** One resolved nutrient row: its localized name, amount per 100 g, and unit. */
+export interface LocalizedNutrient {
+  readonly id: number;
+  readonly name: string;
+  readonly amount: number | null;
+  readonly unit: string;
+}
+
+/**
+ * Resolve a food's nutrients to local-language display rows. Always returns
+ * the 14-key Nutrition Facts panel (in label order; `amount` null where SR
+ * has no row); appends the 135 extras when the food is a `/full` view that
+ * carries `remaining_nutrients`. Names come from the locale's nutrient table
+ * keyed by stable USDA id.
+ *
+ * A nutrient with no entry in the table falls back to its canonical English
+ * name (FDA panel wording for the panel, USDA name for an extra) so a render
+ * never produces a blank cell — the same slug-fallback spirit as
+ * localizeErrand. Shipped locale tables are complete (the build tripwire
+ * enforces full id coverage), so the fallback only fires for a locale whose
+ * nutrient names are not yet sourced.
+ */
+export function localizeNutrients(food: Food, labels: NutrientLabels): LocalizedNutrient[] {
+  const rows: LocalizedNutrient[] = [];
+  for (const entry of LABEL_SET) {
+    rows.push({
+      id: entry.nutrientId,
+      name: labels.nutrients[String(entry.nutrientId)] ?? entry.label,
+      amount: food.nutrients[entry.key],
+      unit: entry.unit,
+    });
+  }
+  for (const row of food.remaining_nutrients ?? []) {
+    rows.push({
+      id: row.nutrientId,
+      name: labels.nutrients[String(row.nutrientId)] ?? row.name,
+      amount: row.amount,
+      unit: row.unit,
+    });
+  }
+  return rows;
 }

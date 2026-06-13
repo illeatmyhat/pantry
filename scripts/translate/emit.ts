@@ -7,6 +7,8 @@ import { LOCALES } from './locales.js';
 import { loadAllErrandLabels } from './vocabulary.js';
 import { emitL10n } from '../../src/generator/emit-l10n.js';
 import { emitPackages, type PackageManifestEntry } from '../../src/generator/emit-packages.js';
+import { loadDataset } from '../../src/generator/load.js';
+import { canonicalNutrientNames } from '../../src/generator/nutrient-dictionary.js';
 
 /**
  * The post-batch pipeline tail (DESIGN.md "After the run"): a results
@@ -41,7 +43,7 @@ const corePkg = JSON.parse(readFileSync(`${root}package.json`, 'utf8')) as {
 };
 emitL10n(merged, outDir, LOCALES, {
   coreSpecifier: corePkg.name,
-  labels: loadAllErrandLabels(LOCALES),
+  labels: loadAllErrandLabels(LOCALES, canonicalNutrientNames(loadDataset())),
 });
 emitPackages(
   {

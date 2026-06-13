@@ -11,32 +11,18 @@
  * Coverage is complete (7,793) only for calories/protein/fat/carbohydrate;
  * everything else is null where SR has no row. Amounts are per 100 g.
  */
-import { LABEL_KEYS, type LabelKey, type LabelNutrients } from '../toolkit/food.js';
+import {
+  LABEL_KEYS,
+  LABEL_SET,
+  type LabelKey,
+  type LabelNutrients,
+  type LabelSetEntry,
+} from '../toolkit/food.js';
 
-export { LABEL_KEYS, type LabelKey, type LabelNutrients };
-
-export interface LabelSetEntry {
-  readonly key: LabelKey;
-  readonly nutrientId: number;
-  readonly unit: 'kcal' | 'g' | 'mg' | 'mcg';
-}
-
-export const LABEL_SET: readonly LabelSetEntry[] = [
-  { key: 'calories', nutrientId: 1008, unit: 'kcal' },
-  { key: 'fat', nutrientId: 1004, unit: 'g' },
-  { key: 'saturated_fat', nutrientId: 1258, unit: 'g' },
-  { key: 'trans_fat', nutrientId: 1257, unit: 'g' },
-  { key: 'cholesterol', nutrientId: 1253, unit: 'mg' },
-  { key: 'sodium', nutrientId: 1093, unit: 'mg' },
-  { key: 'carbohydrate', nutrientId: 1005, unit: 'g' },
-  { key: 'fiber', nutrientId: 1079, unit: 'g' },
-  { key: 'sugars', nutrientId: 2000, unit: 'g' },
-  { key: 'protein', nutrientId: 1003, unit: 'g' },
-  { key: 'vitamin_d', nutrientId: 1114, unit: 'mcg' },
-  { key: 'calcium', nutrientId: 1087, unit: 'mg' },
-  { key: 'iron', nutrientId: 1089, unit: 'mg' },
-  { key: 'potassium', nutrientId: 1092, unit: 'mg' },
-];
+// LABEL_SET lives in the toolkit (the published Food contract) so the runtime
+// resolver and the generator read one mapping; re-exported here for the
+// generator's existing importers.
+export { LABEL_KEYS, LABEL_SET, type LabelKey, type LabelNutrients, type LabelSetEntry };
 
 export interface NutrientAmount {
   readonly nutrientId: number;
