@@ -51,6 +51,17 @@ export function buildNutrientIndex(
       owner.set(key, ref.id);
       index[key] = ref;
     } else if (existing !== ref.id && existing !== -1) {
+      // POLICY POINT: a key two ids both claim (only the 5 shared INFOODS
+      // tagnames — VITD, F18D2/T, F18D3, F18D1T — never a display name). The
+      // current rule is DROP and report, so the key never silently resolves to
+      // the wrong unit/isomer. To instead make the tagname RESOLVE to a chosen
+      // member, replace this branch with a deterministic tie-break: keep the
+      // ref whose `entry` wins a stated preference and leave `index[key]` set —
+      // e.g. prefer the panel id (PANEL_SLUG.has(id)), the SI/µg unit over IU,
+      // or the higher `foods` coverage — rather than `delete`ing it. Make the
+      // preference total and documented so the resolution is auditable; the
+      // tradeoff is that whoever meant the OTHER member now gets the preferred
+      // one with no signal. Display-name keys still disambiguate either way.
       delete index[key]; // ambiguous across two ids — drop, never mis-resolve
       owner.set(key, -1);
       dropped.push(`${key} (${existing} vs ${ref.id})`);
