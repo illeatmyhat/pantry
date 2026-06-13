@@ -41,6 +41,28 @@ export interface LocalizedErrand {
 }
 
 /**
+ * One nutrient's identity, the value side of a `nutrients` index entry.
+ * `name` is the locale's display name (en-US for the core index); `tagname`
+ * is the INFOODS component identifier; `unit` is the USDA unit token.
+ */
+export interface NutrientRef {
+  readonly id: number;
+  readonly tagname: string;
+  readonly unit: string;
+  readonly name: string;
+}
+
+/**
+ * The shipped `./nutrients` index: every nutrient reachable by name in the
+ * user's language, by English name, or by INFOODS tagname — keys lowercased
+ * (Latin) / as-is (CJK), so `nutrients['tryptophan']`, `nutrients['トリプト
+ * ファン']`, and `nutrients['trp_g']` all resolve. Case-sensitive by design
+ * (an object index can't be both case-insensitive and autocomplete on keys);
+ * the shipped `.d.ts` makes the keys autocomplete.
+ */
+export type NutrientIndex = Record<string, NutrientRef>;
+
+/**
  * Resolve a food's errand to local-language display labels using a locale's
  * shipped label table — `{store, section}` slugs → スーパー / 精肉 in one call.
  *

@@ -28,6 +28,15 @@ export type LabelKey = (typeof LABEL_KEYS)[number];
 /** Amounts per 100 g in label units (kcal / g / mg / mcg). `null` = SR has no row. */
 export type LabelNutrients = Record<LabelKey, number | null>;
 
+/**
+ * A food's `nutrients` map. The 14 panel slugs are always present and
+ * precisely typed; a `/full` view additionally keys the 135 extras by name,
+ * so any nutrient reads as an amount. The exact, autocompleting key set per
+ * view/locale is narrowed by each package's generated ambient `.d.ts`; this
+ * loose shape is the general `Food` contract.
+ */
+export type NutrientAmounts = LabelNutrients & Record<string, number | null>;
+
 export interface LabelSetEntry {
   readonly key: LabelKey;
   /** The SR Legacy nutrient id this label key reads from (DESIGN.md label-set mapping). */
@@ -113,7 +122,7 @@ export interface Provenance {
 }
 
 export interface Food {
-  readonly nutrients: LabelNutrients;
+  readonly nutrients: NutrientAmounts;
   readonly density: Density | null;
   /** USDA identity — data, present on everything rooted in SR. */
   readonly fdc_id?: number;

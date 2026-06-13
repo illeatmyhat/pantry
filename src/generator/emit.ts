@@ -29,7 +29,12 @@ export function* coreEntries(foods: readonly GeneratedFood[]): Generator<TarEntr
       data:
         `import core from './${slug}.js';\n` +
         `import extra from './${slug}.extra.js';\n` +
-        `export default { ...core, ...extra };\n`,
+        // Self-contained merge — composes the leaves by reference (no bytes
+        // inlined, no toolkit import): panel slugs + the 135 extras by name.
+        // Mirrors the toolkit's assembleFull (tests/assemble-view.test.ts).
+        `const nutrients = { ...core.nutrients };\n` +
+        `for (const n of extra.remaining_nutrients) nutrients[n.name.toLowerCase()] = n.amount;\n` +
+        `export default { ...core, ...extra, nutrients };\n`,
     };
   }
   const manifest = foods.map((f) => ({

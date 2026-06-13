@@ -57,7 +57,14 @@ describe('emit', () => {
     const full = (await import(pathToFileURL(join(outDir, 'sr', 'pork-cured-salt-pork-raw.full.js')).href)) as {
       default: typeof saltPork.core & typeof saltPork.extra;
     };
-    expect(full.default).toEqual({ ...saltPork.core, ...saltPork.extra });
+    // The full view keeps every core+extra field AND exposes a name-keyed
+    // nutrients map: the 14 panel slugs plus the extras by lowercased name.
+    expect(full.default).toEqual({
+      ...saltPork.core,
+      ...saltPork.extra,
+      nutrients: { ...saltPork.core.nutrients, energy: 3127 },
+    });
+    expect(full.default.nutrients.protein).toBe(5.05); // panel slug still works
   });
 
   it('keeps full a view: imports only, no data bytes inlined', () => {
