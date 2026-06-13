@@ -109,7 +109,7 @@ export function* localeEntries(
         : `../../../sr/${record.slug}.extra.js`;
     yield {
       path: `sr/${record.slug}.strings.js`,
-      data: `export default ${JSON.stringify(leaf)};\n`,
+      data: `export default ${JSON.stringify(leaf, null, 2)};\n`,
     };
     yield {
       path: `sr/${record.slug}.js`,

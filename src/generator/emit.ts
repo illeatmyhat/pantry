@@ -55,5 +55,9 @@ export function emit(foods: readonly GeneratedFood[], outDir: string): void {
 }
 
 function dataModule(data: unknown): string {
-  return `export default ${JSON.stringify(data)};\n`;
+  // Pretty-printed so a leaf is legible when opened directly. Packaged size
+  // is unaffected — the tarball gzips the whitespace away — and the loose
+  // tree is dev/debug only. The composed views are reference-only and stay
+  // as import+spread.
+  return `export default ${JSON.stringify(data, null, 2)};\n`;
 }
