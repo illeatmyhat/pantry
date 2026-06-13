@@ -181,7 +181,7 @@ meet:
 The tagname is provenance metadata, but it is no longer per-locale guesswork.
 The id → tagname mapping is **locale-independent and committed once** in
 `l10n/nutrients/tagnames.yaml`, loaded by `loadTagnames`
-(`scripts/translate/nutrient-index.ts`). It feeds the `./nutrients` index (so a
+(`src/generator/nutrient-index.ts`). It feeds the `./nutrients` index (so a
 nutrient resolves by `trp_g` as well as by name) and is the audit anchor for
 every locale's `tagname:` field. When you source a new locale, **read the
 registry, don't re-derive it** — pass each id's tagname to the sourcing agents

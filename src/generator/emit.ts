@@ -72,9 +72,13 @@ export function* coreEntries(
   }
 }
 
-export function emit(foods: readonly GeneratedFood[], outDir: string): void {
+export function emit(
+  foods: readonly GeneratedFood[],
+  outDir: string,
+  nutrients?: CoreNutrientArtifacts,
+): void {
   const madeDirs = new Set<string>();
-  for (const entry of coreEntries(foods)) {
+  for (const entry of coreEntries(foods, nutrients)) {
     const filePath = join(outDir, entry.path);
     const dir = dirname(filePath);
     if (!madeDirs.has(dir)) {

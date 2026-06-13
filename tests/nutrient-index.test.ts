@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildNutrientIndex, loadTagnames } from '../scripts/translate/nutrient-index.js';
+import { buildNutrientIndex, loadTagnames } from '../src/generator/nutrient-index.js';
 import { loadDataset } from '../src/generator/load.js';
 import { buildNutrientDictionary, canonicalNutrientNames } from '../src/generator/nutrient-dictionary.js';
 import { loadLocaleNutrientNames } from '../scripts/translate/vocabulary.js';

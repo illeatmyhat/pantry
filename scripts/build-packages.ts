@@ -17,7 +17,7 @@ import { BASELINE_DIR, readBaseline } from './translate/baseline.js';
 import { applyGroundTruth, loadGroundTruth } from './translate/ground-truth.js';
 import { root } from './translate/lib.js';
 import { LOCALES } from './translate/locales.js';
-import { buildNutrientIndex, loadTagnames } from './translate/nutrient-index.js';
+import { buildNutrientIndex, loadTagnames } from '../src/generator/nutrient-index.js';
 import { loadAllErrandLabels, loadLocaleNutrientNames } from './translate/vocabulary.js';
 
 /**

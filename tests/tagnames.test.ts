@@ -4,7 +4,7 @@ import { parse } from 'yaml';
 import { describe, expect, it } from 'vitest';
 import { loadDataset } from '../src/generator/load.js';
 import { buildNutrientDictionary } from '../src/generator/nutrient-dictionary.js';
-import { loadTagnames } from '../scripts/translate/nutrient-index.js';
+import { loadTagnames } from '../src/generator/nutrient-index.js';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const dictIds = new Set(buildNutrientDictionary(loadDataset()).map((e) => e.id));

@@ -1,9 +1,9 @@
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { parse } from 'yaml';
-import { LABEL_SET } from '../../src/toolkit/food.js';
-import type { NutrientIndex, NutrientRef } from '../../src/toolkit/labels.js';
-import type { NutrientDictEntry } from '../../src/generator/nutrient-dictionary.js';
-import { root } from './lib.js';
+import { LABEL_SET } from '../toolkit/food.js';
+import type { NutrientIndex, NutrientRef } from '../toolkit/labels.js';
+import type { NutrientDictEntry } from './nutrient-dictionary.js';
 
 /**
  * Builds the shipped `nutrients` index — every nutrient reachable by name in
@@ -20,8 +20,9 @@ import { root } from './lib.js';
  * across two ids is dropped entirely (never silently mis-resolved) and
  * reported.
  */
+const root = fileURLToPath(new URL('../../', import.meta.url));
 
-/** id → INFOODS tagname, from the locale-independent registry. */
+/** id → INFOODS tagname, from the locale-independent committed registry. */
 export function loadTagnames(): Map<number, string> {
   const doc = parse(readFileSync(`${root}l10n/nutrients/tagnames.yaml`, 'utf8')) as {
     tagnames?: Record<string, string>;

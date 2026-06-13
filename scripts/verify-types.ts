@@ -13,7 +13,7 @@ import {
   localeFullNutrientNames,
 } from '../src/generator/nutrient-dictionary.js';
 import type { GeneratedFood } from '../src/generator/assemble.js';
-import { buildNutrientIndex, loadTagnames } from './translate/nutrient-index.js';
+import { buildNutrientIndex, loadTagnames } from '../src/generator/nutrient-index.js';
 import { loadErrandLabels, loadLocaleNutrientNames } from './translate/vocabulary.js';
 import { LOCALES } from './translate/locales.js';
 import { root } from './translate/lib.js';
