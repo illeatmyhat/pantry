@@ -28,6 +28,19 @@ export interface LocaleSpec {
    * discovery pass (discover-errands.ts) is reviewed and frozen per locale.
    */
   readonly sections: readonly string[];
+  /**
+   * Display labels for the three `store` enum values (the "which trip"
+   * router), shipped in each locale package's labels.js so a consumer can
+   * render store/section slugs in the local language. Section labels are
+   * the signage-verified, frozen ones in l10n/vocabulary/<tag>.yaml; these
+   * store labels are PROPOSED (Claude, 2026-06-13) — review and adjust,
+   * then they can move into the vocabulary review surface alongside sections.
+   */
+  readonly storeLabels: {
+    readonly primary: string;
+    readonly specialty: string;
+    readonly online: string;
+  };
 }
 
 /**
@@ -122,6 +135,7 @@ export const LOCALES: readonly LocaleSpec[] = [
     canonical: true,
     specialtyExamples: 'butcher shops, Italian/Mexican/Asian markets, gourmet grocers',
     sections: EN_US_SECTIONS,
+    storeLabels: { primary: 'Supermarket', specialty: 'Specialty Store', online: 'Online' },
   },
   {
     tag: 'ja-JP',
@@ -131,6 +145,7 @@ export const LOCALES: readonly LocaleSpec[] = [
       'Keep the taxonomic comma structure (use 、 or ・ naturally). Translate technical food-science terms precisely (e.g. "raw"=生, "drained solids"=固形分のみ; "fresh" on meat means UNCURED, not raw — never translate it as 生 when the item is cooked).',
     specialtyExamples: 'import stores, depachika, Asian/Western grocery',
     sections: JA_JP_SECTIONS,
+    storeLabels: { primary: 'スーパー', specialty: '専門店', online: '通販' },
   },
   {
     tag: 'zh-CN',
@@ -138,6 +153,7 @@ export const LOCALES: readonly LocaleSpec[] = [
     market: 'mainland China',
     specialtyExamples: 'import supermarkets, membership stores, cross-border e-commerce',
     sections: ZH_CN_SECTIONS,
+    storeLabels: { primary: '超市', specialty: '专门店', online: '网购' },
   },
 ];
 

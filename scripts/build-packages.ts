@@ -11,6 +11,7 @@ import { BASELINE_DIR, readBaseline } from './translate/baseline.js';
 import { applyGroundTruth, loadGroundTruth } from './translate/ground-truth.js';
 import { root } from './translate/lib.js';
 import { LOCALES } from './translate/locales.js';
+import { loadAllErrandLabels } from './translate/vocabulary.js';
 
 /**
  * The publish build: streams every package straight into its tarball —
@@ -93,9 +94,10 @@ writePackage(plan.coreName, (function* core(): Generator<TarEntry> {
 // Locales: stored baseline + ground truth, cross-package views.
 const baselineRecords = readBaseline(BASELINE_DIR);
 const merged = applyGroundTruth(baselineRecords, loadGroundTruth(root)) as typeof baselineRecords;
+const labels = loadAllErrandLabels(LOCALES);
 for (const spec of LOCALES) {
   writePackage(localePackageName(plan.coreName, spec.tag), (function* locale(): Generator<TarEntry> {
     yield { path: 'package.json', data: `${JSON.stringify(localePackageJson(plan, spec.tag), null, 2)}\n` };
-    yield* localeEntries(merged, spec, { coreSpecifier: plan.coreName });
+    yield* localeEntries(merged, spec, { coreSpecifier: plan.coreName, labels });
   })());
 }

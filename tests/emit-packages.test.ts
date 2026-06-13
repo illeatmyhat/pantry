@@ -25,7 +25,8 @@ describe('localePackageJson', () => {
     };
     expect(pkg.name).toBe('@illeatmyhat/pantry-l10n-ja-jp');
     expect(pkg.type).toBe('module');
-    expect(pkg.files).toEqual(['sr']);
+    expect(pkg.files).toEqual(['sr', 'labels.js']);
+    expect(pkg.exports['./labels']).toBe('./labels.js'); // slug → local-language label table
     expect(pkg.exports['./sr/*']).toBe('./sr/*.js');
     expect(pkg.exports['./sr/*/full']).toBe('./sr/*.full.js');
     // fdc alias routes — exports-map entries, the measured decision

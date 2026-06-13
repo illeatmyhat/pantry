@@ -4,6 +4,7 @@ import { BASELINE_DIR, loadRecords } from './baseline.js';
 import { applyGroundTruth, loadGroundTruth } from './ground-truth.js';
 import { flag, root } from './lib.js';
 import { LOCALES } from './locales.js';
+import { loadAllErrandLabels } from './vocabulary.js';
 import { emitL10n } from '../../src/generator/emit-l10n.js';
 import { emitPackages, type PackageManifestEntry } from '../../src/generator/emit-packages.js';
 
@@ -38,7 +39,10 @@ const corePkg = JSON.parse(readFileSync(`${root}package.json`, 'utf8')) as {
   name: string;
   version: string;
 };
-emitL10n(merged, outDir, LOCALES, { coreSpecifier: corePkg.name });
+emitL10n(merged, outDir, LOCALES, {
+  coreSpecifier: corePkg.name,
+  labels: loadAllErrandLabels(LOCALES),
+});
 emitPackages(
   {
     coreName: corePkg.name,

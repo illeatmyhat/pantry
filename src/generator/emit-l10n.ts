@@ -41,6 +41,12 @@ interface LocaleStringsShape {
   readonly notes?: readonly string[];
 }
 
+/** slug → local-language display label tables for one locale's errands. */
+export interface ErrandLabelTable {
+  readonly sections: Record<string, string>;
+  readonly stores: Record<string, string>;
+}
+
 export interface EmitL10nOptions {
   /**
    * Bare package specifier for the core package (e.g. '@illeatmyhat/pantry').
@@ -50,6 +56,12 @@ export interface EmitL10nOptions {
    * imports, the single-package layout.
    */
   readonly coreSpecifier?: string;
+  /**
+   * Per-locale errand display labels keyed by BCP-47 tag. When present for a
+   * locale, that locale emits a top-level labels.js — the slug → label
+   * table for rendering store/section slugs in the local language.
+   */
+  readonly labels?: Record<string, ErrandLabelTable>;
 }
 
 /**
@@ -64,6 +76,12 @@ export function* localeEntries(
   spec: EmitLocale,
   options: EmitL10nOptions = {},
 ): Generator<{ path: string; data: string }> {
+  // Locale-wide leaf: the slug → label table, emitted once (independent of
+  // foods) so a consumer can render errand slugs in the local language.
+  const labels = options.labels?.[spec.tag];
+  if (labels !== undefined) {
+    yield { path: 'labels.js', data: `export default ${JSON.stringify(labels, null, 2)};\n` };
+  }
   for (const record of records) {
     if (record.result === undefined) continue;
     const value = record.result[spec.tag];

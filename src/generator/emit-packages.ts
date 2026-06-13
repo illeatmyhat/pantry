@@ -51,8 +51,9 @@ export function localePackageJson(plan: PackagePlan, tag: string): object {
     description: `${tag} locale surfaces for ${plan.coreName} — strings leaves and composed views per food.`,
     license: 'MIT',
     type: 'module',
-    files: ['sr'],
+    files: ['sr', 'labels.js'],
     exports: {
+      './labels': './labels.js',
       './sr/*/full': './sr/*.full.js',
       './sr/*': './sr/*.js',
       ...aliasExports(plan.manifest, './sr'),
