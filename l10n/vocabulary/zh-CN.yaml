@@ -1,4 +1,4 @@
-# zh-CN errand-section vocabulary — PROPOSAL (set status: frozen after review).
+# zh-CN errand-section vocabulary — FROZEN 2026-06-12 (user-reviewed; changes within a major are additive only).
 #
 # 2026-06-12 signage pass (subagent-verified against 永辉/大润发/华润万家
 # layouts): 果蔬 split into 蔬菜/水果 (stores sign them separately); 冷藏熟食
@@ -8,7 +8,7 @@
 # staple counter, China-specific) and 茶叶. Vocabulary is PREFERRED, not
 # enforced: the model may coin a slug when no section honestly fits
 # (strays.ts surfaces those for review).
-status: proposal
+status: frozen
 sections:
   - slug: vegetables
     label: 蔬菜

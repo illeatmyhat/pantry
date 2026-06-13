@@ -1,5 +1,5 @@
-# en-US errand-section vocabulary — PROPOSAL (set status: frozen after review).
-status: proposal
+# en-US errand-section vocabulary — FROZEN 2026-06-12 (user-reviewed; changes within a major are additive only).
+status: frozen
 sections:
   - slug: produce
     label: Produce
