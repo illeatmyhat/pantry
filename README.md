@@ -43,9 +43,12 @@ The full decision set lives in [DESIGN.md](DESIGN.md) (grilled into shape in
 The short version:
 
 - **Identity**: mechanical description-slugs (`pork-cured-salt-pork-raw`),
-  fdc_id routes as aliases. Exactly one slug collision exists in the frozen
-  dataset (a pancake mix differing by a hyphen); colliders get `-<fdcId>`
-  appended, and the generator hard-fails if that count ever drifts.
+  fdc_id routes as aliases. Import by **slug** for full types; the `fdc_id`
+  routes are an untyped escape hatch (kept as lean exports-map aliases — typing
+  all 7,793 would double the package manifest for a rarely-used entry point).
+  Exactly one slug collision exists in the frozen dataset (a pancake mix
+  differing by a hyphen); colliders get `-<fdcId>` appended, and the generator
+  hard-fails if that count ever drifts.
 - **The leaf/view law**: every module is a leaf of unique data (`core`,
   `extra`, locale strings) or a view composing leaves by reference — no view
   ever inlines another's bytes, so any combination pays each byte once.
