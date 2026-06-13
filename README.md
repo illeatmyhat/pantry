@@ -103,6 +103,42 @@ nutrients['trp_g'];           // the same ref, by INFOODS tagname
 Keys are case-sensitive (lowercased Latin, CJK as-is) — the one constraint of
 making an object index also autocomplete on its keys.
 
+## Density
+
+`core.density` is derived mechanically wherever SR Legacy carries a usable
+volume portion — a `{ density_g_per_ml, citation }` you can trust back to a
+USDA cup/tablespoon row:
+
+```ts
+import butter from '@illeatmyhat/pantry/sr/butter-salted';
+butter.density;  // { density_g_per_ml: 0.959…, citation: { unitName: 'cup', gramWeight: 227, … } }
+```
+
+But SR has no volume row for most foods, so **density is `Density | null`, and
+`null` for ~70% of the dataset** (2,344 of 7,793 have it). `null` means "SR has
+nothing to derive from" — not zero, and not a bug:
+
+```ts
+import apricots from '@illeatmyhat/pantry/sr/apricots-raw';
+apricots.density;  // null
+```
+
+When you need a density SR can't give, state it in your overlay like any other
+fact — `derive` requires a `basis`, so the number stays traceable:
+
+```ts
+import { derive } from '@illeatmyhat/pantry';
+
+export default derive(apricots, {
+  density_g_per_ml: 0.55,
+  basis: 'measured 1 cup chopped ≈ 130 g',
+});
+```
+
+Pantry won't invent densities for you (that's an opinion, not a fact) — but the
+overlay path is one call, and a defined food's density is just as typed as a
+derived one.
+
 ## Localization
 
 A localized module arrives with the nutrition inside — importing it gives you

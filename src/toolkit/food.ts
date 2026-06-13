@@ -123,6 +123,11 @@ export interface Provenance {
 
 export interface Food {
   readonly nutrients: NutrientAmounts;
+  /**
+   * Mechanically derived from a USDA volume portion. `null` for ~70% of foods
+   * (2,344 of 7,793 have a usable row) — SR has nothing to derive from, not a
+   * zero. Need one anyway? State it via `derive`/`defineFood` with a `basis`.
+   */
   readonly density: Density | null;
   /** USDA identity — data, present on everything rooted in SR. */
   readonly fdc_id?: number;
