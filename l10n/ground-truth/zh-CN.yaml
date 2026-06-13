@@ -1,9 +1,12 @@
-# zh-CN corrections — human ground truth over the generated baseline.
+# zh-CN ground truth — HUMAN-written, over the generated baseline.
 #
-# Keyed by fdc_id. Field-level: state only what you're correcting (name,
+# Keyed by fdc_id. Field-level: state only what you verified (name,
 # aliases, errand, notes); everything else flows through from the machine
 # baseline. `basis` is REQUIRED — say why the machine was wrong. This file
-# survives every regeneration; the baseline never overwrites it.
+# survives every regeneration and wins over ANY machine output.
+#
+# Agents never write here: a model fixing machine output edits the
+# generated baseline (results JSONL) directly and re-validates.
 #
 # Example (delete when real entries exist):
 #

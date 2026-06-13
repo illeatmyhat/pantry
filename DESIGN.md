@@ -247,16 +247,17 @@ override.
   entries (~550 KB package.json) cost ~1 s install and ~9 ms cold-import
   overhead. Tarball size identical (3.6 vs 3.7 MB). The exports map wins
   on every axis.
-- **Corrections have a proposals antechamber** (`l10n/proposals/<tag>.yaml`,
-  decided 2026-06-12 after a model wrote a correction into the human layer
-  directly). The data model previously had two provenance classes (machine
-  baseline, human corrections) but the workflow produces three: model-
-  assisted review generates *candidate* corrections that are not yet human
-  judgment. Proposals share the corrections schema and validation (basis
-  required) but the emit pipeline never reads them; a human promotes an
-  entry by MOVING it into `l10n/corrections` — the move is the act of
-  judgment, and an entry must never exist in both layers. `l10n/corrections`
-  is strictly human-written.
+- **The overlay is ground truth — human-written, period** (settled
+  2026-06-12 after two rejected designs the same day: a model writing into
+  the overlay directly, then a proposals antechamber). `l10n/corrections`
+  was renamed `l10n/ground-truth` to make the semantics unmistakable. The
+  layering rule: a frontier agent's correction is the same provenance
+  class as the batch baseline itself, so agents fix machine output by
+  editing the generated baseline (results JSONL) directly, re-validated
+  through the same `validateShape` gate as generation — no overlay
+  involved. The ground-truth overlay exists for exactly one thing: human
+  verification, durable across every regeneration, winning over ANY
+  machine output, with `basis` as the glossary-decision log.
 - **The preferential-vocabulary contract validated on 120 fresh foods**
   (Opus 4.8, ~$1.50/run at batch rates): after the purchasable-form prompt
   rule ("a cooked steak gets the raw steak's errand; null only when no

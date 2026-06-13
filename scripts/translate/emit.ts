@@ -1,19 +1,20 @@
 import { pathToFileURL } from 'node:url';
-import { applyCorrections, loadCorrections, loadProposals } from './corrections.js';
+import { applyGroundTruth, loadGroundTruth } from './ground-truth.js';
 import { flag, readJsonl, root } from './lib.js';
 import { LOCALES } from './locales.js';
 import { emitL10n } from '../../src/generator/emit-l10n.js';
 
 /**
  * The post-batch pipeline tail (DESIGN.md "After the run"): a results
- * JSONL → corrections overlay (human ground truth re-applies over any
- * regenerated baseline) → emitted locale modules next to the sr/ cores.
+ * JSONL → ground-truth overlay (human verification re-applies over any
+ * regenerated baseline and wins) → emitted locale modules next to the
+ * sr/ cores.
  *
  *   npx tsx scripts/translate/emit.ts <results.jsonl> [--out generated]
  *
  * Emits generated/l10n/<tag>/sr/<slug>{.strings.js,.js,.full.js} for every
  * locale surface present. Failed rows (no result) are skipped and counted;
- * corrections that cannot land throw (loudness is the contract).
+ * ground-truth entries that cannot land throw (loudness is the contract).
  */
 interface PipelineRecord {
   readonly slug: string;
@@ -31,9 +32,9 @@ if (input === undefined || input.startsWith('--')) {
 const outDir = flag('out') ?? `${root}generated`;
 
 const records = readJsonl<PipelineRecord>(input);
-const corrections = loadCorrections(root);
-const corrected = [...corrections.values()].reduce((sum, set) => sum + set.size, 0);
-const merged = applyCorrections(records, corrections) as PipelineRecord[];
+const groundTruth = loadGroundTruth(root);
+const verified = [...groundTruth.values()].reduce((sum, set) => sum + set.size, 0);
+const merged = applyGroundTruth(records, groundTruth) as PipelineRecord[];
 
 emitL10n(merged, outDir, LOCALES);
 
@@ -44,14 +45,5 @@ const perLocale = LOCALES.map((spec) => {
 }).join(', ');
 console.log(
   `Emitted l10n surfaces for ${records.length - failed}/${records.length} records ` +
-    `(${perLocale}) with ${corrected} corrections → ${pathToFileURL(outDir).pathname}/l10n/`,
+    `(${perLocale}) with ${verified} ground-truth entries → ${pathToFileURL(outDir).pathname}/l10n/`,
 );
-
-// Proposals are machine candidates — deliberately NOT applied; remind the
-// human reviewer they exist so they never silently rot.
-const pending = [...loadProposals(root).values()].reduce((sum, set) => sum + set.size, 0);
-if (pending > 0) {
-  console.log(
-    `⚠ ${pending} machine-proposed correction(s) pending human review in l10n/proposals/ — not applied.`,
-  );
-}

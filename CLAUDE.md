@@ -24,10 +24,12 @@ copy (recipes#14 is the historical grill).
 - **The pancake tripwire**: slugification of the frozen dataset must produce
   exactly one collision (fdc_ids 171853 / 172776). The generator hard-fails
   on any drift — drift means a generator bug, the data cannot change.
-- **`l10n/corrections/` is human-written, period.** Models and review
-  tooling deposit candidate corrections in `l10n/proposals/` (same schema);
-  the emit pipeline never reads proposals; a human promotes an entry by
-  moving it into corrections.
+- **`l10n/ground-truth/` is HUMAN-written, period.** It is the durable
+  overlay that survives every regeneration and wins over any machine
+  output. Agents and batch jobs never write it: a model fixing machine
+  output edits the generated baseline (the results JSONL) directly and
+  re-validates with `validateShape` — machine output correcting machine
+  output is the same provenance class and needs no overlay.
 - **TypeScript strict, no `any`** (house standard).
 - All files LF (`.gitattributes` enforces).
 - `private: true` stays until the first real publish.
