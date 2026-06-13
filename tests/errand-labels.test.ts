@@ -44,6 +44,14 @@ describe('localeEntries labels.js', () => {
     const entries = [...localeEntries(two, { tag: 'ja-JP' }, { labels })];
     expect(entries.filter((e) => e.path === 'labels.js')).toHaveLength(1);
   });
+
+  it('the /full view keys extra nutrients by localized name via labels.js', () => {
+    const entries = [...localeEntries([record], { tag: 'ja-JP' }, { labels })];
+    const full = entries.find((e) => e.path === 'sr/beef-chuck.full.js');
+    expect(full?.data).toContain("import labels from '../labels.js'");
+    expect(full?.data).toContain('labels.nutrients[n.nutrientId]');
+    expect(full?.data).toContain('...strings, nutrients }');
+  });
 });
 
 describe('loadErrandLabels', () => {

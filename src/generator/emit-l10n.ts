@@ -141,13 +141,24 @@ export function* localeEntries(
         `import strings from './${record.slug}.strings.js';\n` +
         `export default { ...core, ...strings };\n`,
     };
+    // The /full view exposes a name-keyed nutrients map (panel slugs + the 135
+    // extras). When this locale ships a labels.js, the extras key by their
+    // localized name; otherwise they fall back to the USDA name (as core does).
+    const hasLabels = options.labels?.[spec.tag] !== undefined;
+    const fullMerge = hasLabels
+      ? `import labels from '../labels.js';\n` +
+        `const nutrients = { ...core.nutrients };\n` +
+        `for (const n of extra.remaining_nutrients) nutrients[(labels.nutrients[n.nutrientId] ?? n.name).toLowerCase()] = n.amount;\n`
+      : `const nutrients = { ...core.nutrients };\n` +
+        `for (const n of extra.remaining_nutrients) nutrients[n.name.toLowerCase()] = n.amount;\n`;
     yield {
       path: `sr/${record.slug}.full.js`,
       data:
         `import core from '${core}';\n` +
         `import extra from '${extra}';\n` +
         `import strings from './${record.slug}.strings.js';\n` +
-        `export default { ...core, ...extra, ...strings };\n`,
+        fullMerge +
+        `export default { ...core, ...extra, ...strings, nutrients };\n`,
     };
   }
 }
