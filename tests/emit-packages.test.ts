@@ -25,8 +25,9 @@ describe('localePackageJson', () => {
     };
     expect(pkg.name).toBe('@illeatmyhat/pantry-l10n-ja-jp');
     expect(pkg.type).toBe('module');
-    expect(pkg.files).toEqual(['sr', 'labels.js', 'nutrients.js', 'nutrients.d.ts', 'types']);
+    expect(pkg.files).toEqual(['sr', 'labels.js', 'nutrients.js', 'nutrients.d.ts', 'types', 'search.json']);
     expect(pkg.exports['./labels']).toBe('./labels.js'); // slug → local-language label table
+    expect(pkg.exports['./search']).toBe('./search.json'); // aggregate localized search index
     // Views carry a types condition (autocomplete) over the default .js.
     expect(pkg.exports['./sr/*']).toEqual({ types: './types/core.d.ts', default: './sr/*.js' });
     expect(pkg.exports['./sr/*/full']).toEqual({ types: './types/full.d.ts', default: './sr/*.full.js' });

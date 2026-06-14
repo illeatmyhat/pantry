@@ -384,8 +384,13 @@ override.
 
 ## Open implementation details (measure/decide during build)
 
-- Search CLI UX (offline analogue of recipes' `fetch-usda.mjs --search`);
-  localized/alias-aware search (`searchFoods` is English-only today).
+- **Localized search ships as data, not an engine** (settled 2026-06-13): each
+  locale package ships a `./search` aggregate index (`{slug, fdc_id, name,
+  aliases}` for every localized food) and the consumer brings their own matcher
+  — substring, fuzzy, or vector. `searchFoods` + the `pantry search` CLI stay
+  the trivial English default over the manifest; pantry ships the searchable
+  data, not a ranking algorithm. Kana/romaji/pinyin transliteration (search
+  "anzu" → あんず) is deferred until a consumer needs it.
 - INFOODS tagnames now anchor nutrient-name provenance (above); whether
   LanguaL facets can further strengthen food-level translation provenance is
   still open.

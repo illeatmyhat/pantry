@@ -139,6 +139,44 @@ describe('emitL10n', () => {
   });
 });
 
+describe('emitL10n ./search index', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'pantry-search-'));
+  afterAll(() => rmSync(dir, { recursive: true, force: true }));
+
+  it('aggregates localized name + aliases per food, keyed to slug', () => {
+    emitL10n([record], dir, TEST_LOCALES);
+    const ja = JSON.parse(readFileSync(join(dir, 'l10n', 'ja-JP', 'search.json'), 'utf8')) as unknown;
+    expect(ja).toEqual([
+      {
+        slug: 'pork-cured-salt-pork-raw',
+        fdc_id: 168287,
+        name: '豚肉、塩蔵、ソルトポーク、生',
+        aliases: ['ソルトポーク', '塩豚'],
+      },
+    ]);
+  });
+
+  it('the canonical locale indexes the USDA description as the name', () => {
+    emitL10n([record], dir, TEST_LOCALES);
+    const en = JSON.parse(readFileSync(join(dir, 'l10n', 'en-US', 'search.json'), 'utf8')) as {
+      name: string;
+      aliases: string[];
+    }[];
+    expect(en[0]!.name).toBe('Pork, cured, salt pork, raw');
+    expect(en[0]!.aliases).toEqual(['salt pork']);
+  });
+
+  it('omits a food not localized for the locale (missing means missing)', () => {
+    const partial = {
+      slug: 'x', fdc_id: 1, description: 'X',
+      result: { 'ja-JP': { name: 'エックス', aliases: [], errand: null, notes: [] } },
+    };
+    emitL10n([partial], dir, [{ tag: 'zh-CN' }]);
+    const zh = JSON.parse(readFileSync(join(dir, 'l10n', 'zh-CN', 'search.json'), 'utf8')) as unknown[];
+    expect(zh).toEqual([]);
+  });
+});
+
 describe('emitL10n /full localized nutrients (runtime)', () => {
   // A real core leaf + locale view: import the emitted /full module and read
   // the merged nutrients map, proving the generated inline merge keys panel

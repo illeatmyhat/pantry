@@ -184,6 +184,28 @@ their names from the market's national food-composition standard. Adding a
 locale is documented in [docs/adding-a-locale.md](docs/adding-a-locale.md) —
 it is a table row plus data files, never a code change.
 
+## Search
+
+`searchFoods` (and the `pantry search` CLI) do a basic English substring match
+over the manifest — enough to find a slug to import. For real search, pantry
+ships the **data** and lets you bring your own matcher: each locale package
+exposes a `./search` index of `{ slug, fdc_id, name, aliases }` for every
+localized food, so one import gives you the searchable text in the package's
+language:
+
+```ts
+import jaIndex from '@illeatmyhat/pantry/l10n/ja-JP/search';
+
+// any matcher you like — substring, Fuse.js, a vector store:
+const hits = jaIndex.filter((e) =>
+  [e.name, ...e.aliases].some((s) => s.includes('あんず')),
+);
+hits[0].slug; // 'apricots-raw' → import '@illeatmyhat/pantry/sr/apricots-raw'
+```
+
+Pantry stays out of the ranking business: the index is the contract, the
+algorithm is yours.
+
 ## Status
 
 Generator and toolkit are built and tested: the full module tree generates

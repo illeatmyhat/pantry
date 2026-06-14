@@ -25,8 +25,17 @@ import type { NutrientIndex } from '../toolkit/labels.js';
  */
 export interface TranslationRecord {
   readonly slug: string;
+  readonly fdc_id?: number;
   readonly description: string;
   readonly result?: Record<string, unknown> & { brand?: string | null };
+}
+
+/** One row of a locale's `./search` index — the localized searchable text + the import key. */
+export interface SearchEntry {
+  readonly slug: string;
+  readonly fdc_id?: number;
+  readonly name: string;
+  readonly aliases: readonly string[];
 }
 
 /** The slice of the locale table the emitter needs (pass LOCALES from scripts/translate/locales.ts). */
@@ -121,6 +130,12 @@ export function* localeEntries(
     yield { path: 'types/core.d.ts', data: renderCoreDts(options.coreSpecifier) };
     yield { path: 'types/full.d.ts', data: renderFullDts(options.coreSpecifier, nutrients.extraNames) };
   }
+  // The locale's search index: every localized food's searchable text (name +
+  // aliases) keyed to its slug. Pantry ships the index, not a search engine —
+  // a consumer runs whatever matcher they like (substring, fuzzy, vector).
+  // Missing means missing: only foods localized for this locale appear.
+  const searchEntries: SearchEntry[] = [];
+
   for (const record of records) {
     if (record.result === undefined) continue;
     const value = record.result[spec.tag];
@@ -156,6 +171,12 @@ export function* localeEntries(
       ...(strings.errand !== undefined ? { errand: strings.errand } : {}),
       notes: strings.notes ?? [],
     };
+    searchEntries.push({
+      slug: record.slug,
+      ...(record.fdc_id !== undefined ? { fdc_id: record.fdc_id } : {}),
+      name,
+      aliases: strings.aliases ?? [],
+    });
     const core =
       options.coreSpecifier !== undefined
         ? `${options.coreSpecifier}/sr/${record.slug}`
@@ -203,6 +224,11 @@ export function* localeEntries(
         `export default { ...core, ...extra, ...strings, nutrients };\n`,
     };
   }
+
+  // The aggregate search index — one file the consumer searches without
+  // importing 7,793 strings leaves. Always emitted (empty for a locale with no
+  // localized foods yet) so `./search` always resolves.
+  yield { path: 'search.json', data: `${JSON.stringify(searchEntries, null, 1)}\n` };
 }
 
 export function emitL10n(

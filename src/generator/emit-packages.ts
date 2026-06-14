@@ -51,9 +51,10 @@ export function localePackageJson(plan: PackagePlan, tag: string): object {
     description: `${tag} locale surfaces for ${plan.coreName} — strings leaves and composed views per food.`,
     license: 'MIT',
     type: 'module',
-    files: ['sr', 'labels.js', 'nutrients.js', 'nutrients.d.ts', 'types'],
+    files: ['sr', 'labels.js', 'nutrients.js', 'nutrients.d.ts', 'types', 'search.json'],
     exports: {
       './labels': './labels.js',
+      './search': './search.json',
       './nutrients': { types: './nutrients.d.ts', default: './nutrients.js' },
       // The `types` condition narrows nutrient keys for autocomplete; a single
       // static .d.ts per view serves every slug (DESIGN.md name-keyed access).
